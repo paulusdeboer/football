@@ -10,32 +10,28 @@
 
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
-{% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
     <body>
         <nav class="navbar">
             <ul class="navbar__menu">
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="home"></i><span>Home</span></a>
+                    <a href="{{ path('app_game_homepage') }}" class="navbar__link"><i data-feather="life-buoy"></i><span>{% trans %}Games{% endtrans %}</span></a>
                 </li>
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="message-square"></i><span>Messages</span></a>
+                    <a href="" class="navbar__link"><i data-feather="plus-circle"></i><span>{% trans %}Create Teams{% endtrans %}</span></a>
                 </li>
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="users"></i><span>Customers</span></a>
+                    <a href="" class="navbar__link"><i data-feather="users"></i><span>{% trans %}Players{% endtrans %}</span></a>
                 </li>
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="folder"></i><span>Projects</span></a>
+                    <a href="#" class="navbar__link"><i data-feather="table"></i><span>{% trans %}Grades{% endtrans %}</span></a>
                 </li>
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="archive"></i><span>Resources</span></a>
+                    <a href="#" class="navbar__link"><i data-feather="help-circle"></i><span>{% trans %}Help{% endtrans %}</span></a>
                 </li>
                 <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="help-circle"></i><span>Help</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="settings"></i><span>Settings</span></a>
+                    <a href="#" class="navbar__link"><i data-feather="settings"></i><span>{% trans %}Settings{% endtrans %}</span></a>
                 </li>
             </ul>
         </nav>
