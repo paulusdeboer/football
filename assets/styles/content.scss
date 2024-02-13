@@ -1,0 +1,10 @@
+.content {
+  margin: $spacer;
+  background: #fff;
+  border-radius: $borderRadius;
+  padding: $spacer;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
+  height: calc(100vh - #{$spacer*4});
+  width: calc(100vw - #{$spacer*9.5});
+  align-items: start;
+}

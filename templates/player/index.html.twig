@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Players{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Players{% endtrans %}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans %}Id{% endtrans %}</th>
+                <th>{% trans %}Name{% endtrans %}</th>
+                <th>{% trans %}Email{% endtrans %}</th>
+                <th>{% trans %}Type{% endtrans %}</th>
+                <th>{% trans %}Grade{% endtrans %}</th>
+                <th>{% trans %}Created At{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for player in players %}
+            <tr>
+                <td>{{ player.id }}</td>
+                <td>{{ player.name }}</td>
+                <td>{{ player.email }}</td>
+                <td>{{ player.type }}</td>
+                <td>{{ player.grade }}</td>
+                <td>{{ player.createdAt ? player.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_player_show', {'id': player.id}) }}">{% trans %}Show{% endtrans %}</a>
+                    <a href="{{ path('app_player_edit', {'id': player.id}) }}">{% trans %}Edit{% endtrans %}</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">{% trans %}No records found{% endtrans %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_player_new') }}">{% trans %}Create new{% endtrans %}</a>
+{% endblock %}

@@ -6,7 +6,7 @@ use App\Repository\GameRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
-class Game
+class Game implements \ArrayAccess
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -85,5 +85,25 @@ class Game
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    #[\Override] public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, $offset);
+    }
+
+    #[\Override] public function offsetGet(mixed $offset): mixed
+    {
+        return $this->$offset;
+    }
+
+    #[\Override] public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->$offset = $value;
+    }
+
+    #[\Override] public function offsetUnset(mixed $offset): void
+    {
+        unset($this->$offset);
     }
 }

@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}{% trans %}Welcome!{% endtrans %}{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
@@ -13,28 +13,36 @@
         {% endblock %}
     </head>
     <body>
-        <nav class="navbar">
-            <ul class="navbar__menu">
-                <li class="navbar__item">
-                    <a href="{{ path('app_game_homepage') }}" class="navbar__link"><i data-feather="life-buoy"></i><span>{% trans %}Games{% endtrans %}</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="" class="navbar__link"><i data-feather="plus-circle"></i><span>{% trans %}Create Teams{% endtrans %}</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="" class="navbar__link"><i data-feather="users"></i><span>{% trans %}Players{% endtrans %}</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="table"></i><span>{% trans %}Grades{% endtrans %}</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="help-circle"></i><span>{% trans %}Help{% endtrans %}</span></a>
-                </li>
-                <li class="navbar__item">
-                    <a href="#" class="navbar__link"><i data-feather="settings"></i><span>{% trans %}Settings{% endtrans %}</span></a>
-                </li>
-            </ul>
-        </nav>
-        {% block body %}{% endblock %}
+        <div class="row justify-content-end">
+            <div>
+                <nav class="navbar">
+                    <ul class="navbar__menu">
+                        <li class="navbar__item">
+                            <a href="{{ path('app_game_index') }}" class="navbar__link"><i data-feather="life-buoy"></i><span>{% trans %}Games{% endtrans %}</span></a>
+                        </li>
+                        <li class="navbar__item">
+                            <a href="{{ path('app_game_new') }}" class="navbar__link"><i data-feather="plus-circle"></i><span>{% trans %}Create Game{% endtrans %}</span></a>
+                        </li>
+                        <li class="navbar__item">
+                            <a href="{{ path('app_player_index') }}" class="navbar__link"><i data-feather="users"></i><span>{% trans %}Players{% endtrans %}</span></a>
+                        </li>
+                        <li class="navbar__item">
+                            <a href="{{ path('app_grade_index') }}" class="navbar__link"><i data-feather="table"></i><span>{% trans %}Grades{% endtrans %}</span></a>
+                        </li>
+                        <li class="navbar__item">
+                            <a href="#" class="navbar__link"><i data-feather="help-circle"></i><span>{% trans %}Help{% endtrans %}</span></a>
+                        </li>
+                        <li class="navbar__item">
+                            <a href="#" class="navbar__link"><i data-feather="settings"></i><span>{% trans %}Settings{% endtrans %}</span></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <div class="content">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+        </div>
     </body>
 </html>

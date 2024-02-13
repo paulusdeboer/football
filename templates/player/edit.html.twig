@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Edit Player{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Edit Player{% endtrans %}</h1>
+
+    {{ include('player/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_player_index') }}">{% trans %}Back to list{% endtrans %}</a>
+
+    {{ include('player/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Grade{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Grade{% endtrans %}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>{% trans %}Grade{% endtrans %}</th>
+                <td>{{ grade.grade }}</td>
+            </tr>
+            <tr>
+                <th>{% trans %}Created At{% endtrans %}</th>
+                <td>{{ grade.createdAt ? grade.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_grade_index') }}">{% trans %}Back to list{% endtrans %}</a>
+
+    <a href="{{ path('app_grade_edit', {'id': grade.id}) }}">{% trans %}Edit{% endtrans %}</a>
+
+    {{ include('grade/_delete_form.html.twig') }}
+{% endblock %}

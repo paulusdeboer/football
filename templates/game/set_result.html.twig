@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Set game result{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Set game result{% endtrans %}</h1>
+
+    {{ form_start(form) }}
+    {{ form_row(form.teamOneGoals) }}
+    {{ form_row(form.teamTwoGoals) }}
+
+    <button class="btn">{{ button_label|default('Save') }}</button>
+    {{ form_end(form) }}
+{% endblock %}

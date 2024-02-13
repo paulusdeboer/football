@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Grades{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Grades{% endtrans %}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans %}Player{% endtrans %}</th>
+                <th>{% trans %}Grade{% endtrans %}</th>
+                <th>{% trans %}Created At{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for grade in grades %}
+            <tr>
+                <td>{{ grade.player }}</td>
+                <td>{{ grade.grade }}</td>
+                <td>{{ grade.createdAt ? grade.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_grade_show', {'id': grade.id}) }}">{% trans %}Show{% endtrans %}</a>
+                    <a href="{{ path('app_grade_edit', {'id': grade.id}) }}">{% trans %}Edit{% endtrans %}</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">{% trans %}No records found{% endtrans %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

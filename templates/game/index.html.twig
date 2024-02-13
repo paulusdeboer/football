@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% trans %}Games{% endtrans %}{% endblock %}
+
+{% block body %}
+    <h1>{% trans %}Games{% endtrans %}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans %}Date{% endtrans %}</th>
+                <th>{% trans %}Score team one{% endtrans %}</th>
+                <th>{% trans %}Score team two{% endtrans %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for game in games %}
+            <tr>
+                <td>{{ game.date ? game.date|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ game.teamOne.goals }}</td>
+                <td>{{ game.teamTwo.goals }}</td>
+                <td>
+                    <a href="{{ path('app_game_show', {'id': game.id}) }}">{% trans %}Show{% endtrans %}</a>
+                    <a href="{{ path('app_game_edit', {'id': game.id}) }}">{% trans %}Edit{% endtrans %}</a>
+                    <a href="{{ path('app_game_set_result', {'id': game.id}) }}">{% trans %}Set result{% endtrans %}</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">{% trans %}No records found{% endtrans %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_game_new') }}">{% trans %}Create new game{% endtrans %}</a>
+{% endblock %}

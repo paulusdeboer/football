@@ -1,16 +1,6 @@
-$borderRadius: 10px;
-$spacer: 1rem;
-$primary: #406ff3;
-$text: #6a778e;
 $linkHeight: $spacer * 3.5;
 $timing: 250ms;
 $transition: $timing ease all;
-
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
-body {
-  background: #eaeef6;
-  font-family: 'Open Sans', sans-serif;
-}
 
 .navbar {
   $ref: &;
@@ -46,6 +36,7 @@ body {
       padding: $spacer *0.75;
       transition: $transition;
       border-radius: $borderRadius * 1.75;
+      box-shadow: 0 0 40px rgba(0,0,0,0.03);
       text-wrap: nowrap;
     }
 

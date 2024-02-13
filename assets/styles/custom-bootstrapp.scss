@@ -1,5 +1,15 @@
+$primary: #406ff3;
+$text: #6a778e;
+$borderRadius: 10px;
+$spacer: 1rem;
+
 html {
   font-size: 14px;
+  overflow-x: hidden;
 }
 
-
+body {
+  background: #eaeef6;
+  font-family: 'Open Sans', sans-serif;
+  overflow-x: hidden;
+}
