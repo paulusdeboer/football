@@ -1,0 +1,28 @@
+services:
+    php:
+        environment:
+            DB_PASSWORD: laravel
+            APP_ENV: local
+            PHP_POST_MAX_SIZE: 1000M
+            PHP_UPLOAD_MAX_FILESIZE: 1000M
+            PHP_UPLOAD_LIMIT: 100000000
+            PHP_XDEBUG: 1
+            PHP_XDEBUG_MODE: debug
+            PHP_XDEBUG_CLIENT_PORT: 9003
+            PHP_XDEBUG_CLIENT_HOST: host.docker.internal
+            PHP_XDEBUG_LOG: /tmp/xdebug.log
+        volumes:
+            - ./:/var/www/html
+            - ./composer-cache/:/var/www/html/composer-cache
+
+    nginx:
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/development:/etc/nginx/conf.d/
+        ports:
+            - 8080:80
+
+    mariadb:
+        platform: linux/amd64
+        ports:
+            - 8306:3306

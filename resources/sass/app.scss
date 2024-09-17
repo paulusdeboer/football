@@ -1,0 +1,22 @@
+// Bootstrap theme
+@import 'bootstrap_theme';
+
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+@import 'font-awesome/fontawesome';
+@import 'font-awesome/regular';
+@import 'font-awesome/solid';
+@import 'font-awesome/brands';
+@import 'font-awesome/v4-shims';
+
+// Icons
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
+
+// Variables
+@import 'variables';
+
+// Custom CSS
+@import 'custom';
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
