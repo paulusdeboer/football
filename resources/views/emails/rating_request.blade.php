@@ -1,7 +1,7 @@
-<p>Hello,</p>
+<p>{{ __('Hello') }},</p>
 
-<p>You have been chosen to rate your fellow players for the game played on {{ $game->played_at }}.</p>
+<p>{{ __('email.rate_players_for_game', ['game' => $game->played_at]) }}</p>
 
-<p>Please use the following link to submit your ratings:</p>
+<p>{{ __('Please use the following link to submit your ratings:') }}</p>
 
-<a href="{{ $url }}">Rate Players</a>
+<a href="{{ $url }}">{{ __('Rate Players') }}</a>
