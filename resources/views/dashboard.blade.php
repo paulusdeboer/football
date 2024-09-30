@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
-@section('head')
+@section('extra-scripts')
+    @vite(['resources/js/my_charts.js'])
 @endsection
 
 @section('content')
     <h1 class="mt-4">{{ __('Welcome') }} {{ $user->name }}</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item active">Dashboard</li>
+        <li class="breadcrumb-item active">{{ __('Dashboard') }}</li>
     </ol>
     <div class="row">
         <div class="col-xl-6">

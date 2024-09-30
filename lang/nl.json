@@ -1,4 +1,9 @@
 {
     "You are logged in!": "Je bent ingelogd!",
-    "Logout": "Uitloggen"
+    "Logout": "Uitloggen",
+    "You must select 12 players for the game": "Je moet 12 spelers selecteren voor de wedstrijd",
+    "Exactly 12 players are required": "Precies 12 spelers zijn nodig",
+    "Some of the selected players are invalid": "Sommige van de geselecteerde spelers zijn invalide",
+    "The game date is required": "De wedstrijddatum is verplicht",
+    "The game date must be a valid date": "De wedstrijddatum moet een valide datum zijn"
 }

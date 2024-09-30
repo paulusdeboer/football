@@ -7,6 +7,8 @@ export default defineConfig({
             input: [
                 'resources/sass/app.scss',
                 'resources/js/app.js',
+                'resources/js/my_charts.js',
+                'resources/js/select2-bootstrap.js',
             ],
             refresh: true,
         }),
