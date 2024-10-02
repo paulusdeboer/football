@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('rating')->default(700);
+            $table->float('previous_rating')->nullable();
             $table->enum('type', ['attacker', 'defender', 'both']);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();

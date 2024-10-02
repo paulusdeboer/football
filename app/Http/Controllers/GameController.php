@@ -4,15 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\Player;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use App\Mail\RatingRequestMail;
+use Illuminate\View\View;
 
 class GameController extends Controller
 {
-    // Display a listing of the games.
-    public function index()
+    public function index(): View
     {
         $games = Game::orderBy('played_at', 'desc')->get();
         $user = auth()->user();
@@ -20,8 +21,7 @@ class GameController extends Controller
         return view('games.index', compact('games', 'user'));
     }
 
-    // Show the form for creating a new game.
-    public function create()
+    public function create(): View
     {
         $players = Player::all();
         $user = auth()->user();
@@ -29,8 +29,7 @@ class GameController extends Controller
         return view('games.create', compact('players', 'user'));
     }
 
-    // Store a newly created game in storage.
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validateGameRequest($request);
 
@@ -44,8 +43,7 @@ class GameController extends Controller
         return redirect()->route('games.show', $game);
     }
 
-    // Show the specified game.
-    public function show(Game $game)
+    public function show(Game $game): View
     {
         $user = auth()->user();
 
@@ -56,27 +54,22 @@ class GameController extends Controller
         return view('games.show', compact('game', 'user', 'team1Rating', 'team2Rating'));
     }
 
-    // Show the form for editing the specified game.
-    public function edit($id)
+    public function edit($id): View
     {
         $game = Game::findOrFail($id);
         $user = auth()->user();
 
-        // Get all players to display in the form
-        $players = Player::all(); // Retrieve all players
+        $players = Player::all();
 
-        // Get the currently selected players for the game
         $selectedPlayers = $game->teams->pluck('id')->toArray();
 
         return view('games.edit', compact('game', 'user', 'players', 'selectedPlayers'));
     }
 
-    // Update the specified game in storage.
-    public function update(Request $request, Game $game)
+    public function update(Request $request, Game $game): RedirectResponse
     {
         $this->validateGameRequest($request);
 
-        // Update the game date
         $game->update([
             'played_at' => $request->played_at,
         ]);
@@ -86,40 +79,34 @@ class GameController extends Controller
         return redirect()->route('games.show', $game);
     }
 
-    // Remove the specified game from storage.
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         $game = Game::findOrFail($id);
         $game->delete();
         return redirect()->route('games.index');
     }
 
-    // Show form for entering result of the game
-    public function enterResult(Game $game)
+    public function enterResult(Game $game): View
     {
         $user = auth()->user();
         return view('games.enter-result', compact('game', 'user'));
     }
 
-    // Store the entered result of the game
-    public function storeResult(Request $request, Game $game)
+    public function storeResult(Request $request, Game $game): RedirectResponse
     {
-        // Update the game with the result
         $game->update([
             'team1_score' => $request->team1_score,
             'team2_score' => $request->team2_score,
         ]);
 
-        // Adjust player ratings based on the result
-        $this->adjustRatings($game);
+        $this->basicRatingAdjustment($game);
 
-        // Send rating requests to 3 random players
         $this->sendRatingRequests($game);
 
         return redirect()->route('games.show', $game);
     }
 
-    private function validateGameRequest(Request $request)
+    private function validateGameRequest(Request $request): void
     {
         $request->validate([
             'players' => 'required|array|size:12',
@@ -134,11 +121,10 @@ class GameController extends Controller
         ]);
     }
 
-    private function handleGameTeams(Game $game, $players)
+    private function handleGameTeams(Game $game, $players): void
     {
         $teams = $this->createTeams($players);
 
-        // Prepare the data for sync
         $syncData = [];
         foreach ($teams as $team => $players) {
             foreach ($players as $player) {
@@ -146,28 +132,22 @@ class GameController extends Controller
             }
         }
 
-        // Sync the teams with the new players
         $game->teams()->sync($syncData);
     }
 
-    private function createTeams($players)
+    private function createTeams($players): array
     {
-        // Split players by type
         $attackers = $players->where('type', 'attacker')->sortByDesc('rating')->values();
         $defenders = $players->where('type', 'defender')->sortByDesc('rating')->values();
         $allRounders = $players->where('type', 'both')->sortByDesc('rating')->values();
 
-        // Create empty teams
         $team1 = collect();
         $team2 = collect();
 
-        // Balance attackers and defenders with all-rounders
         $this->balanceAttackersAndDefenders($attackers, $defenders, $allRounders);
 
-        // Then distribute attackers and defenders
         $this->distributeAttackersAndDefenders($team1, $team2, $attackers, $defenders);
 
-        // Distribute remaining all-rounders
         $this->distributeDraftStyle($team1, $team2, $allRounders);
 
         $this->optimizeTeams($team1, $team2);
@@ -175,7 +155,7 @@ class GameController extends Controller
         return ['team1' => $team1, 'team2' => $team2];
     }
 
-    private function balanceAttackersAndDefenders(&$attackers, &$defenders, $allRounders)
+    private function balanceAttackersAndDefenders(&$attackers, &$defenders, $allRounders): void
     {
         if ($attackers->count() % 2 !== 0 && $allRounders->isNotEmpty()) {
             // Add the last all-rounder to attackers and remove it from allRounders
@@ -190,15 +170,12 @@ class GameController extends Controller
         }
     }
 
-    private function distributeAttackersAndDefenders($team1, $team2, &$attackers, &$defenders)
+    private function distributeAttackersAndDefenders($team1, $team2, &$attackers, &$defenders): void
     {
-        // Check and distribute attackers
         $attackers = $this->checkAndDistributePlayers($team1, $team2, $attackers);
 
-        // Check and distribute defenders
         $defenders = $this->checkAndDistributePlayers($team1, $team2, $defenders);
 
-        // Merge remaining players (if any) and distribute
         $remainingPlayers = $attackers->merge($defenders);
         if ($remainingPlayers->isNotEmpty()) {
             $this->distributeDraftStyle($team1, $team2, $remainingPlayers);
@@ -209,10 +186,9 @@ class GameController extends Controller
     {
         if ($players->count() >= 2) {
             if ($players->count() == 2) {
-                // If there are exactly 2 players in the group, distribute them directly
                 $this->distributeDraftStyle($team1, $team2, $players);
             } else {
-                // If there are more than 2, distribute the best 2 players
+                // If there are more than 2 players, distribute the best 2 players
                 $bestPlayers = $players->slice(0, 2);
                 $this->distributeDraftStyle($team1, $team2, $bestPlayers);
             }
@@ -222,7 +198,7 @@ class GameController extends Controller
         return $players;
     }
 
-    private function distributeDraftStyle($team1, $team2, $players)
+    private function distributeDraftStyle($team1, $team2, $players): void
     {
         foreach ($players as $player) {
             // Distribute players based on the number of players in each team
@@ -234,7 +210,7 @@ class GameController extends Controller
         }
     }
 
-    private function optimizeTeams(&$team1, &$team2)
+    private function optimizeTeams(&$team1, &$team2): void
     {
         $swappedWith = [];
         $madeSwap = true;
@@ -277,7 +253,6 @@ class GameController extends Controller
                 }
             }
 
-            // Perform the best swap found in this iteration
             if ($bestSwap) {
                 // Use filter to remove the players from their current teams
                 $team1 = $team1->filter(fn($player) => $player->id !== $bestSwap['player1']->id);
@@ -293,9 +268,49 @@ class GameController extends Controller
         }
     }
 
-    private function adjustRatings(Game $game)
+    private function basicRatingAdjustment(Game $game)
     {
-        // Logic to adjust player ratings based on game result
+        // Retrieve players from both teams
+        $team1Players = $game->teams()->where('team', 'team1')->get();
+        $team2Players = $game->teams()->where('team', 'team2')->get();
+
+        // Get the scores
+        $team1Score = $game->team1_score;
+        $team2Score = $game->team2_score;
+
+        // Determine the winning and losing team
+        if ($team1Score > $team2Score) {
+            $winningTeam = $team1Players;
+            $losingTeam = $team2Players;
+        } elseif ($team1Score < $team2Score) {
+            $winningTeam = $team2Players;
+            $losingTeam = $team1Players;
+        } else {
+            // No rating changes
+            return;
+        }
+
+        $scoreDifference = abs($team1Score - $team2Score);
+        $this->procesScore($winningTeam, $scoreDifference, true);
+        $this->procesScore($losingTeam, $scoreDifference, false);
+    }
+
+    private function procesScore($team, int $scoreDifference, bool $won)
+    {
+        // Adjust ratings for the team
+        foreach ($team as $player) {
+            // Store the previous rating
+            $player->previous_rating = $player->rating;
+
+            $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
+            $newRating = $player->rating * $coefficient;
+
+            // Update only if rating has changed
+            if ($player->rating !== $newRating) {
+                $player->rating = $newRating;
+                $player->save();
+            }
+        }
     }
 
     private function sendRatingRequests(Game $game)
@@ -304,7 +319,7 @@ class GameController extends Controller
         $players = $game->teams()->inRandomOrder()->limit(3)->get();
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
-                'players.rate', now()->addHours(24), ['game' => $game->id, 'player' => $player->id]
+                'players.rate', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
             );
 
             // Send the rating request email

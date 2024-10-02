@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlayerController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
@@ -12,14 +13,13 @@ Route::get('/', function () {
 
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
-    // Resource routes for games (index, create, store, show, edit, update, destroy)
+    // index, create, store, show, edit, update, destroy
     Route::resource('games', GameController::class);
-
-    // Route to edit game result
     Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
-
-    // Store game result
     Route::post('/games/{game}/results', [GameController::class, 'storeResult'])->name('games.store-result');
+
+    // index, create, store, show, edit, update, destroy
+    Route::resource('players', PlayerController::class);
 });
 
 // Signed route for players to rate others (without needing to be logged in)

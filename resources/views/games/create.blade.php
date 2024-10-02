@@ -27,6 +27,15 @@
         <div class="card-header">{{ __('Create a New Game') }}</div>
 
         <div class="card-body">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form action="{{ route('games.store') }}" id="game-form" method="POST">
                 @csrf
 
@@ -38,8 +47,8 @@
 
                 <!-- Player selection -->
                 <div class="form-group">
-                    <label for="players">{{ __('Select 12 Players') }}</label>
-                    <select name="players[]" id="players" class="form-control form-select form-select-sm mb-3" multiple required size="12">
+                    <label for="multiple-select-field">{{ __('Select 12 Players') }}</label>
+                    <select name="players[]" id="multiple-select-field" class="form-control form-select mb-3" multiple required size="12">
                         @foreach($players as $player)
                             <option value="{{ $player->id }}">{{ $player->name }}</option>
                         @endforeach
