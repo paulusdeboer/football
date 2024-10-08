@@ -109,11 +109,11 @@
                             {{ __('Create a game') }}
                         </a>
                         <div class="sb-sidenav-menu-heading">{{ __('Players') }}</div>
-                        <a class="nav-link" href="tables.html">
+                        <a class="nav-link" href="{{ route('players.index') }}">
                             <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                             {{ __('Players') }}
                         </a>
-                        <a class="nav-link" href="{{ route('games.create') }}">
+                        <a class="nav-link" href="{{ route('players.create') }}">
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-user-plus"></i></div>
                             {{ __('Add a player') }}
                         </a>

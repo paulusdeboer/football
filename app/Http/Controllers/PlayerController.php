@@ -26,31 +26,31 @@ class PlayerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'rating' => 'required|integer|min:0|max:10',
-            'type' => 'required|in:attacker,defender,both',
+            'players' => 'required|array',
+            'players.*.name' => 'required|string|max:255',
+            'players.*.email' => 'required|email|unique:users,email',
+            'players.*.rating' => 'required|integer|min:0|max:10',
+            'players.*.type' => 'required|in:attacker,defender,both',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt('default_password'),
-        ]);
+        $players = $request->players;
 
-        Player::create([
-            'name' => $request->name,
-            'rating' => $request->rating,
-            'type' => $request->type,
-            'user_id' => $user->id,
-        ]);
+        foreach ($players as $player) {
+            $user = User::create([
+                'name' => $player['name'],
+                'email' => $player['email'],
+                'password' => bcrypt('default_password'),
+            ]);
+
+            Player::create([
+                'name' => $player['name'],
+                'rating' => $player['rating'] * 100,
+                'type' => $player['type'],
+                'user_id' => $user->id,
+            ]);
+        }
 
         return redirect()->route('players.index')->with('success', __('Player created successfully.'));
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function edit(string $id)
