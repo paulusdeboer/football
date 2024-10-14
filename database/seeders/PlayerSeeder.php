@@ -16,7 +16,6 @@ class PlayerSeeder extends BaseSeeder
      */
     public function execute(): void
     {
-        $lastPlayerId = Player::max('id') ?? 0;
         $lastUserId = User::max('id') ?? 0;
         $userData = [];
         $ids = [];
@@ -35,16 +34,19 @@ class PlayerSeeder extends BaseSeeder
         User::insert($userData);
         $users = User::whereIn('id', $ids)->get();
 
+        $playerData = [];
+
         foreach ($users as $user) {
-            $this->add([
-                'id' => $lastPlayerId + $i + 1,
+            $playerData[] = [
                 'name' => $user->name,
                 'rating' => $this->fakerService->numberBetween(500, 1000),
                 'type' => $this->fakerService->randomElement(['attacker', 'defender', 'both']),
                 'user_id' => $user->id,
                 'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
                 'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
-            ], Player::class);
+            ];
         }
+
+        Player::insert($playerData);
     }
 }
