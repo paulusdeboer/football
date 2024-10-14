@@ -60,7 +60,7 @@ class GameController extends Controller
         $game = Game::findOrFail($id);
         $user = auth()->user();
 
-        $players = Player::all();
+        $players = Player::orderBy('name')->get();
 
         $selectedPlayers = $game->teams->pluck('id')->toArray();
 

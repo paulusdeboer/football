@@ -19,14 +19,14 @@
 
             <h5>{{ __('Players in Team 1') . ' (' . $team1Rating . ')'}}</h5>
             <ul>
-                @foreach ($game->teams()->where('team', 'team1')->get()->sortByDesc('rating') as $player)
+                @foreach ($game->teams()->where('team', 'team1')->get()->sortBy('name') as $player)
                     <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>
                 @endforeach
             </ul>
 
             <h5>{{ __('Players in Team 2') . ' (' . $team2Rating . ')'}}</h5>
             <ul>
-                @foreach ($game->teams()->where('team', 'team2')->get()->sortByDesc('rating') as $player)
+                @foreach ($game->teams()->where('team', 'team2')->get()->sortBy('name') as $player)
                     <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>
                 @endforeach
             </ul>

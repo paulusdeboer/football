@@ -29,7 +29,7 @@ class PlayerController extends Controller
             'players' => 'required|array',
             'players.*.name' => 'required|string|max:255',
             'players.*.email' => 'required|email|unique:users,email',
-            'players.*.rating' => 'required|integer|min:0|max:10',
+            'players.*.rating' => 'required|numeric|min:0|max:10',
             'players.*.type' => 'required|in:attacker,defender,both',
         ]);
 
@@ -58,9 +58,23 @@ class PlayerController extends Controller
         //
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Player $player)
     {
-        //
+        $request->validate([
+            'player_name' => 'required|string|max:255',
+            'player_email' => 'required|email|unique:users,email',
+            'player_rating' => 'required|numeric|min:0|max:10',
+            'player_type' => 'required|in:attacker,defender,both',
+        ]);
+
+        $player->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'rating' => $request->rating,
+            'type' => $request->type,
+        ]);
+
+        return redirect()->route('players.index')->with('success', __('Player updated successfully.'));
     }
 
     public function destroy(string $id)
