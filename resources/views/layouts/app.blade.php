@@ -115,7 +115,7 @@
                         </a>
                         <a class="nav-link" href="{{ route('players.create') }}">
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-user-plus"></i></div>
-                            {{ __('Add a player') }}
+                            {{ __('Add players') }}
                         </a>
                     </div>
                 </div>

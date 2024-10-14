@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\Player;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use App\Mail\RatingRequestMail;
@@ -23,7 +24,7 @@ class GameController extends Controller
 
     public function create(): View
     {
-        $players = Player::all();
+        $players = Player::orderBy('name')->get();
         $user = auth()->user();
 
         return view('games.create', compact('players', 'user'));
@@ -101,7 +102,9 @@ class GameController extends Controller
 
         $this->basicRatingAdjustment($game);
 
-        $this->sendRatingRequests($game);
+        if ($request->send_rating_requests) {
+            $this->sendRatingRequests($game);
+        }
 
         return redirect()->route('games.show', $game);
     }
@@ -270,11 +273,9 @@ class GameController extends Controller
 
     private function basicRatingAdjustment(Game $game)
     {
-        // Retrieve players from both teams
         $team1Players = $game->teams()->where('team', 'team1')->get();
         $team2Players = $game->teams()->where('team', 'team2')->get();
 
-        // Get the scores
         $team1Score = $game->team1_score;
         $team2Score = $game->team2_score;
 
@@ -297,19 +298,14 @@ class GameController extends Controller
 
     private function procesScore($team, int $scoreDifference, bool $won)
     {
-        // Adjust ratings for the team
         foreach ($team as $player) {
-            // Store the previous rating
             $player->previous_rating = $player->rating;
 
             $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
             $newRating = $player->rating * $coefficient;
 
-            // Update only if rating has changed
-            if ($player->rating !== $newRating) {
-                $player->rating = $newRating;
-                $player->save();
-            }
+            $player->rating = $newRating;
+            $player->save();
         }
     }
 
@@ -317,13 +313,22 @@ class GameController extends Controller
     {
         // Select 3 random players and send them email requests to rate others
         $players = $game->teams()->inRandomOrder()->limit(3)->get();
+
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
                 'players.rate', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
             );
 
-            // Send the rating request email
-            Mail::to($player->user->email)->send(new RatingRequestMail($game, $tokenUrl));
+            // Log the URL for testing purposes
+            Log::info("Generated rating URL: $tokenUrl");
+
+            try {
+                Mail::to($player->user->email)->send(new RatingRequestMail($game, $tokenUrl));
+
+                Log::info("Rating request sent to player ID $player->id for game ID $game->id");
+            } catch (\Exception $e) {
+                Log::error("Failed to send rating request to player ID $player->id for game ID $game->id: " . $e->getMessage());
+            }
         }
     }
 }

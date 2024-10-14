@@ -53,7 +53,7 @@
                             <input type="number" name="players[0][rating]" class="form-control" placeholder="{{ __('Rating') }}" required min="5.0" max="10.0" step="0.1">
                         </div>
                         <div class="col-2">
-                            <select name="players[0][type]" class="form-control form-select" required>
+                            <select name="players[0][type]" class="form-control form-select player-type" required>
                                 <option value="attacker">{{ __('Attacker') }}</option>
                                 <option value="defender">{{ __('Defender') }}</option>
                                 <option value="both">{{ __('Both') }}</option>
@@ -74,6 +74,17 @@
         // To keep track of the number of players
         let playerCount = 1;
 
+        function initializeSelect2() {
+            $('select.player-type').select2( {
+                theme: "bootstrap-5",
+                width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+                placeholder: $( this ).data( 'placeholder' ),
+                closeOnSelect: true,
+            });
+        }
+
+        initializeSelect2();
+
         // Function to add a new player row
         $('#add-player-row').click(function() {
             let newRow = `
@@ -88,7 +99,7 @@
                         <input type="number" name="players[${playerCount}][rating]" class="form-control" placeholder="{{ __('Rating') }}" required min="5.0" max="10.0" step="0.1">
                     </div>
                     <div class="col-2">
-                        <select name="players[${playerCount}][type]" class="form-control form-select" required>
+                        <select name="players[${playerCount}][type]" class="form-control form-select player-type" required>
                             <option value="attacker">{{ __('Attacker') }}</option>
                             <option value="defender">{{ __('Defender') }}</option>
                             <option value="both">{{ __('Both') }}</option>
@@ -101,6 +112,8 @@
 
             $('#player-rows').append(newRow);
             playerCount++;
+
+            initializeSelect2();
         });
 
         // Function to remove a player row

@@ -47,7 +47,7 @@
 
                 <!-- Player selection -->
                 <div class="form-group">
-                    <label for="multiple-select-field">{{ __('Select 12 Players') }}</label>
+                    <label for="multiple-select-field">{{ __('Select 12 Players') }}<span id="selected-count"> - 0 </span>{{ __('players selected') }}</label>
                     <select name="players[]" id="multiple-select-field" class="form-control form-select mb-3" multiple required size="12">
                         @foreach($players as $player)
                             <option value="{{ $player->id }}">{{ $player->name }}</option>
@@ -62,6 +62,20 @@
             <a href="{{ route('games.index') }}" class="btn btn-secondary mt-3">{{ __('Back to Games List') }}</a>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            function updateSelectedCount() {
+                let selectedCount = $('#multiple-select-field').select2('data').length;
+                $('#selected-count').text(' - ' + selectedCount + ' ');
+            }
+
+            updateSelectedCount();
+
+            $('#multiple-select-field').on('change', function() {
+                updateSelectedCount();
+            });
+        });
+    </script>
 @endsection
 
 

@@ -22,15 +22,20 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('players', PlayerController::class);
 });
 
-// Signed route for players to rate others (without needing to be logged in)
+// Signed route for players to rate others
 Route::get('games/{game}/rate/{player}', [RatingController::class, 'showForm'])
     ->name('players.rate')
     ->middleware('signed');
 
-// Store player ratings (requires authentication)
+// Signed route for players that finished rating others
+Route::get('games/{game}/rate/{player}/confirm', [RatingController::class, 'showConfirmation'])
+    ->name('ratings.confirm')
+    ->middleware('signed');
+
+// Store player ratings
 Route::post('games/{game}/players/{player}/rate', [RatingController::class, 'store'])
-    ->name('players.rate.store')
-    ->middleware('auth');
+    ->name('ratings.store')
+    ->middleware('signed');
 
 // Authentication routes
 Auth::routes();

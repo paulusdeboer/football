@@ -17,28 +17,41 @@
             <form method="POST" id="game-form" action="{{ route('games.store-result', $game) }}">
                 @csrf
 
-                <h5>{{ __('Players in Team 1') }}</h5>
-                <ul>
-                    @foreach ($game->teams()->where('team', 'team1')->get() as $player)
-                        <li>{{ $player->name }}</li>
-                    @endforeach
-                </ul>
-
-                <h5>{{ __('Players in Team 2') }}</h5>
-                <ul>
-                    @foreach ($game->teams()->where('team', 'team2')->get() as $player)
-                        <li>{{ $player->name }}</li>
-                    @endforeach
-                </ul>
-
-                <div class="form-group">
-                    <label for="team1_score">{{ __('Team 1 Score') }}</label>
-                    <input type="number" id="team1_score" name="team1_score" class="form-control mb-3" required>
+                <div class="form-check mb-3">
+                    <label class="form-check-label" for="send_rating_requests">{{ __('Send rating request e-mails') }}</label>
+                    <input type="checkbox" id="send_rating_requests" name="send_rating_requests" class="form-check-input">
                 </div>
 
-                <div class="form-group">
-                    <label for="team2_score">{{ __('Team 2 Score') }}</label>
-                    <input type="number" id="team2_score" name="team2_score" class="form-control mb-3" required>
+                <div class="row">
+                    <div class="col-3">
+                        <h5>{{ __('Players in Team 1') }}</h5>
+                        <ul>
+                            @foreach ($game->teams()->where('team', 'team1')->get() as $player)
+                                <li>{{ $player->name }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <div class="col-3">
+                        <h5>{{ __('Players in Team 2') }}</h5>
+                        <ul>
+                            @foreach ($game->teams()->where('team', 'team2')->get() as $player)
+                                <li>{{ $player->name }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 form-group">
+                        <label for="team1_score">{{ __('Team 1 Score') }}</label>
+                        <input type="number" id="team1_score" name="team1_score" class="form-control mb-3" required>
+                    </div>
+
+                    <div class="col-3 form-group">
+                        <label for="team2_score">{{ __('Team 2 Score') }}</label>
+                        <input type="number" id="team2_score" name="team2_score" class="form-control mb-3" required>
+                    </div>
                 </div>
             </form>
         </div>
