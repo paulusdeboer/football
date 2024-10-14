@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Game;
 use App\Models\Player;
 use Database\Seeders\Helper\BaseSeeder;
-use DateTimeZone;
 
 class GameSeeder extends BaseSeeder
 {
@@ -28,7 +27,6 @@ class GameSeeder extends BaseSeeder
 
         $gameData = [];
         $ids = [];
-        $timezone = new DateTimeZone('Europe/Amsterdam');
 
         for ($i = 0; $i < self::GAME_COUNT; $i++) {
             $ids[] = $lastGameId + $i + 1;
@@ -36,8 +34,8 @@ class GameSeeder extends BaseSeeder
                 'played_at' => $this->fakerService->dateTimeBetween('-1 year'),
                 'team1_score' => $this->fakerService->numberBetween(0, 10),
                 'team2_score' => $this->fakerService->numberBetween(0, 10),
-                'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
-                'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
+                'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
+                'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
             ];
         }
 
