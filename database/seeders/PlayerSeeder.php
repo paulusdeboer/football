@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Player;
 use App\Models\User;
 use Database\Seeders\Helper\BaseSeeder;
+use DateTimeZone;
 use Illuminate\Support\Facades\Hash;
 
 class PlayerSeeder extends BaseSeeder
@@ -18,6 +19,7 @@ class PlayerSeeder extends BaseSeeder
     {
         $lastPlayerId = Player::max('id') ?? 0;
         $lastUserId = User::max('id') ?? 0;
+        $timezone = new DateTimeZone('Europe/Amsterdam');
 
         for ($i = 0; $i < self::PLAYER_COUNT; $i++) {
             $this->add([
@@ -25,8 +27,8 @@ class PlayerSeeder extends BaseSeeder
                 'name' => $this->fakerService->name(),
                 'email' => $this->fakerService->unique()->safeEmail(),
                 'password' => Hash::make('password'),
-                'created_at' => $this->fakerService->dateTimeBetween('-1 year'),
-                'updated_at' => $this->fakerService->dateTimeBetween('-1 year'),
+                'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
+                'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
             ], User::class);
         }
 
@@ -39,8 +41,8 @@ class PlayerSeeder extends BaseSeeder
                 'rating' => $this->fakerService->numberBetween(500, 1000),
                 'type' => $this->fakerService->randomElement(['attacker', 'defender', 'both']),
                 'user_id' => $user->id,
-                'created_at' => $this->fakerService->dateTimeBetween('-1 year'),
-                'updated_at' => $this->fakerService->dateTimeBetween('-1 year'),
+                'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
+                'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
             ], Player::class);
         }
     }

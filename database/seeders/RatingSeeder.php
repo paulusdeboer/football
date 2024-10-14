@@ -6,6 +6,7 @@ use App\Models\Rating;
 use App\Models\Player;
 use App\Models\Game;
 use Database\Seeders\Helper\BaseSeeder;
+use DateTimeZone;
 
 class RatingSeeder extends BaseSeeder
 {
@@ -39,6 +40,8 @@ class RatingSeeder extends BaseSeeder
                     return $playerId !== $ratingPlayerId;
                 });
 
+                $timezone = new DateTimeZone('Europe/Amsterdam');
+
                 foreach ($ratedPlayers as $ratedPlayerId) {
                     $this->add([
                         'id' => ++$lastRatingId,
@@ -46,8 +49,8 @@ class RatingSeeder extends BaseSeeder
                         'rated_player_id' => $ratedPlayerId,
                         'rating_player_id' => $ratingPlayerId,
                         'rating_value' => $this->fakerService->numberBetween(5, 10),
-                        'created_at' => $this->fakerService->dateTimeBetween('-1 year'),
-                        'updated_at' => $this->fakerService->dateTimeBetween('-1 year'),
+                        'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
+                        'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', $timezone),
                     ], Rating::class);
                 }
             }
