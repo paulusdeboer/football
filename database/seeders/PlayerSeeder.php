@@ -18,19 +18,22 @@ class PlayerSeeder extends BaseSeeder
     {
         $lastPlayerId = Player::max('id') ?? 0;
         $lastUserId = User::max('id') ?? 0;
+        $userData = [];
+        $ids = [];
 
         for ($i = 0; $i < self::PLAYER_COUNT; $i++) {
-            $this->add([
-                'id' => $lastUserId + $i + 1,
+            $ids[] = $lastUserId + $i + 1;
+            $userData[] = [
                 'name' => $this->fakerService->name(),
                 'email' => $this->fakerService->unique()->safeEmail(),
                 'password' => Hash::make('password'),
                 'created_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
                 'updated_at' => $this->fakerService->dateTimeBetween('-1 year', 'now', 'Europe/Amsterdam'),
-            ], User::class);
+            ];
         }
 
-        $users = User::all();
+        User::insert($userData);
+        $users = User::whereIn('id', $ids)->get();
 
         foreach ($users as $user) {
             $this->add([
