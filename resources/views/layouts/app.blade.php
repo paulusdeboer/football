@@ -9,12 +9,13 @@
 
     <title>{{ config('app.name', 'Football app') }}</title>
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
     <!-- Scripts -->
-{{--    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.min.js"></script>--}}
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @yield('extra-scripts')
 </head>
