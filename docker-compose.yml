@@ -8,6 +8,7 @@ services:
             DB_DATABASE: 'laravel'
             DB_USERNAME: 'laravel'
             DB_PASSWORD: 'laravel'
+            ROOT_PASSWORD: ${ROOT_PASSWORD}
             DB_HOST_PORT: 8303
             PHP_POST_MAX_SIZE: 1000M
             PHP_UPLOAD_MAX_FILESIZE: 1000M
