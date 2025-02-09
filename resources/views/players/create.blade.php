@@ -8,10 +8,10 @@
                 <li class="breadcrumb-item active">{{ __('Players') }}</li>
             </ol>
         </div>
-        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Create Players') }}</button>
+        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Save') }}</button>
     </div>
     <div class="card mb-4">
-        <div class="card-header">{{ __('Create New Players') }}</div>
+        <div class="card-header">{{ __('Create players') }}</div>
 
         <div class="card-body">
             @if ($errors->any())
@@ -50,10 +50,10 @@
                 </div>
 
                 <!-- Button to add more player rows -->
-                <button type="button" class="btn btn-secondary" id="add-player-row">{{ __('Extra Player') }}</button>
+                <button type="button" class="btn btn-secondary" id="add-player-row">{{ __('Extra player') }}</button>
             </form>
 
-            <a href="{{ route('players.index') }}" class="btn btn-secondary mt-3">{{ __('Back to Players List') }}</a>
+            <a href="{{ route('players.index') }}" class="btn btn-secondary mt-3">{{ __('Back to players list') }}</a>
         </div>
     </div>
 

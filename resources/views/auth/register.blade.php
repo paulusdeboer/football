@@ -25,7 +25,7 @@
                             <div class="col-lg-7">
                                 <div class="card shadow-lg border-0 rounded-lg my-5">
                                     <div class="card-header">
-                                        <h3 class="text-center font-weight-light my-4">{{ __('Create Account') }}</h3>
+                                        <h3 class="text-center font-weight-light my-4">{{ __('Create account') }}</h3>
                                     </div>
                                     <div class="card-body">
                                         <form method="POST" action="{{ route('register') }}">
@@ -42,7 +42,7 @@
 
                                             <div class="form-floating mb-3">
                                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
-                                                <label for="email">{{ __('Email Address') }}</label>
+                                                <label for="email">{{ __('Email address') }}</label>
                                                 @error('email')
                                                 <span class="invalid-feedback" role="alert">
                                                             <strong>{{ $message }}</strong>
@@ -65,7 +65,7 @@
                                                 <div class="col-md-6">
                                                     <div class="form-floating mb-3 mb-md-0">
                                                         <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                                                        <label for="password-confirm">{{ __('Confirm Password') }}</label>
+                                                        <label for="password-confirm">{{ __('Confirm password') }}</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -73,7 +73,7 @@
                                             <div class="mt-4 mb-0">
                                                 <div class="d-grid">
                                                     <button type="submit" class="btn btn-primary btn-block">
-                                                        {{ __('Create Account') }}
+                                                        {{ __('Create account') }}
                                                     </button>
                                                 </div>
                                             </div>

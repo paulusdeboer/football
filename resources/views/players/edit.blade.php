@@ -8,10 +8,10 @@
                 <li class="breadcrumb-item active">{{ __('Player') }}</li>
             </ol>
         </div>
-        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Save Player') }}</button>
+        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Save player') }}</button>
     </div>
     <div class="card mb-4">
-        <div class="card-header">{{ __('Edit Player') }}</div>
+        <div class="card-header">{{ __('Edit player') }}</div>
         <div class="card-body">
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -45,7 +45,7 @@
             </form>
 
             <a href="{{ route('players.index') }}"
-               class="btn btn-secondary mt-3">{{ __('Back to Players List') }}</a>
+               class="btn btn-secondary mt-3">{{ __('Back to players list') }}</a>
         </div>
     </div>
     <script>

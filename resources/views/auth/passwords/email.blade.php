@@ -46,7 +46,7 @@
 
                                             <div class="d-grid gap-2">
                                                 <button type="submit" class="btn btn-primary btn-block">
-                                                    {{ __('Send Password Reset Link') }}
+                                                    {{ __('Send password reset link') }}
                                                 </button>
                                             </div>
                                         </form>

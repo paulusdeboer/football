@@ -52,7 +52,7 @@
                                     <div class="card-footer text-center py-3">
                                         @if (Route::has('password.request'))
                                             <div class="small">
-                                                <a href="{{ route('password.request') }}">{{ __('Forgot Your Password?') }}</a>
+                                                <a href="{{ route('password.request') }}">{{ __('Forgot your password?') }}</a>
                                             </div>
                                         @endif
                                     </div>

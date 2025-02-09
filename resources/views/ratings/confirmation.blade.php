@@ -27,7 +27,7 @@
                             <div class="col-lg-8">
                                 <div class="card shadow-lg border-0 rounded-lg my-5">
                                     <div class="card-header">
-                                        <h3 class="text-center font-weight-light my-4">{{ __('Thank You, ') . $player->name . '!' }}</h3>
+                                        <h3 class="text-center font-weight-light my-4">{{ __('Thank you, ') . $player->name . '!' }}</h3>
                                     </div>
                                     <div class="card-body">
                                         <p class="text-center">

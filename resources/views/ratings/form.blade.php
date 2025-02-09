@@ -27,6 +27,7 @@
                         <div class="card shadow-lg border-0 rounded-lg my-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">{{ __('Hello') }} {{ $player->name }}, {{ __('rate players for the game on') }} {{ Carbon::parse($game->played_at)->format('d-m-Y') }}</h3>
+                                <p class="text-center">{{ __('Give your rating for each player between 5 and 10 with 5 being the lowest and 10 being the best.') }}</p>
                             </div>
                             <div class="card-body">
                                 @if ($hasRated)
@@ -77,7 +78,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="submit" class="btn btn-primary">{{ __('Submit Ratings') }}</button>
+                                        <button type="submit" class="btn btn-primary">{{ __('Submit ratings') }}</button>
                                     </form>
                                 @endif
                             </div>

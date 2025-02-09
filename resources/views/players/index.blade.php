@@ -9,12 +9,12 @@
                 <li class="breadcrumb-item active">{{ __('Players') }}</li>
             </ol>
         </div>
-        <a href="{{ route('players.create') }}" class="btn btn-primary mb-3">{{ __('Create New Player') }}</a>
+        <a href="{{ route('players.create') }}" class="btn btn-primary mb-3">{{ __('Create player') }}</a>
     </div>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            {{ __('Player List') }}
+            {{ __('Player list') }}
         </div>
 
         <div class="card-body">
@@ -37,7 +37,7 @@
                         <td>{{ Carbon::parse($player->created_at)->format('d-m-Y') }}</td>
                         <td>
                             <a href="{{ route('players.edit', $player) }}"
-                               class="btn btn-warning btn-sm">{{ __('Edit Player') }}</a>
+                               class="btn btn-warning btn-sm">{{ __('Edit player') }}</a>
                         </td>
                     </tr>
                 @endforeach

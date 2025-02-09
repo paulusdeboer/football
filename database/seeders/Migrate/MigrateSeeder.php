@@ -21,9 +21,6 @@ class MigrateSeeder extends Seeder
         $this->call(
             [
                 PlayersMigrateSeeder::class,
-//                TeamsMigrateSeeder::class,
-//                GamesMigrateSeeder::class,
-//                RatingsMigrateSeeder::class,
             ],
             false,
             [

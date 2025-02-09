@@ -17,18 +17,8 @@ final class PlayersMigrateSeeder extends Seeder
     {
         $players = $connection
             ->table('spelers', 's')
-            ->select([
-                's.*',
-                'w.team',
-                'w.score',
-                'u.voor',
-                'u.tegen',
-            ])
-            ->leftJoin('wedstrijd as w', 's.id', '=', 'w.speler_id')
-            ->leftJoin('uitslag as u', 'w.datum', '=', 'u.datum')
-            ->orderBy('w.datum', 'DESC');
-
-        dump($players);die;
+            ->select(['s.*'])
+            ->get();
 
         if ($players->isEmpty()) {
             $this->command->info('No players found in the old database.');

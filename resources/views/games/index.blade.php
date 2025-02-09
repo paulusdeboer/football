@@ -9,12 +9,12 @@
                 <li class="breadcrumb-item active">{{ __('Games') }}</li>
             </ol>
         </div>
-        <a href="{{ route('games.create') }}" class="btn btn-primary mb-3">{{ __('Create New Game') }}</a>
+        <a href="{{ route('games.create') }}" class="btn btn-primary mb-3">{{ __('Create game') }}</a>
     </div>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            {{ __('Games List') }}
+            {{ __('Games list') }}
         </div>
 
         <div class="card-body">
@@ -22,9 +22,9 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th>{{ __('Game Date') }}</th>
-                    <th>{{ __('Team 1 Score') }}</th>
-                    <th>{{ __('Team 2 Score') }}</th>
+                    <th>{{ __('Game date') }}</th>
+                    <th>{{ __('Team 1 score') }}</th>
+                    <th>{{ __('Team 2 score') }}</th>
                     <th>{{ __('Actions') }}</th>
                 </tr>
                 </thead>
@@ -39,12 +39,12 @@
                                class="btn btn-info btn-sm">{{ __('View') }}</a>
                             @if ($game->team1_score === null && $game->team2_score === null)
                                 <a href="{{ route('games.edit', $game) }}"
-                                   class="btn btn-warning btn-sm">{{ __('Edit Game') }}</a>
+                                   class="btn btn-warning btn-sm">{{ __('Edit game') }}</a>
                                 <a href="{{ route('games.enter-result', $game) }}"
-                                   class="btn btn-warning btn-sm">{{ __('Enter Result') }}</a>
+                                   class="btn btn-warning btn-sm">{{ __('Enter result') }}</a>
                             @else
                                 <a href="{{ route('games.enter-result', $game) }}"
-                                   class="btn btn-warning btn-sm">{{ __('Edit Result') }}</a>
+                                   class="btn btn-warning btn-sm">{{ __('Edit result') }}</a>
                             @endif
                         </td>
                     </tr>

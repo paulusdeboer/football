@@ -12,8 +12,8 @@ class RatingController extends Controller
 {
     public function showForm(Game $game, Player $player)
     {
-        $team1Players = $game->teams()->where('team', 'team1')->get();
-        $team2Players = $game->teams()->where('team', 'team2')->get();
+        $team1Players = $game->teams()->where('team', 'team1')->get()->sortBy('name');
+        $team2Players = $game->teams()->where('team', 'team2')->get()->sortBy('name');
 
         // Check if the player has already submitted a rating for this game
         $hasRated = $game->ratings()->where('rating_player_id', $player->id)->exists();
@@ -80,7 +80,9 @@ class RatingController extends Controller
 
             $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
 
-            $newPlayerRating = ($previousRating + $averageRating) * $coefficient / (1 + $ratings->count());
+            // Use a weighted average so the new rating won't deviate too much.
+            $weightedAverage = ($previousRating * 0.7) + ($averageRating * 0.3);
+            $newPlayerRating = $weightedAverage * $coefficient;
 
             $player->rating = $newPlayerRating;
             $player->save();

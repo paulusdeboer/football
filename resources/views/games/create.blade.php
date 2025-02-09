@@ -8,10 +8,10 @@
                 <li class="breadcrumb-item active">{{ __('Games') }}</li>
             </ol>
         </div>
-        <button type="submit" form="game-form" class="btn btn-primary mb-3">{{ __('Create Game') }}</button>
+        <button type="submit" form="game-form" class="btn btn-primary mb-3">{{ __('Save') }}</button>
     </div>
     <div class="card mb-4">
-        <div class="card-header">{{ __('Create a New Game') }}</div>
+        <div class="card-header">{{ __('Create a new game') }}</div>
 
         <div class="card-body">
             @if ($errors->any())
@@ -28,13 +28,13 @@
 
                 <!-- Date selection -->
                 <div class="form-group">
-                    <label for="played_at">{{ __('Select Game Date') }}:</label>
+                    <label for="played_at">{{ __('Select game date') }}:</label>
                     <input type="date" id="played_at" name="played_at" class="form-control mb-3" required>
                 </div>
 
                 <!-- Player selection -->
                 <div class="form-group">
-                    <label for="multiple-select-field">{{ __('Select 12 Players') }}<span id="selected-count"> - 0 </span>{{ __('players selected') }}</label>
+                    <label for="multiple-select-field">{{ __('Select 12 players') }}<span id="selected-count"> - 0 </span>{{ __('players selected') }}</label>
                     <select name="players[]" id="multiple-select-field" class="form-control form-select mb-3" multiple required size="12">
                         @foreach($players as $player)
                             <option value="{{ $player->id }}">{{ $player->name }}</option>

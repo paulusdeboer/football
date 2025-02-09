@@ -30,7 +30,7 @@
                                             @csrf
                                             <div class="form-floating mb-3">
                                                 <input class="form-control @error('login') is-invalid @enderror" id="login" type="text" name="login" value="{{ old('login') }}" required autofocus placeholder="name@example.com or username">
-                                                <label for="login">{{ __('Username or Email') }}</label>
+                                                <label for="login">{{ __('Username or email') }}</label>
                                                 @error('login')
                                                 <span class="invalid-feedback" role="alert">
                                                                 <strong>{{ $message }}</strong>
@@ -48,10 +48,10 @@
                                             </div>
                                             <div class="form-check mb-3">
                                                 <input class="form-check-input" id="inputRememberPassword" type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="inputRememberPassword">{{ __('Remember Password') }}</label>
+                                                <label class="form-check-label" for="inputRememberPassword">{{ __('Remember password') }}</label>
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                                <a class="small" href="{{ route('password.request') }}">{{ __('Forgot Password?') }}</a>
+                                                <a class="small" href="{{ route('password.request') }}">{{ __('Forgot password?') }}</a>
                                                 <button type="submit" class="btn btn-primary">{{ __('Login') }}</button>
                                             </div>
                                         </form>

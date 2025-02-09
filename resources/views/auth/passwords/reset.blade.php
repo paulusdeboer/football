@@ -24,7 +24,7 @@
                         <div class="row justify-content-center">
                             <div class="col-lg-5">
                                 <div class="card shadow-lg border-0 rounded-lg my-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">{{ __('Reset Password') }}</h3></div>
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">{{ __('Reset password') }}</h3></div>
                                     <div class="card-body">
                                         <form method="POST" action="{{ route('password.update') }}">
                                             @csrf
@@ -42,8 +42,8 @@
                                             </div>
 
                                             <div class="form-floating mb-3">
-                                                <input class="form-control @error('password') is-invalid @enderror" id="inputPassword" type="password" name="password" required autocomplete="new-password" placeholder="New Password">
-                                                <label for="inputPassword">{{ __('New Password') }}</label>
+                                                <input class="form-control @error('password') is-invalid @enderror" id="inputPassword" type="password" name="password" required autocomplete="new-password" placeholder="{{ __('New password') }}">
+                                                <label for="inputPassword">{{ __('New password') }}</label>
                                                 @error('password')
                                                 <span class="invalid-feedback" role="alert">
                                                                 <strong>{{ $message }}</strong>
@@ -52,13 +52,13 @@
                                             </div>
 
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputPasswordConfirm" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
-                                                <label for="inputPasswordConfirm">{{ __('Confirm Password') }}</label>
+                                                <input class="form-control" id="inputPasswordConfirm" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="{{ __('Confirm password') }}">
+                                                <label for="inputPasswordConfirm">{{ __('Confirm password') }}</label>
                                             </div>
 
                                             <div class="d-grid gap-2">
                                                 <button type="submit" class="btn btn-primary btn-block">
-                                                    {{ __('Reset Password') }}
+                                                    {{ __('Reset password') }}
                                                 </button>
                                             </div>
                                         </form>

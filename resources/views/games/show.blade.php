@@ -11,20 +11,20 @@
         </div>
     </div>
     <div class="card mb-4">
-        <div class="card-header">{{ __('Game Details') }}</div>
+        <div class="card-header">{{ __('Game details') }}</div>
 
         <div class="card-body">
             <p><strong>{{ __('Date') }}:</strong> {{ Carbon::parse($game->played_at)->format('d-m-Y') }}</p>
             <p><strong>{{ __('Result') . ': ' }}</strong> {{ $game->team1_score ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
 
-            <h5>{{ __('Players in Team 1') . ' (' . $team1Rating . ')'}}</h5>
+            <h5>{{ __('Players in team 1') . ' (' . $team1Rating . ')'}}</h5>
             <ul>
                 @foreach ($game->teams()->where('team', 'team1')->get()->sortBy('name') as $player)
                     <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>
                 @endforeach
             </ul>
 
-            <h5>{{ __('Players in Team 2') . ' (' . $team2Rating . ')'}}</h5>
+            <h5>{{ __('Players in team 2') . ' (' . $team2Rating . ')'}}</h5>
             <ul>
                 @foreach ($game->teams()->where('team', 'team2')->get()->sortBy('name') as $player)
                     <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>

@@ -7,13 +7,12 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Football app') }}</title>
-
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <title>{{ __('app_name') }}</title>
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -22,7 +21,7 @@
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="{{ route('dashboard') }}"><i class="fa-regular fa-futbol"></i> {{ __('Football app') }}</a>
+        <a class="navbar-brand ps-3" href="{{ route('dashboard') }}"><i class="fa-regular fa-futbol"></i> {{ __('Friday football app') }}</a>
         <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
         <!-- Navbar Search-->
@@ -108,7 +107,7 @@
                         </a>
                         <a class="nav-link" href="{{ route('games.create') }}">
                             <div class="sb-nav-link-icon"><i class="fa-regular fa-calendar-plus"></i></div>
-                            {{ __('Create a game') }}
+                            {{ __('Create game') }}
                         </a>
                         <div class="sb-sidenav-menu-heading">{{ __('Players') }}</div>
                         <a class="nav-link" href="{{ route('players.index') }}">
