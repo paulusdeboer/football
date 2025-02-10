@@ -1,0 +1,40 @@
+services:
+    php:
+        image: wodby/laravel-php:8.3
+        environment:
+            APP_ENV: local
+            DB_HOST: mariadb
+            DB_PORT: 3306
+            DB_DATABASE: 'laravel'
+            DB_USERNAME: 'laravel'
+            DB_PASSWORD: 'laravel'
+            ROOT_PASSWORD: ${ROOT_PASSWORD}
+            DB_HOST_PORT: 8303
+            PHP_POST_MAX_SIZE: 1000M
+            PHP_UPLOAD_MAX_FILESIZE: 1000M
+            PHP_UPLOAD_LIMIT: 100000000
+            PHP_FPM_USER: wodby
+            PHP_FPM_GROUP: wodby
+            PHP_FPM_CLEAR_ENV: "no"
+        working_dir: /var/www/html/
+
+    mariadb:
+        image: wodby/mariadb:10.3
+        environment:
+            MYSQL_ROOT_PASSWORD: nimda
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: laravel
+
+    nginx:
+        image: nginx:latest
+        depends_on:
+            - php
+
+    mailhog:
+        image: mailhog/mailhog
+        environment:
+            COMPOSE_DOCKER_CLI_BUILD: 1
+            DOCKER_BUILDKIT: 1
+        ports:
+            - "8025:8025"
