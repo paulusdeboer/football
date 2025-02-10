@@ -316,7 +316,7 @@ class GameController extends Controller
 
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
-                'players.rate', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
+                'players.rate', now()->addHours(48), ['game' => $game->id, 'player' => $player->id]
             );
 
             // Log the URL for testing purposes

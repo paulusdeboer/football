@@ -28,7 +28,7 @@ class PlayerController extends Controller
         $request->validate([
             'players' => 'required|array',
             'players.*.name' => 'required|string|max:255',
-            'players.*.email' => 'required|email|unique:users,email',
+            'players.*.email' => 'required|email',
             'players.*.rating' => 'required|numeric|min:0|max:10',
             'players.*.type' => 'required|in:attacker,defender,both',
         ]);
@@ -55,22 +55,25 @@ class PlayerController extends Controller
 
     public function edit(string $id)
     {
-        //
+        $player = Player::findOrFail($id);
+        $user = auth()->user();
+
+        return view('players.edit', compact('player', 'user'));
     }
 
     public function update(Request $request, Player $player)
     {
         $request->validate([
-            'player_name' => 'required|string|max:255',
-            'player_email' => 'required|email|unique:users,email',
-            'player_rating' => 'required|numeric|min:0|max:10',
-            'player_type' => 'required|in:attacker,defender,both',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'rating' => 'required|numeric|min:0|max:10',
+            'type' => 'required|in:attacker,defender,both',
         ]);
 
         $player->update([
             'name' => $request->name,
             'email' => $request->email,
-            'rating' => $request->rating,
+            'rating' => $request->rating * 100,
             'type' => $request->type,
         ]);
 
@@ -79,6 +82,9 @@ class PlayerController extends Controller
 
     public function destroy(string $id)
     {
-        //
+        $player = Player::findOrFail($id);
+        $player->delete();
+
+        return redirect()->route('players.index')->with('success', __('Player deleted successfully.'));
     }
 }

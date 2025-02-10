@@ -26,19 +26,35 @@
 
                 <div class="row mb-3 player-row">
                     <div class="col-3">
-                        <input type="text" name="player_name" class="form-control" placeholder="{{ __('Name') }}" required>
+                        <input type="text"
+                               name="name"
+                               class="form-control"
+                               placeholder="{{ __('Name') }}"
+                               value="{{ $player->name }}"
+                               required>
                     </div>
                     <div class="col-3">
-                        <input type="email" name="player_email" class="form-control" placeholder="{{ __('Email') }}" required>
+                        <input type="email"
+                               name="email"
+                               class="form-control"
+                               placeholder="{{ __('Email') }}"
+                               value="{{ $player->user->email }}"
+                               required>
                     </div>
                     <div class="col-3">
-                        <input type="number" name="player_rating" class="form-control" placeholder="{{ __('Rating') }}" required min="5.0" max="10.0" step="0.1">
+                        <input type="number"
+                               name="rating"
+                               class="form-control"
+                               placeholder="{{ __('Rating') }}"
+                               value="{{ $player->rating / 100 }}"
+                               required
+                               min="5.0" max="10.0" step="0.1">
                     </div>
                     <div class="col-2">
-                        <select name="player_type" class="form-control form-select player-type" required>
-                            <option value="attacker">{{ __('Attacker') }}</option>
-                            <option value="defender">{{ __('Defender') }}</option>
-                            <option value="both">{{ __('Both') }}</option>
+                        <select name="type" class="form-control form-select player-type" required>
+                            <option value="attacker" @if($player->type == 'attacker') selected @endif>{{ __('Attacker') }}</option>
+                            <option value="defender" @if($player->type == 'defender') selected @endif>{{ __('Defender') }}</option>
+                            <option value="both" @if($player->type == 'both') selected @endif>{{ __('Both') }}</option>
                         </select>
                     </div>
                 </div>

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Player extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['name', 'rating', 'previous_rating', 'type', 'user_id'];
 
     public function user()

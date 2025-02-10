@@ -25,7 +25,7 @@
     "Welcome": "Welkom",
     "Dashboard": "Dashboard",
     "Hello": "Hallo",
-    "Please use the following link to submit your ratings:": "Gebruik de volgende link om je beoordelingen in te dienen:",
+    "Please use the following link to submit your ratings (the link expires in 48 hours):": "Gebruik de volgende link om je beoordelingen in te dienen (de link verloopt over 48 uur):",
     "Rate players": "Beoordeel spelers",
     "Games": "Wedstrijden",
     "Save": "Opslaan",
@@ -87,5 +87,9 @@
     "Team 1": "Team 1",
     "Enter rating": "Beoordeling invoeren",
     "Team 2": "Team 2",
-    "Submit ratings": "Beoordelingen indienen"
+    "Submit ratings": "Beoordelingen indienen",
+    "confirm.player_deletion": ":name verwijderen?",
+    "Are you sure you want to delete this player?": "Weet je zeker dat je deze speler wilt verwijderen?",
+    "Cancel": "Annuleren",
+    "Delete": "Verwijderen"
 }
