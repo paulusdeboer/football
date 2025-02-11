@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('extra-scripts')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+@endsection
+
 @section('content')
     <div class="d-flex justify-content-between align-items-end">
         <div>
@@ -29,7 +34,7 @@
                 <!-- Date selection -->
                 <div class="form-group">
                     <label for="played_at">{{ __('Select game date') }}:</label>
-                    <input type="date" id="played_at" name="played_at" class="form-control mb-3" required>
+                    <input type="text" id="played_at" name="played_at" class="form-control mb-3" placeholder="dd-mm-jjjj" required>
                 </div>
 
                 <!-- Player selection -->
@@ -50,6 +55,17 @@
         </div>
     </div>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#played_at", {
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d-m-Y",
+                allowInput: true,
+                clickOpens: true
+            });
+        });
+
         var waitForJQuery = setInterval(function () {
             if (window.jQuery) {
                 $('#multiple-select-field').select2({
