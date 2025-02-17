@@ -81,7 +81,7 @@ class RatingController extends Controller
             $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
 
             // Use a weighted average so the new rating won't deviate too much.
-            $weightedAverage = ($previousRating * 0.7) + ($averageRating * 0.3);
+            $weightedAverage = ($previousRating * 0.95) + ($averageRating * 0.05);
             $newPlayerRating = $weightedAverage * $coefficient;
 
             $player->rating = $newPlayerRating;
