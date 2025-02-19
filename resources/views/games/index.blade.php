@@ -87,7 +87,7 @@
     <script>
         function confirmDelete(gameId, gameDate) {
             let form = document.getElementById('deleteGameForm');
-            form.action = `/players/${gameId}`;
+            form.action = `/games/${gameId}`;
 
             let modalTitle = "{{ __('confirm.game_deletion') }}";
             document.getElementById('deleteGameModalLabel').innerText = modalTitle.replace(':date', gameDate);

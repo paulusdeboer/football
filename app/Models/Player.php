@@ -24,4 +24,9 @@ class Player extends Model
     {
         return $this->hasMany(Rating::class, 'rated_player_id');
     }
+
+    public function gamePlayerRatings()
+    {
+        return $this->hasMany(GamePlayerRating::class);
+    }
 }

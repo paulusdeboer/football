@@ -19,20 +19,23 @@
 
             <h5>{{ __('Players in team 1') . ' (' . $team1Rating . ')'}}</h5>
             <ul>
-                @foreach ($game->teams()->where('team', 'team1')->get()->sortBy('name') as $player)
-                    <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>
+                @foreach ($team1Ratings->sortBy('player.name') as $rating)
+                    <li>
+                        {{ '(' . ($rating->player->type === 'attacker' ? 'A' : ($rating->player->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name . ' - ' . $rating->rating }}
+                    </li>
                 @endforeach
             </ul>
 
             <h5>{{ __('Players in team 2') . ' (' . $team2Rating . ')'}}</h5>
             <ul>
-                @foreach ($game->teams()->where('team', 'team2')->get()->sortBy('name') as $player)
-                    <li>{{ '(' . ($player->type === 'attacker' ? 'A' : ($player->type === 'defender' ? 'D' : 'B')) . ') ' . $player->name }}</li>
+                @foreach ($team2Ratings->sortBy('player.name') as $rating)
+                    <li>
+                        {{ '(' . ($rating->player->type === 'attacker' ? 'A' : ($rating->player->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name . ' - ' . $rating->rating }}
+                    </li>
                 @endforeach
             </ul>
-
-            <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
         </div>
     </div>
+    <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
 @endsection
 

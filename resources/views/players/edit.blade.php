@@ -8,7 +8,6 @@
                 <li class="breadcrumb-item active">{{ __('Player') }}</li>
             </ol>
         </div>
-        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Save player') }}</button>
     </div>
     <div class="card mb-4">
         <div class="card-header">{{ __('Edit player') }}</div>
@@ -24,7 +23,7 @@
                 @csrf
                 @method('PUT')
 
-                <div class="row mb-3 player-row">
+                <div class="row player-row">
                     <div class="col-3">
                         <input type="text"
                                name="name"
@@ -59,11 +58,12 @@
                     </div>
                 </div>
             </form>
+            <button type="submit" form="player-form" class="btn btn-primary mt-3">{{ __('Save player') }}</button>
 
-            <a href="{{ route('players.index') }}"
-               class="btn btn-secondary mt-3">{{ __('Back to players list') }}</a>
+
         </div>
     </div>
+    <a href="{{ route('players.index') }}" class="btn btn-secondary">{{ __('Back to players list') }}</a>
     <script>
         var waitForJQuery = setInterval(function () {
             if (window.jQuery) {

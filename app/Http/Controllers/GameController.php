@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\GamePlayerRating;
 use App\Models\Player;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,12 +35,14 @@ class GameController extends Controller
     {
         $this->validateGameRequest($request);
 
-        // Create a new game
         $game = Game::create([
             'played_at' => $request->played_at,
         ]);
 
-        $this->handleGameTeams($game, Player::whereIn('id', $request->players)->get());
+        $players = Player::whereIn('id', $request->players)->get();
+
+        $this->storeGamePlayerRatings($game, $players);
+        $this->handleGameTeams($game, $players);
 
         return redirect()->route('games.show', $game);
     }
@@ -48,11 +51,30 @@ class GameController extends Controller
     {
         $user = auth()->user();
 
-        // Calculate the total ratings for each team
-        $team1Rating = $game->teams()->where('team', 'team1')->sum('rating');
-        $team2Rating = $game->teams()->where('team', 'team2')->sum('rating');
+        $team1Ratings = $game->gamePlayerRatings()
+            ->whereHas('player', function ($query) use ($game) {
+                $query->whereHas('teams', function ($subQuery) use ($game) {
+                    $subQuery->where('game_id', $game->id)
+                        ->where('team', 'team1');
+                });
+            })
+            ->with('player')
+            ->get();
 
-        return view('games.show', compact('game', 'user', 'team1Rating', 'team2Rating'));
+        $team2Ratings = $game->gamePlayerRatings()
+            ->whereHas('player', function ($query) use ($game) {
+                $query->whereHas('teams', function ($subQuery) use ($game) {
+                    $subQuery->where('game_id', $game->id)
+                        ->where('team', 'team2');
+                });
+            })
+            ->with('player')
+            ->get();
+
+        $team1Rating = $team1Ratings->sum('rating');
+        $team2Rating = $team2Ratings->sum('rating');
+
+        return view('games.show', compact('game', 'user', 'team1Rating', 'team2Rating', 'team1Ratings', 'team2Ratings'));
     }
 
     public function edit($id): View
@@ -77,14 +99,14 @@ class GameController extends Controller
 
         $this->handleGameTeams($game, Player::whereIn('id', $request->players)->get());
 
-        return redirect()->route('games.show', $game);
+        return redirect()->route('games.show', $game)->with('success', __('Game updated successfully.'));
     }
 
     public function destroy($id): RedirectResponse
     {
         $game = Game::findOrFail($id);
         $game->delete();
-        return redirect()->route('games.index');
+        return redirect()->route('games.index')->with('success', __('Game deleted successfully.'));
     }
 
     public function enterResult(Game $game): View
@@ -136,6 +158,17 @@ class GameController extends Controller
         }
 
         $game->teams()->sync($syncData);
+    }
+
+    private function storeGamePlayerRatings(Game $game, $players): void
+    {
+        foreach ($players as $player) {
+            GamePlayerRating::create([
+                'game_id' => $game->id,
+                'player_id' => $player->id,
+                'rating' => $player->rating,
+            ]);
+        }
     }
 
     private function createTeams($players): array

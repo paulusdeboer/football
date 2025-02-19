@@ -8,7 +8,6 @@
                 <li class="breadcrumb-item active">{{ __('Games') }}</li>
             </ol>
         </div>
-        <button type="submit" form="game-form" class="btn btn-primary mb-3">{{ __('Save result') }}</button>
     </div>
     <div class="card mb-4">
         <div class="card-header">{{ __('Enter game result') }}</div>
@@ -45,15 +44,17 @@
                 <div class="row">
                     <div class="col-3 form-group">
                         <label for="team1_score">{{ __('Team 1 score') }}</label>
-                        <input type="number" id="team1_score" name="team1_score" class="form-control mb-3" required>
+                        <input type="number" id="team1_score" name="team1_score" class="form-control" required>
                     </div>
 
                     <div class="col-3 form-group">
                         <label for="team2_score">{{ __('Team 2 score') }}</label>
-                        <input type="number" id="team2_score" name="team2_score" class="form-control mb-3" required>
+                        <input type="number" id="team2_score" name="team2_score" class="form-control" required>
                     </div>
                 </div>
             </form>
+            <button type="submit" form="game-form" class="btn btn-primary mt-3">{{ __('Save result') }}</button>
         </div>
     </div>
+    <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
 @endsection

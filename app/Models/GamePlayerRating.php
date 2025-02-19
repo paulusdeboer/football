@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RatingHistory extends Model
+class GamePlayerRating extends Model
 {
     protected $fillable = ['player_id', 'rating', 'game_id'];
 

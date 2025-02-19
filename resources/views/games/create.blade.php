@@ -13,7 +13,6 @@
                 <li class="breadcrumb-item active">{{ __('Games') }}</li>
             </ol>
         </div>
-        <button type="submit" form="game-form" class="btn btn-primary mb-3">{{ __('Save') }}</button>
     </div>
     <div class="card mb-4">
         <div class="card-header">{{ __('Create a new game') }}</div>
@@ -51,9 +50,11 @@
                     @enderror
                 </div>
             </form>
-            <a href="{{ route('games.index') }}" class="btn btn-secondary mt-3">{{ __('Back to games list') }}</a>
+            <button type="submit" form="game-form" class="btn btn-primary mt-3">{{ __('Save') }}</button>
         </div>
     </div>
+    <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             flatpickr("#played_at", {

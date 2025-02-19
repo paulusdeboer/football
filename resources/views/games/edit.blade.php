@@ -9,7 +9,6 @@
                 <li class="breadcrumb-item active">{{ __('Games') }}</li>
             </ol>
         </div>
-        <button type="submit" form="game-form" class="btn btn-primary mb-3">{{ __('Save game') }}</button>
     </div>
     <div class="card mb-4">
         <div class="card-header">{{ __('Edit game') }}</div>
@@ -47,11 +46,11 @@
                     </select>
                 </div>
             </form>
-
-            <a href="{{ route('games.index') }}"
-               class="btn btn-secondary mt-3">{{ __('Back to games list') }}</a>
+            <button type="submit" form="game-form" class="btn btn-primary mt-3">{{ __('Save game') }}</button>
         </div>
     </div>
+    <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
+
     <script>
         var waitForJQuery = setInterval(function () {
             if (window.jQuery) {

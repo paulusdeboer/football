@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Game extends Model
 {
@@ -19,5 +20,10 @@ class Game extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    public function gamePlayerRatings()
+    {
+        return $this->hasMany(GamePlayerRating::class);
     }
 }

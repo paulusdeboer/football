@@ -8,7 +8,6 @@
                 <li class="breadcrumb-item active">{{ __('Players') }}</li>
             </ol>
         </div>
-        <button type="submit" form="player-form" class="btn btn-primary mb-3">{{ __('Save') }}</button>
     </div>
     <div class="card mb-4">
         <div class="card-header">{{ __('Create players') }}</div>
@@ -52,10 +51,11 @@
                 <!-- Button to add more player rows -->
                 <button type="button" class="btn btn-secondary" id="add-player-row">{{ __('Extra player') }}</button>
             </form>
+            <button type="submit" form="player-form" class="btn btn-primary mt-3">{{ __('Save') }}</button>
 
-            <a href="{{ route('players.index') }}" class="btn btn-secondary mt-3">{{ __('Back to players list') }}</a>
         </div>
     </div>
+    <a href="{{ route('players.index') }}" class="btn btn-secondary">{{ __('Back to players list') }}</a>
 
     <script>
         var waitForJQuery = setInterval(function () {
