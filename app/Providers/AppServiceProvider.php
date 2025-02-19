@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        if (app()->environment('testing', 'staging')) {
+        if (app()->environment('local', 'testing')) {
             Mail::alwaysTo('paulusdeboer8@gmail.com');
         }
     }
