@@ -49,7 +49,7 @@
             </form>
 
             <a href="{{ route('games.index') }}"
-               class="btn btn-secondary mt-3">{{ __('Back to Games List') }}</a>
+               class="btn btn-secondary mt-3">{{ __('Back to games list') }}</a>
         </div>
     </div>
     <script>

@@ -31,7 +31,7 @@
                 @endforeach
             </ul>
 
-            <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to Games List') }}</a>
+            <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
         </div>
     </div>
 @endsection
