@@ -3,18 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Game extends Model
 {
-protected $fillable = ['played_at', 'team1_score', 'team2_score'];
+    use SoftDeletes;
 
-public function teams()
-{
-return $this->belongsToMany(Player::class, 'teams')->withPivot('team');
-}
+    protected $fillable = ['played_at', 'team1_score', 'team2_score'];
 
-public function ratings()
-{
-return $this->hasMany(Rating::class);
-}
+    public function teams()
+    {
+        return $this->belongsToMany(Player::class, 'teams')->withPivot('team');
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

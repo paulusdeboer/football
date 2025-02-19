@@ -42,10 +42,17 @@
                                    class="btn btn-warning btn-sm">{{ __('Edit game') }}</a>
                                 <a href="{{ route('games.enter-result', $game) }}"
                                    class="btn btn-warning btn-sm">{{ __('Enter result') }}</a>
+                                <button class="btn btn-danger btn-sm"
+                                        onclick="confirmDelete({{ $game->id }}, '{{ addslashes(Carbon::parse($game->played_at)->format('d-m-Y')) }}')"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteGameModal">
+                                    {{ __('Delete game') }}
+                                </button>
                             @else
                                 <a href="{{ route('games.enter-result', $game) }}"
                                    class="btn btn-warning btn-sm">{{ __('Edit result') }}</a>
                             @endif
+
                         </td>
                     </tr>
                 @endforeach
@@ -53,4 +60,37 @@
             </table>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteGameModal" tabindex="-1" aria-labelledby="deleteGameModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteGameModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('Are you sure you want to delete this game?') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <form id="deleteGameForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(gameId, gameDate) {
+            let form = document.getElementById('deleteGameForm');
+            form.action = `/players/${gameId}`;
+
+            let modalTitle = "{{ __('confirm.game_deletion') }}";
+            document.getElementById('deleteGameModalLabel').innerText = modalTitle.replace(':date', gameDate);
+        }
+    </script>
 @endsection

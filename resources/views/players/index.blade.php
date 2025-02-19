@@ -85,6 +85,5 @@
             let modalTitle = "{{ __('confirm.player_deletion') }}";
             document.getElementById('deletePlayerModalLabel').innerText = modalTitle.replace(':name', playerName);
         }
-
     </script>
 @endsection
