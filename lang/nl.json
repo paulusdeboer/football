@@ -96,7 +96,7 @@
     "Reset Password Notification": "Reset Wachtwoord Notificatie",
     "You are receiving this email because we received a password reset request for your account.": "Je ontvangt deze e-mail omdat we een wachtwoord reset verzoek voor jouw account hebben ontvangen.",
     "Reset Password": "Reset Wachtwoord",
-    "This password reset link will expire in :count minutes.": "Deze wachtwoord reset link zal verlopen na :count minutes.",
+    "This password reset link will expire in :count minutes.": "Deze wachtwoord reset link zal verlopen na :count minuten.",
     "If you did not request a password reset, no further action is required.": "Als je geen verzoek voor wachtwoord reset hebt gedaan, is verder geen actie nodig.",
     "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Als je problemen hebt met het klikken op de knop \":actionText\", kopieer en plak de onderstaande URL\nin je webbrowser:"
 }
