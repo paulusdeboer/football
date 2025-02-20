@@ -34,7 +34,7 @@
                         <td>{{ Carbon::parse($game->played_at)->format('d-m-Y') }}</td>
                         <td>{{ $game->team1_score }}</td>
                         <td>{{ $game->team2_score }}</td>
-                        <td>
+                        <td class="actions">
                             <a href="{{ route('games.show', $game) }}"
                                class="btn btn-info btn-sm">{{ __('View') }}</a>
                             @if ($game->team1_score === null && $game->team2_score === null)
@@ -107,5 +107,17 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+        document.querySelectorAll('.actions .btn').forEach(button => {
+            button.addEventListener('click', () => {
+                sessionStorage.setItem('scrollPosition', window.scrollY);
+            });
+        });
+        window.onload = function() {
+            const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+            if (savedScrollPosition) {
+                window.scrollTo(0, savedScrollPosition);
+                sessionStorage.removeItem('scrollPosition');
+            }
+        };
     </script>
 @endsection

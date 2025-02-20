@@ -42,7 +42,7 @@
                         <td>{{ $player->rating }}</td>
                         <td>{{ ($player->type === 'attacker' ? __('Attacker') : ($player->type === 'defender' ? __('Defender') : __('Both'))) }}</td>
                         <td>{{ Carbon::parse($player->created_at)->format('d-m-Y') }}</td>
-                        <td>
+                        <td class="actions">
                             <a href="{{ route('players.edit', $player) }}"
                                class="btn btn-warning btn-sm">{{ __('Edit player') }}</a>
                             @if ($player->deleted_at)
@@ -98,5 +98,17 @@
             let modalTitle = "{{ __('confirm.player_deletion') }}";
             document.getElementById('deletePlayerModalLabel').innerText = modalTitle.replace(':name', playerName);
         }
+        document.querySelectorAll('.actions .btn').forEach(button => {
+            button.addEventListener('click', () => {
+                sessionStorage.setItem('scrollPosition', window.scrollY);
+            });
+        });
+        window.onload = function() {
+            const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+            if (savedScrollPosition) {
+                window.scrollTo(0, savedScrollPosition);
+                sessionStorage.removeItem('scrollPosition');
+            }
+        };
     </script>
 @endsection

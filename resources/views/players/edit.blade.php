@@ -47,7 +47,7 @@
                                placeholder="{{ __('Rating') }}"
                                value="{{ $player->rating / 100 }}"
                                required
-                               min="5.0" max="10.0" step="0.1">
+                               min="5.00" max="10.00" step="0.01">
                     </div>
                     <div class="col-2">
                         <select name="type" class="form-control form-select player-type" required>
