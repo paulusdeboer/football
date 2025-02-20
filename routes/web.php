@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
 
     // index, create, store, show, edit, update, destroy
     Route::resource('players', PlayerController::class);
+    Route::patch('/players/{id}/restore', [PlayerController::class, 'restore'])->name('players.restore');
 });
 
 // Signed route for players to rate others

@@ -15,6 +15,11 @@
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
             {{ __('Player list') }}
+            <form method="GET" action="{{ route('players.index') }}" class="float-end ">
+                <button type="submit" name="include_deleted" value="{{ request('include_deleted') == '1' ? '0' : '1' }}" class="btn btn-sm {{ request('include_deleted') == '1' ? 'btn-secondary' : 'btn-primary' }}">
+                    {{ request('include_deleted') == '1' ? __('Active players only') : __('All players (including inactive)') }}
+                </button>
+            </form>
         </div>
 
         <div class="card-body">
@@ -40,12 +45,20 @@
                         <td>
                             <a href="{{ route('players.edit', $player) }}"
                                class="btn btn-warning btn-sm">{{ __('Edit player') }}</a>
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="confirmDelete({{ $player->id }}, '{{ addslashes($player->name) }}')"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deletePlayerModal">
-                                {{ __('Delete player') }}
-                            </button>
+                            @if ($player->deleted_at)
+                                <form action="{{ route('players.restore', $player->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-success btn-sm">{{ __('Restore') }}</button>
+                                </form>
+                            @else
+                                <button class="btn btn-danger btn-sm"
+                                        onclick="confirmDelete({{ $player->id }}, '{{ addslashes($player->name) }}')"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deletePlayerModal">
+                                    {{ __('Delete player') }}
+                                </button>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 
 class PlayerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $players = Player::orderBy('name', 'desc')->get();
+        $query = Player::query();
+        if ($request->has('include_deleted') && $request->input('include_deleted') == '1') {
+            $query->withTrashed();
+        }
+
+        $players = $query->orderBy('name')->get();
         $user = auth()->user();
 
         return view('players.index', compact('players', 'user'));
@@ -86,5 +91,14 @@ class PlayerController extends Controller
         $player->delete();
 
         return redirect()->route('players.index')->with('success', __('Player deleted successfully.'));
+    }
+
+    public function restore($id)
+    {
+        $player = Player::withTrashed()->findOrFail($id);
+
+        $player->restore();
+
+        return redirect()->route('players.index')->with('status', __('Player restored successfully.'));
     }
 }
