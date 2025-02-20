@@ -22,7 +22,7 @@ class RatingRequestMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Rate your fellow players')
+        return $this->subject(__('Rate your fellow players'))
             ->view('emails.rating_request')
             ->with(['url' => $this->url]);
     }

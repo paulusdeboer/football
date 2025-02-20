@@ -10,12 +10,12 @@ class Rating extends Model
 
     public function ratedPlayer()
     {
-        return $this->belongsTo(Player::class, 'rated_player_id');
+        return $this->belongsTo(Player::class, 'rated_player_id')->withTrashed();
     }
 
     public function ratingPlayer()
     {
-        return $this->belongsTo(Player::class, 'rating_player_id');
+        return $this->belongsTo(Player::class, 'rating_player_id')->withTrashed();
     }
 
     public function game()

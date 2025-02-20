@@ -25,7 +25,7 @@
     "Welcome": "Welkom",
     "Dashboard": "Dashboard",
     "Hello": "Hallo",
-    "Please use the following link to submit your ratings (the link expires in 48 hours):": "Gebruik de volgende link om je beoordelingen in te dienen (de link verloopt over 48 uur):",
+    "Please use the following link to submit your ratings (the link expires in 72 hours):": "Gebruik de volgende link om je beoordelingen in te dienen (de link verloopt over 72 uur):",
     "Rate players": "Beoordeel spelers",
     "Games": "Wedstrijden",
     "Save": "Opslaan",
@@ -64,6 +64,7 @@
     "Create players": "Spelers aanmaken",
     "Email": "E-mail",
     "Rating": "Beoordeling",
+    "Rate your fellow players": "Beoordeel je medespelers",
     "Attacker": "Aanvaller",
     "Defender": "Verdediger",
     "Both": "Beide",
@@ -102,5 +103,11 @@
     "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Als je problemen hebt met het klikken op de knop \":actionText\", kopieer en plak de onderstaande URL\nin je webbrowser:",
     "Delete game": "Wedstrijd verwijderen",
     "confirm.game_deletion": "Wedstrijd met datum :date verwijderen?",
-    "Are you sure you want to delete this game?": "Weet je zeker dat je deze wedstrijd wilt verwijderen?"
+    "Are you sure you want to delete this game?": "Weet je zeker dat je deze wedstrijd wilt verwijderen?",
+    "Hide ratings": "Verberg cijfers",
+    "Show ratings": "Toon cijfers",
+    "Players have already submitted ratings for this game": "Spelers hebben al beoordelingen ingevuld voor deze wedstrijd",
+    "Rating requests have been sent to": "Beoordeel verzoeken zijn gestuurd naar",
+    "password_reset_link_sent": "Als een account bestaat voor :username, hebben we een wachtwoord reset link gestuurd naar het bijbehorende e-mailadres",
+    "Username": "Gebruikersnaam"
 }

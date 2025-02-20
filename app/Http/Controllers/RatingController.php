@@ -47,7 +47,7 @@ class RatingController extends Controller
         $this->updatePlayerRatings($game);
 
         $confirmationUrl = URL::temporarySignedRoute(
-            'ratings.confirm', now()->addHours(48), ['game' => $game->id, 'player' => $player->id]
+            'ratings.confirm', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
         );
 
         return redirect($confirmationUrl)->with('success', __('Player ratings have been submitted.'));

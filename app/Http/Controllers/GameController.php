@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
+use App\Models\RatingRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +52,8 @@ class GameController extends Controller
     {
         $user = auth()->user();
 
+        $ratingRequests = $game->ratingRequests()->get();
+
         $team1Ratings = $game->gamePlayerRatings()
             ->whereHas('player', function ($query) use ($game) {
                 $query->whereHas('teams', function ($subQuery) use ($game) {
@@ -74,7 +77,7 @@ class GameController extends Controller
         $team1Rating = $team1Ratings->sum('rating');
         $team2Rating = $team2Ratings->sum('rating');
 
-        return view('games.show', compact('game', 'user', 'team1Rating', 'team2Rating', 'team1Ratings', 'team2Ratings'));
+        return view('games.show', compact('game', 'user', 'ratingRequests', 'team1Rating', 'team2Rating', 'team1Ratings', 'team2Ratings'));
     }
 
     public function edit($id): View
@@ -167,6 +170,7 @@ class GameController extends Controller
                 'game_id' => $game->id,
                 'player_id' => $player->id,
                 'rating' => $player->rating,
+                'type' => $player->type,
             ]);
         }
     }
@@ -347,21 +351,26 @@ class GameController extends Controller
         // Select 3 random players and send them email requests to rate others
         $players = $game->teams()->inRandomOrder()->limit(3)->get();
 
+        $sentRequests = [];
+
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
-                'players.rate', now()->addHours(48), ['game' => $game->id, 'player' => $player->id]
+                'players.rate', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
             );
 
-            // Log the URL for testing purposes
-            Log::info("Generated rating URL: $tokenUrl");
-
             try {
+                RatingRequest::create([
+                    'game_id' => $game->id,
+                    'player_id' => $player->id
+                ]);
+
                 Mail::to($player->user->email)->send(new RatingRequestMail($game, $tokenUrl));
 
-                Log::info("Rating request sent to player ID $player->id for game ID $game->id");
             } catch (\Exception $e) {
                 Log::error("Failed to send rating request to player ID $player->id for game ID $game->id: " . $e->getMessage());
             }
         }
+
+        return $sentRequests;
     }
 }

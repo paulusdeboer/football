@@ -3,18 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Log;
 
 class Game extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = ['played_at', 'team1_score', 'team2_score'];
 
     public function teams()
     {
-        return $this->belongsToMany(Player::class, 'teams')->withPivot('team');
+        return $this->belongsToMany(Player::class, 'teams')->withPivot('team')->withTrashed();
+    }
+
+    public function ratingRequests()
+    {
+        return $this->hasMany(RatingRequest::class);
     }
 
     public function ratings()

@@ -30,16 +30,16 @@
                                     <div class="card-body">
                                         @if (session('status'))
                                             <div class="alert alert-success" role="alert">
-                                                {{ session('status') }}
+                                                {!! session('status') !!}
                                             </div>
                                         @endif
 
                                         <form method="POST" action="{{ route('password.email') }}">
                                             @csrf
                                             <div class="form-floating mb-3">
-                                                <input class="form-control @error('email') is-invalid @enderror" id="inputEmail" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="name@example.com">
-                                                <label for="inputEmail">{{ __('Email address') }}</label>
-                                                @error('email')
+                                                <input class="form-control @error('name') is-invalid @enderror" id="inputName" type="text" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus placeholder="name">
+                                                <label for="inputName">{{ __('Username') }}</label>
+                                                @error('name')
                                                 <span class="invalid-feedback" role="alert">
                                                                 <strong>{{ $message }}</strong>
                                                             </span>

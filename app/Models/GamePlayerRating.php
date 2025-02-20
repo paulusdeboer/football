@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class GamePlayerRating extends Model
 {
-    protected $fillable = ['player_id', 'rating', 'game_id'];
+    protected $fillable = ['game_id', 'player_id', 'rating', 'type'];
 
     public function player()
     {
-        return $this->belongsTo(Player::class);
+        return $this->belongsTo(Player::class)->withTrashed();
     }
 
     public function game()

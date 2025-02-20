@@ -8,6 +8,8 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
@@ -31,7 +33,7 @@
                             </div>
                             <div class="card-body">
                                 @if ($hasRated)
-                                    <p>{{ __('You have already submitted a rating for this game.') }}</p>
+                                    <p class="text-center">{{ __('You have already submitted a rating for this game.') }}</p>
                                 @else
                                     @if ($errors->any())
                                         <div class="alert alert-danger">
@@ -47,6 +49,8 @@
                                         @csrf
 
                                         <div class="row">
+                                            <p><strong>{{ __('Result') . ': ' }}</strong> {{ $game->team1_score ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
+
                                             <div class="col">
                                                 <h5>{{ __('Team 1') }}</h5>
                                                 <div class="form-group">

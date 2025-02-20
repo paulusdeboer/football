@@ -49,8 +49,16 @@
                                     {{ __('Delete game') }}
                                 </button>
                             @else
-                                <a href="{{ route('games.enter-result', $game) }}"
-                                   class="btn btn-warning btn-sm">{{ __('Edit result') }}</a>
+                                @if ($game->ratings->isNotEmpty())
+                                    <div class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Players have already submitted ratings for this game') }}">
+                                        <button class="btn btn-warning btn-sm" disabled>{{ __('Edit result') }}</button>
+                                    </div>
+                                @else
+                                    <a href="{{ route('games.enter-result', $game) }}"
+                                       class="btn btn-warning btn-sm">
+                                        {{ __('Edit result') }}
+                                    </a>
+                                @endif
                             @endif
 
                         </td>
@@ -92,5 +100,12 @@
             let modalTitle = "{{ __('confirm.game_deletion') }}";
             document.getElementById('deleteGameModalLabel').innerText = modalTitle.replace(':date', gameDate);
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
     </script>
 @endsection

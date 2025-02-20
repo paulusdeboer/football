@@ -40,21 +40,13 @@ class LoginController extends Controller
 
     protected function username(): string
     {
-        $login = request()->input('login');
-
-        // Check if the input is an email address
-        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
-
-        // Add the field to the request for authentication
-        request()->merge([$fieldType => $login]);
-
-        return $fieldType;
+        return 'name';
     }
 
     public function rules(): array
     {
         return [
-            'login' => 'required|string',
+            'name' => 'required|string|exists:users,name',
             'password' => 'required|string',
         ];
     }

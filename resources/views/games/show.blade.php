@@ -10,18 +10,30 @@
             </ol>
         </div>
     </div>
+
     <div class="card mb-4">
-        <div class="card-header">{{ __('Game details') }}</div>
+        <div class="card-header">
+            {{ __('Game details') }}
+        </div>
 
         <div class="card-body">
             <p><strong>{{ __('Date') }}:</strong> {{ Carbon::parse($game->played_at)->format('d-m-Y') }}</p>
             <p><strong>{{ __('Result') . ': ' }}</strong> {{ $game->team1_score ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
+            <p><strong>{{ __('Rating requests have been sent to') . ': ' }}</strong></p>
+            @if(!empty($ratingRequests))
+                <ul>
+                    @foreach($ratingRequests as $request)
+                        <li>{{ $request->player->name }} ({{ $request->player->user->email }})</li>
+                    @endforeach
+                </ul>
+            @endif
 
             <h5>{{ __('Players in team 1') . ' (' . $team1Rating . ')'}}</h5>
             <ul>
                 @foreach ($team1Ratings->sortBy('player.name') as $rating)
-                    <li>
-                        {{ '(' . ($rating->player->type === 'attacker' ? 'A' : ($rating->player->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name . ' - ' . $rating->rating }}
+                    <li class="player-rating">
+                        {{ '(' . ($rating->type === 'attacker' ? 'A' : ($rating->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name }}
+                        <span class="rating-value"> - {{ $rating->rating }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -29,13 +41,32 @@
             <h5>{{ __('Players in team 2') . ' (' . $team2Rating . ')'}}</h5>
             <ul>
                 @foreach ($team2Ratings->sortBy('player.name') as $rating)
-                    <li>
-                        {{ '(' . ($rating->player->type === 'attacker' ? 'A' : ($rating->player->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name . ' - ' . $rating->rating }}
+                    <li class="player-rating">
+                        {{ '(' . ($rating->type === 'attacker' ? 'A' : ($rating->type === 'defender' ? 'D' : 'B')) . ') ' . $rating->player->name }}
+                        <span class="rating-value"> - {{ $rating->rating }}</span>
                     </li>
                 @endforeach
             </ul>
+
+            <button id="toggleRatings" class="btn btn-sm btn-primary">{{ __('Hide ratings') }}</button>
+
         </div>
     </div>
+
     <a href="{{ route('games.index') }}" class="btn btn-secondary">{{ __('Back to games list') }}</a>
+
+    {{-- JavaScript voor toggelen van ratings --}}
+    <script>
+        document.getElementById('toggleRatings').addEventListener('click', function () {
+            let ratings = document.querySelectorAll('.rating-value');
+            let isHidden = ratings[0].style.display === 'none';
+
+            ratings.forEach(rating => {
+                rating.style.display = isHidden ? 'inline' : 'none';
+            });
+
+            this.textContent = isHidden ? '{{ __('Hide ratings') }}' : '{{ __('Show ratings') }}';
+        });
+    </script>
 @endsection
 

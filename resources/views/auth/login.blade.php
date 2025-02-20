@@ -31,9 +31,9 @@
                                         <form method="POST" action="{{ route('login') }}">
                                             @csrf
                                             <div class="form-floating mb-3">
-                                                <input class="form-control @error('login') is-invalid @enderror" id="login" type="text" name="login" value="{{ old('login') }}" required autofocus placeholder="name@example.com or username">
-                                                <label for="login">{{ __('Username or email') }}</label>
-                                                @error('login')
+                                                <input class="form-control @error('name') is-invalid @enderror" id="name" type="text" name="name" value="{{ old('name') }}" required autofocus placeholder="name">
+                                                <label for="name">{{ __('Username') }}</label>
+                                                @error('name')
                                                 <span class="invalid-feedback" role="alert">
                                                                 <strong>{{ $message }}</strong>
                                                             </span>
