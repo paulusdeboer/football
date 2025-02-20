@@ -111,5 +111,6 @@
     "password_reset_link_sent": "Als een account bestaat voor :username, hebben we een wachtwoord reset link gestuurd naar het bijbehorende e-mailadres",
     "Username": "Gebruikersnaam",
     "Active players only": "Alleen actieve spelers",
-    "All players (including inactive)": "Alle spelers (incl. inactief)"
+    "All players (including inactive)": "Alle spelers (incl. inactief)",
+    "Restore": "Herstellen"
 }

@@ -10,6 +10,23 @@ class Player extends Model
     use SoftDeletes;
     protected $fillable = ['name', 'rating', 'previous_rating', 'type', 'user_id'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($player) {
+            if ($player->user) {
+                $player->user->delete();
+            }
+        });
+
+        static::restoring(function ($player) {
+            if ($player->user) {
+                $player->user->restore();
+            }
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

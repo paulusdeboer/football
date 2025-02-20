@@ -100,7 +100,13 @@ class GameController extends Controller
             'played_at' => $request->played_at,
         ]);
 
-        $this->handleGameTeams($game, Player::whereIn('id', $request->players)->get());
+        $players = Player::whereIn('id', $request->players)->get();
+
+        $game->teams()->detach();
+        $game->gamePlayerRatings()->delete();
+
+        $this->storeGamePlayerRatings($game, $players);
+        $this->handleGameTeams($game, $players);
 
         return redirect()->route('games.show', $game)->with('success', __('Game updated successfully.'));
     }

@@ -17,6 +17,8 @@
         </div>
 
         <div class="card-body">
+            <a href="{{ route('games.edit', $game) }}"
+               class="btn btn-warning btn-sm float-end">{{ __('Edit game') }}</a>
             <p><strong>{{ __('Date') }}:</strong> {{ Carbon::parse($game->played_at)->format('d-m-Y') }}</p>
             <p><strong>{{ __('Result') . ': ' }}</strong> {{ $game->team1_score ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
             <p><strong>{{ __('Rating requests have been sent to') . ': ' }}</strong></p>
