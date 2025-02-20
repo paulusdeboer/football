@@ -133,7 +133,7 @@ class GameController extends Controller
 
         $this->basicRatingAdjustment($game);
 
-        if ($request->send_rating_requests) {
+        if ($request->send_rating_requests && !$game->ratingRequests()->exists()) {
             $this->sendRatingRequests($game);
         }
 
@@ -228,7 +228,7 @@ class GameController extends Controller
         }
     }
 
-    private function checkAndDistributePlayers($team1, $team2, $players)
+    private function checkAndDistributePlayers($team1, $team2, $players): array
     {
         if ($players->count() >= 2) {
             if ($players->count() == 2) {
@@ -314,7 +314,7 @@ class GameController extends Controller
         }
     }
 
-    private function basicRatingAdjustment(Game $game)
+    private function basicRatingAdjustment(Game $game): void
     {
         $team1Players = $game->teams()->where('team', 'team1')->get();
         $team2Players = $game->teams()->where('team', 'team2')->get();
@@ -339,7 +339,7 @@ class GameController extends Controller
         $this->procesScore($losingTeam, $scoreDifference, false);
     }
 
-    private function procesScore($team, int $scoreDifference, bool $won)
+    private function procesScore($team, int $scoreDifference, bool $won): void
     {
         foreach ($team as $player) {
             $player->previous_rating = $player->rating;
@@ -352,12 +352,10 @@ class GameController extends Controller
         }
     }
 
-    private function sendRatingRequests(Game $game)
+    private function sendRatingRequests(Game $game): void
     {
         // Select 3 random players and send them email requests to rate others
         $players = $game->teams()->inRandomOrder()->limit(3)->get();
-
-        $sentRequests = [];
 
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
@@ -376,7 +374,5 @@ class GameController extends Controller
                 Log::error("Failed to send rating request to player ID $player->id for game ID $game->id: " . $e->getMessage());
             }
         }
-
-        return $sentRequests;
     }
 }

@@ -5,12 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Rating;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class RatingController extends Controller
 {
-    public function showForm(Game $game, Player $player)
+    public function index(): View
+    {
+        $games = Game::with([
+            'ratings' => function ($query) {
+                $query->orderBy('rating_player_id')
+                ->join('players as rated_players', 'ratings.rated_player_id', '=', 'rated_players.id')
+                ->orderBy('rated_players.name');
+            },
+            'ratings.ratingPlayer',
+            'ratings.ratedPlayer'
+        ])->orderBy('played_at', 'desc')->get();
+
+        $user = auth()->user();
+
+        return view('ratings.index', compact('games', 'user'));
+    }
+
+    public function showForm(Game $game, Player $player): View
     {
         $team1Players = $game->teams()->where('team', 'team1')->get()->sortBy('name');
         $team2Players = $game->teams()->where('team', 'team2')->get()->sortBy('name');
@@ -21,7 +40,7 @@ class RatingController extends Controller
         return view('ratings.form', compact('game', 'player', 'team1Players', 'team2Players', 'hasRated'));
     }
 
-    public function store(Request $request, Game $game, Player $player)
+    public function store(Request $request, Game $game, Player $player): RedirectResponse
     {
         $request->validate([
             'ratings' => 'required|array',
@@ -53,12 +72,12 @@ class RatingController extends Controller
         return redirect($confirmationUrl)->with('success', __('Player ratings have been submitted.'));
     }
 
-    public function showConfirmation(Game $game, Player $player)
+    public function showConfirmation(Game $game, Player $player): View
     {
         return view('ratings.confirmation', compact('game', 'player'));
     }
 
-    public function updatePlayerRatings(Game $game)
+    public function updatePlayerRatings(Game $game): void
     {
         $team1Score = $game->team1_score;
         $team2Score = $game->team2_score;

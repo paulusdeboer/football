@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PlayerController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Player::query();
         if ($request->has('include_deleted') && $request->input('include_deleted') == '1') {
@@ -21,14 +23,14 @@ class PlayerController extends Controller
         return view('players.index', compact('players', 'user'));
     }
 
-    public function create()
+    public function create(): View
     {
         $user = auth()->user();
 
         return view('players.create', compact('user'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'players' => 'required|array',
@@ -58,7 +60,7 @@ class PlayerController extends Controller
         return redirect()->route('players.index')->with('success', __('Player created successfully.'));
     }
 
-    public function edit(string $id)
+    public function edit(string $id): View
     {
         $player = Player::findOrFail($id);
         $user = auth()->user();
@@ -66,7 +68,7 @@ class PlayerController extends Controller
         return view('players.edit', compact('player', 'user'));
     }
 
-    public function update(Request $request, Player $player)
+    public function update(Request $request, Player $player): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -85,7 +87,7 @@ class PlayerController extends Controller
         return redirect()->route('players.index')->with('success', __('Player updated successfully.'));
     }
 
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
         $player = Player::findOrFail($id);
         $player->delete();
@@ -93,7 +95,7 @@ class PlayerController extends Controller
         return redirect()->route('players.index')->with('success', __('Player deleted successfully.'));
     }
 
-    public function restore($id)
+    public function restore($id): RedirectResponse
     {
         $player = Player::withTrashed()->findOrFail($id);
 

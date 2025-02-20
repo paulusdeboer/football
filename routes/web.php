@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\PlayerController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,12 @@ Route::middleware(['auth'])->group(function () {
     // index, create, store, show, edit, update, destroy
     Route::resource('players', PlayerController::class);
     Route::patch('/players/{id}/restore', [PlayerController::class, 'restore'])->name('players.restore');
+
+    // index, create, store, show, edit, update, destroy
+    Route::resource('ratings', RatingController::class);
+
+    // index, create, store, show, edit, update, destroy
+    Route::resource('game_player_ratings', GamePlayerRatingController::class);
 });
 
 // Signed route for players to rate others

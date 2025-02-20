@@ -12,9 +12,11 @@
         <a href="{{ route('players.create') }}" class="btn btn-primary mb-3">{{ __('Create player') }}</a>
     </div>
     <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            {{ __('Player list') }}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                {{ __('Player list') }}
+            </div>
             <form method="GET" action="{{ route('players.index') }}" class="float-end ">
                 <button type="submit" name="include_deleted" value="{{ request('include_deleted') == '1' ? '0' : '1' }}" class="btn btn-sm {{ request('include_deleted') == '1' ? 'btn-secondary' : 'btn-primary' }}">
                     {{ request('include_deleted') == '1' ? __('Active players only') : __('All players (including inactive)') }}

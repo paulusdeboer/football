@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
@@ -18,10 +18,8 @@ class DashboardController extends Controller
 
     /**
      * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(): View
     {
         // Simulate data, replace this with your own data from the database
         $dates = ['2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01'];

@@ -111,6 +111,10 @@
                             <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                             {{ __('Games') }}
                         </a>
+                        <a class="nav-link" href="{{ route('ratings.index') }}">
+                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            {{ __('Given ratings') }}
+                        </a>
                         <a class="nav-link" href="{{ route('games.create') }}">
                             <div class="sb-nav-link-icon"><i class="fa-regular fa-calendar-plus"></i></div>
                             {{ __('Create game') }}
