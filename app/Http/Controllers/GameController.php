@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
 use App\Models\RatingRequest;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -228,7 +229,7 @@ class GameController extends Controller
         }
     }
 
-    private function checkAndDistributePlayers($team1, $team2, $players): array
+    private function checkAndDistributePlayers($team1, $team2, $players): Collection
     {
         if ($players->count() >= 2) {
             if ($players->count() == 2) {
