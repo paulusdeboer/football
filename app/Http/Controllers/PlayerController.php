@@ -12,22 +12,43 @@ class PlayerController extends Controller
 {
     public function index(Request $request): View
     {
+        $user = auth()->user();
+
+        $sortBy = $request->get('sort_by', session('sort_by', 'name'));
+        $sortDirection = $request->get('sort_direction', session('sort_direction', 'asc'));
+
+        $allowedSortColumns = ['name', 'rating', 'type', 'created_at', 'email'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'name';
+        }
+
         $includeDeleted = $request->has('include_deleted')
             ? $request->include_deleted
             : session('include_deleted', '0');
 
-        session(['include_deleted' => $includeDeleted]);
+        session([
+            'sort_by' => $sortBy,
+            'sort_direction' => $sortDirection,
+            'include_deleted' => $includeDeleted
+        ]);
 
-        $players = Player::query();
+        $playersQuery = Player::query()->with('user');
 
         if ($includeDeleted == '1') {
-            $players = $players->withTrashed();
+            $playersQuery->withTrashed();
         }
 
-        $players = $players->orderBy('name')->get();
-        $user = auth()->user();
+        if ($sortBy === 'email') {
+            $playersQuery->leftJoin('users', 'players.user_id', '=', 'users.id')
+                ->orderBy('users.email', $sortDirection)
+                ->select('players.*');
+        } else {
+            $playersQuery->orderBy($sortBy, $sortDirection);
+        }
 
-        return view('players.index', compact('players', 'user'));
+        $players = $playersQuery->get();
+
+        return view('players.index', compact('players', 'user', 'sortBy', 'sortDirection'));
     }
 
     public function create(): View

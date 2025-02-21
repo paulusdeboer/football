@@ -21,12 +21,36 @@
 
             <table class="table">
                 <thead>
-                <tr>
-                    <th>{{ __('Game date') }}</th>
-                    <th>{{ __('Team 1 score') }}</th>
-                    <th>{{ __('Team 2 score') }}</th>
-                    <th>{{ __('Actions') }}</th>
-                </tr>
+                    <tr>
+                        @php
+                            $columns = [
+                                'name' => __('Name'),
+                                'email' => __('Email'),
+                                'rating' => __('Rating'),
+                                'type' => __('Type'),
+                                'created_at' => __('Created at'),
+                            ];
+                        @endphp
+
+                        @foreach ($columns as $column => $label)
+                            @php
+                                $isSorted = $sortBy === $column;
+                                $newDirection = $isSorted && $sortDirection === 'asc' ? 'desc' : 'asc';
+                                $icon = $isSorted
+                                    ? ($sortDirection === 'asc'
+                                        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+                                        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>')
+                                    : '';
+                            @endphp
+
+                            <th>
+                                <a class="align-middle text-decoration-none text-dark" href="{{ route('players.index', array_merge(request()->query(), ['sort_by' => $column, 'sort_direction' => $newDirection])) }}">
+                                    {!! $label !!} {!! $icon !!}
+                                </a>
+                            </th>
+                        @endforeach
+                        <th>{{ __('Actions') }}</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @foreach ($games as $game)

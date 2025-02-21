@@ -18,7 +18,7 @@
 
                 <div class="form-check mb-3">
                     <label class="form-check-label" for="send_rating_requests">{{ __('Send rating request e-mails') }}</label>
-                    <input type="checkbox" id="send_rating_requests" name="send_rating_requests" class="form-check-input" @if ($game->team1_score) disabled @endif>
+                    <input type="checkbox" id="send_rating_requests" name="send_rating_requests" class="form-check-input" @if (!$game->ratingRequests()->exists()) disabled @endif>
                 </div>
 
                 <div class="row">

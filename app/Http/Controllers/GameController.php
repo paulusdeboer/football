@@ -17,12 +17,21 @@ use Illuminate\View\View;
 
 class GameController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $games = Game::orderBy('played_at', 'desc')->get();
         $user = auth()->user();
 
-        return view('games.index', compact('games', 'user'));
+        $sortBy = $request->get('sort_by', 'played_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+
+        $allowedSortColumns = ['played_at', 'team1_score', 'team2_score'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'played_at';
+        }
+
+        $games = Game::orderBy($sortBy, $sortDirection)->get();
+
+        return view('games.index', compact('games', 'user', 'sortBy', 'sortDirection'));
     }
 
     public function create(): View

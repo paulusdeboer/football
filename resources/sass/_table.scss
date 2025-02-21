@@ -1,3 +1,8 @@
 table td {
     align-content: center;
 }
+
+table a {
+    color: var(--bs-table-color);
+    text-decoration: none;
+}
