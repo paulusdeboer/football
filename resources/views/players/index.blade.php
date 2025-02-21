@@ -17,9 +17,10 @@
                 <i class="fas fa-table me-1"></i>
                 {{ __('Player list') }}
             </div>
-            <form method="GET" action="{{ route('players.index') }}" class="float-end ">
-                <button type="submit" name="include_deleted" value="{{ request('include_deleted') == '1' ? '0' : '1' }}" class="btn btn-sm {{ request('include_deleted') == '1' ? 'btn-secondary' : 'btn-primary' }}">
-                    {{ request('include_deleted') == '1' ? __('Active players only') : __('All players (including inactive)') }}
+            <form method="GET" action="{{ route('players.index') }}" class="float-end">
+                <button type="submit" name="include_deleted" value="{{ session('include_deleted', '0') == '1' ? '0' : '1' }}"
+                        class="btn btn-sm {{ session('include_deleted', '0') == '1' ? 'btn-secondary' : 'btn-primary' }}">
+                    {{ session('include_deleted', '0') == '1' ? __('Active players only') : __('All players (including inactive)') }}
                 </button>
             </form>
         </div>

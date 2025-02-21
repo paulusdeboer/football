@@ -12,12 +12,19 @@ class PlayerController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Player::query();
-        if ($request->has('include_deleted') && $request->input('include_deleted') == '1') {
-            $query->withTrashed();
+        $includeDeleted = $request->has('include_deleted')
+            ? $request->include_deleted
+            : session('include_deleted', '0');
+
+        session(['include_deleted' => $includeDeleted]);
+
+        $players = Player::query();
+
+        if ($includeDeleted == '1') {
+            $players = $players->withTrashed();
         }
 
-        $players = $query->orderBy('name')->get();
+        $players = $players->orderBy('name')->get();
         $user = auth()->user();
 
         return view('players.index', compact('players', 'user'));
