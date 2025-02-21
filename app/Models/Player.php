@@ -21,8 +21,10 @@ class Player extends Model
         });
 
         static::restoring(function ($player) {
-            if ($player->user) {
-                $player->user->restore();
+            $user = User::withTrashed()->find($player->user_id);
+
+            if ($user) {
+                $user->restore();
             }
         });
     }
