@@ -86,12 +86,12 @@ class RatingController extends Controller
         $playersInGame = $game->teams;
 
         foreach ($playersInGame as $player) {
-            $previousRating = $player->previous_rating;
+            $previousRating = $player->gamePlayerRatings()->where('game_id', $game->id)->pluck('rating')->first();
 
             // Check if there are already existing ratings for this player in the game
             $ratings = $game->ratings()->where('rated_player_id', $player->id)->pluck('rating_value');
 
-            $averageRating = $ratings->count() > 0 ? ($ratings->sum() / $ratings->count()) * 100 : 0;
+            $averageRating = $ratings->count() > 0 ? ($ratings->sum() / $ratings->count()) * 100 : $previousRating;
 
             // Use pivot to determine if the player was in the winning team or not.
             $team = $player->pivot->team;

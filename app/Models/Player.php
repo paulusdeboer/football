@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Player extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'rating', 'previous_rating', 'type', 'user_id'];
+    protected $fillable = ['name', 'rating', 'type', 'user_id'];
 
     protected static function boot()
     {

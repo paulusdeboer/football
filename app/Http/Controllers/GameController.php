@@ -345,19 +345,20 @@ class GameController extends Controller
         }
 
         $scoreDifference = abs($team1Score - $team2Score);
-        $this->procesScore($winningTeam, $scoreDifference, true);
-        $this->procesScore($losingTeam, $scoreDifference, false);
+        $this->procesScore($game, $winningTeam, $scoreDifference, true);
+        $this->procesScore($game, $losingTeam, $scoreDifference, false);
     }
 
-    private function procesScore($team, int $scoreDifference, bool $won): void
+    private function procesScore(Game $game, $team, int $scoreDifference, bool $won): void
     {
         foreach ($team as $player) {
-            $player->previous_rating = $player->rating;
+            $currentRating = $player->gamePlayerRatings()->where('game_id', $game->id)->pluck('rating')->first();
 
             $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
-            $newRating = $player->rating * $coefficient;
+            $newRating = $currentRating * $coefficient;
 
             $player->rating = $newRating;
+
             $player->save();
         }
     }

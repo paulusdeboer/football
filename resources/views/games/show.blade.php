@@ -16,8 +16,20 @@
             <div>
                 {{ __('Game details') }}
             </div>
-            <a href="{{ route('games.edit', $game) }}"
-               class="btn btn-primary btn-sm">{{ __('Edit game') }}</a>
+            @if ($game->team1_score === null && $game->team2_score === null)
+                <a href="{{ route('games.edit', $game) }}" class="btn btn-primary btn-sm">{{ __('Edit game') }}</a>
+            @else
+                @if ($game->ratings->isNotEmpty())
+                    <div class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Players have already submitted ratings for this game') }}">
+                        <button class="btn btn-warning btn-sm" disabled>{{ __('Edit result') }}</button>
+                    </div>
+                @else
+                    <a href="{{ route('games.enter-result', $game) }}"
+                       class="btn btn-warning btn-sm">
+                        {{ __('Edit result') }}
+                    </a>
+                @endif
+            @endif
         </div>
 
         <div class="card-body">
@@ -70,6 +82,13 @@
             });
 
             this.textContent = isHidden ? '{{ __('Hide ratings') }}' : '{{ __('Show ratings') }}';
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         });
     </script>
 @endsection
