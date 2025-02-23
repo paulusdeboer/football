@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
 use App\Models\RatingRequest;
+use App\Services\RatingCalculator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -141,7 +142,7 @@ class GameController extends Controller
             'team2_score' => $request->team2_score,
         ]);
 
-        $this->basicRatingAdjustment($game);
+        $this->updatePlayerRatings($game);
 
         if ($request->send_rating_requests && !$game->ratingRequests()->exists()) {
             $this->sendRatingRequests($game);
@@ -324,42 +325,13 @@ class GameController extends Controller
         }
     }
 
-    private function basicRatingAdjustment(Game $game): void
+    private function updatePlayerRatings(Game $game): void
     {
-        $team1Players = $game->teams()->where('team', 'team1')->get();
-        $team2Players = $game->teams()->where('team', 'team2')->get();
+        $ratingCalculator = new RatingCalculator();
+        $newRatings = $ratingCalculator->calculate($game);
 
-        $team1Score = $game->team1_score;
-        $team2Score = $game->team2_score;
-
-        // Determine the winning and losing team
-        if ($team1Score > $team2Score) {
-            $winningTeam = $team1Players;
-            $losingTeam = $team2Players;
-        } elseif ($team1Score < $team2Score) {
-            $winningTeam = $team2Players;
-            $losingTeam = $team1Players;
-        } else {
-            // No rating changes
-            return;
-        }
-
-        $scoreDifference = abs($team1Score - $team2Score);
-        $this->procesScore($game, $winningTeam, $scoreDifference, true);
-        $this->procesScore($game, $losingTeam, $scoreDifference, false);
-    }
-
-    private function procesScore(Game $game, $team, int $scoreDifference, bool $won): void
-    {
-        foreach ($team as $player) {
-            $currentRating = $player->gamePlayerRatings()->where('game_id', $game->id)->pluck('rating')->first();
-
-            $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
-            $newRating = $currentRating * $coefficient;
-
-            $player->rating = $newRating;
-
-            $player->save();
+        foreach ($newRatings as $playerId => $newRating) {
+            Player::where('id', $playerId)->update(['rating' => $newRating]);
         }
     }
 

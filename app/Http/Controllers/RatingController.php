@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Rating;
+use App\Services\RatingCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
@@ -79,32 +80,11 @@ class RatingController extends Controller
 
     public function updatePlayerRatings(Game $game): void
     {
-        $team1Score = $game->team1_score;
-        $team2Score = $game->team2_score;
-        $scoreDifference = abs($team1Score - $team2Score);
+        $ratingCalculator = new RatingCalculator();
+        $newRatings = $ratingCalculator->calculate($game);
 
-        $playersInGame = $game->teams;
-
-        foreach ($playersInGame as $player) {
-            $previousRating = $player->gamePlayerRatings()->where('game_id', $game->id)->pluck('rating')->first();
-
-            // Check if there are already existing ratings for this player in the game
-            $ratings = $game->ratings()->where('rated_player_id', $player->id)->pluck('rating_value');
-
-            $averageRating = $ratings->count() > 0 ? ($ratings->sum() / $ratings->count()) * 100 : $previousRating;
-
-            // Use pivot to determine if the player was in the winning team or not.
-            $team = $player->pivot->team;
-            $won = ($team == 'team1' && $team1Score > $team2Score) || ($team == 'team2' && $team2Score > $team1Score);
-
-            $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
-
-            // Use a weighted average so the new rating won't deviate too much.
-            $weightedAverage = ($previousRating * 0.95) + ($averageRating * 0.05);
-            $newPlayerRating = $weightedAverage * $coefficient;
-
-            $player->rating = $newPlayerRating;
-            $player->save();
+        foreach ($newRatings as $playerId => $newRating) {
+            Player::where('id', $playerId)->update(['rating' => $newRating]);
         }
     }
 }

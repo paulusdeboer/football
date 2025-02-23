@@ -34,7 +34,7 @@
 
         <div class="card-body">
             <p><strong>{{ __('Date') }}:</strong> {{ Carbon::parse($game->played_at)->format('d-m-Y') }}</p>
-            <p><strong>{{ __('Result') . ': ' }}</strong> {{ $game->team1_score ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
+            <p><strong>{{ __('Result') . ': ' }}</strong> {{ is_int($game->team1_score) ? $game->team1_score . ' - ' . $game->team2_score : ''}}</p>
             <strong>{{ __('Rating requests have been sent to') . ': ' }}</strong>
             @if(!empty($ratingRequests))
                 <ul>
