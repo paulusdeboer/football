@@ -118,13 +118,6 @@
             let modalTitle = "{{ __('confirm.game_deletion') }}";
             document.getElementById('deleteGameModalLabel').innerText = modalTitle.replace(':date', gameDate);
         }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
         document.querySelectorAll('.actions .btn').forEach(button => {
             button.addEventListener('click', () => {
                 sessionStorage.setItem('scrollPosition', window.scrollY);
