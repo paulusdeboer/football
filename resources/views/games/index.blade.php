@@ -73,16 +73,10 @@
                                     {{ __('Delete game') }}
                                 </button>
                             @else
-                                @if ($game->ratings->isNotEmpty())
-                                    <div class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Players have already submitted ratings for this game') }}">
-                                        <button class="btn btn-warning btn-sm" disabled>{{ __('Edit result') }}</button>
-                                    </div>
-                                @else
-                                    <a href="{{ route('games.enter-result', $game) }}"
-                                       class="btn btn-warning btn-sm">
-                                        {{ __('Edit result') }}
-                                    </a>
-                                @endif
+                                <a href="{{ route('games.enter-result', $game) }}"
+                                   class="btn btn-warning btn-sm">
+                                    {{ __('Edit result') }}
+                                </a>
                             @endif
 
                         </td>
