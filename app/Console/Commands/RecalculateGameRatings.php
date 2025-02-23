@@ -14,29 +14,31 @@ class RecalculateGameRatings extends Command
      *
      * @var string
      */
-    protected $signature = 'ratings:recalculate {game_id}';
+    protected $signature = 'ratings:recalculate';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Recalculate player ratings for a specific game';
+    protected $description = 'Recalculate player ratings for last game';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $gameId = $this->argument('game_id');
-        $game = Game::with(['teams', 'ratings'])->find($gameId);
+        $game = Game::whereNotNull('team1_score')
+            ->whereNotNull('team2_score')
+            ->orderBy('updated_at', 'desc')
+            ->first();
 
         if (!$game) {
-            $this->error(__('Game not found.'));
+            $this->error(__('No recent game found with a result.'));
             return;
         }
 
-        $this->info(__('Recalculating ratings for game ID: ') . $gameId);
+        $this->info(__('Recalculating ratings for game ID: ') . $game->id);
 
         $calculator = new RatingCalculator();
         $newRatings = $calculator->calculate($game);
