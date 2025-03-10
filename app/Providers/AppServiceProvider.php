@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Transaction;
+use App\Observers\TransactionObserver;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -26,5 +28,7 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('local', 'testing')) {
             Mail::alwaysTo('paulusdeboer8@gmail.com');
         }
+
+        Transaction::observe(TransactionObserver::class);
     }
 }

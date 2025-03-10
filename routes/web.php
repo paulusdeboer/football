@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GameController;
-use App\Http\Controllers\RatingController;
 
 // Redirect root URL to login page
 Route::get('/', function () {
@@ -28,6 +29,10 @@ Route::middleware(['auth'])->group(function () {
 
     // index, create, store, show, edit, update, destroy
     Route::resource('game_player_ratings', GamePlayerRatingController::class);
+
+    // index, create, store, show, edit, update, destroy
+    Route::resource('transactions', TransactionController::class);
+
 });
 
 // Signed route for players to rate others
