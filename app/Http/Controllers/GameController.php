@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RatingRequestMail;
 use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
@@ -13,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
-use App\Mail\RatingRequestMail;
 use Illuminate\View\View;
 
 class GameController extends Controller
@@ -337,8 +337,23 @@ class GameController extends Controller
 
     private function sendRatingRequests(Game $game): void
     {
-        // Select 3 random players and send them email requests to rate others
-        $players = $game->teams()->inRandomOrder()->limit(3)->get();
+        // Get players from last game that got a rating request and put them in an exclude array.
+        $lastGame = Game::whereNotNull('team1_score')
+            ->whereNotNull('team2_score')
+            ->where('id', '<', $game->id)
+            ->latest('played_at')
+            ->first();
+        $excludedPlayerIds = $lastGame
+            ? RatingRequest::where('game_id', $lastGame->id)->pluck('player_id')->toArray()
+            : [];;
+
+        // Select 3 random players (without the players in the exclude array) and send them email requests to rate others.
+        $players = $game
+            ->teams()
+            ->whereNotIn('players.id', $excludedPlayerIds)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
 
         foreach ($players as $player) {
             $tokenUrl = URL::temporarySignedRoute(
