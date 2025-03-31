@@ -151,10 +151,10 @@
                     <div
                         class="sb-sidenav-menu-heading">{{ __('Financial') }}</div>
                     <a class="nav-link"
-                       href="{{ route('transactions.index') }}">
+                       href="{{ route('accounts.index') }}">
                         <div class="sb-nav-link-icon"><i
                                 class="fas fa-table"></i></div>
-                        {{ __('Transactions') }}
+                        {{ __('Accounts') }}
                     </a>
                 </div>
             </div>

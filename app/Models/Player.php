@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Player extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'rating', 'type', 'user_id'];
+
+    protected $fillable = ['name', 'rating', 'type', 'balance', 'balance_holder_id', 'user_id'];
 
     protected static function boot()
     {
@@ -47,5 +48,10 @@ class Player extends Model
     public function gamePlayerRatings()
     {
         return $this->hasMany(GamePlayerRating::class);
+    }
+
+    public function balanceHolder()
+    {
+        return $this->belongsTo(Player::class, 'balance_holder_id');
     }
 }

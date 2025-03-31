@@ -19,12 +19,13 @@
                     @endforeach
                 </div>
             @endif
-            <form method="POST" id="player-form" action="{{ route('players.update', $player->id) }}">
+            <form method="POST" id="player-form"
+                  action="{{ route('players.update', $player->id) }}">
                 @csrf
                 @method('PUT')
 
                 <div class="row player-row">
-                    <div class="col-3">
+                    <div class="col-2">
                         <input type="text"
                                name="name"
                                class="form-control"
@@ -50,20 +51,35 @@
                                min="5.00" max="10.00" step="0.01">
                     </div>
                     <div class="col-2">
-                        <select name="type" class="form-control form-select player-type" required>
-                            <option value="attacker" @if($player->type == 'attacker') selected @endif>{{ __('Attacker') }}</option>
-                            <option value="defender" @if($player->type == 'defender') selected @endif>{{ __('Defender') }}</option>
-                            <option value="both" @if($player->type == 'both') selected @endif>{{ __('Both') }}</option>
+                        <select name="type"
+                                class="form-control form-select player-type"
+                                required>
+                            <option value="attacker"
+                                    @if($player->type == 'attacker') selected @endif>{{ __('Attacker') }}</option>
+                            <option value="defender"
+                                    @if($player->type == 'defender') selected @endif>{{ __('Defender') }}</option>
+                            <option value="both"
+                                    @if($player->type == 'both') selected @endif>{{ __('Both') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <select name="type"
+                                class="form-control form-select player-type">
+                            @foreach($players as $p)
+                                
+                            @endforeach
                         </select>
                     </div>
                 </div>
             </form>
-            <button type="submit" form="player-form" class="btn btn-primary mt-3">{{ __('Save player') }}</button>
+            <button type="submit" form="player-form"
+                    class="btn btn-primary mt-3">{{ __('Save player') }}</button>
 
 
         </div>
     </div>
-    <a href="{{ route('players.index') }}" class="btn btn-secondary">{{ __('Back to players list') }}</a>
+    <a href="{{ route('players.index') }}"
+       class="btn btn-secondary">{{ __('Back to players list') }}</a>
     <script>
         var waitForJQuery = setInterval(function () {
             if (window.jQuery) {

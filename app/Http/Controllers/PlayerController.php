@@ -54,8 +54,9 @@ class PlayerController extends Controller
     public function create(): View
     {
         $user = auth()->user();
+        $players = Player::all();
 
-        return view('players.create', compact('user'));
+        return view('players.create', compact('user', 'players'));
     }
 
     public function store(Request $request): RedirectResponse

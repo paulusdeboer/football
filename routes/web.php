@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\PlayerController;
@@ -33,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
     // index, create, store, show, edit, update, destroy
     Route::resource('transactions', TransactionController::class);
 
+    // index, create, store, show, edit, update, destroy
+    Route::resource('accounts', AccountController::class);
 });
 
 // Signed route for players to rate others

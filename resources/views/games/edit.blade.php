@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('extra-scripts')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @endsection
 
@@ -20,4 +21,6 @@
             @include('games.partials.form', ['game' => $game, 'selectedPlayers' => $selectedPlayers])
         </div>
     </div>
+    <a href="{{ route('games.index') }}"
+       class="btn btn-secondary">{{ __('Back to games list') }}</a>
 @endsection
