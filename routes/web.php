@@ -1,44 +1,52 @@
 <?php
 
-use App\Http\Controllers\PlayerController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RatingController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-// Redirect root URL to login page
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
 Route::get('/', function () {
-    return redirect()->route('login');
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
 });
 
-// Authenticated routes
-Route::middleware(['auth'])->group(function () {
-    // index, create, store, show, edit, update, destroy
-    Route::resource('games', GameController::class);
-    Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
-    Route::post('/games/{game}/results', [GameController::class, 'storeResult'])->name('games.store-result');
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-    // index, create, store, show, edit, update, destroy
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Player routes
     Route::resource('players', PlayerController::class);
+    
+    // Game routes
+    Route::resource('games', GameController::class);
+    
+    // Rating routes
+    Route::get('/ratings', [RatingController::class, 'index'])->name('ratings.index');
+    Route::get('/games/{game}/ratings/create', [RatingController::class, 'create'])->name('ratings.create');
+    Route::post('/games/{game}/ratings', [RatingController::class, 'store'])->name('ratings.store');
 });
 
-// Signed route for players to rate others
-Route::get('games/{game}/rate/{player}', [RatingController::class, 'showForm'])
-    ->name('players.rate')
-    ->middleware('signed');
-
-// Signed route for players that finished rating others
-Route::get('games/{game}/rate/{player}/confirm', [RatingController::class, 'showConfirmation'])
-    ->name('ratings.confirm')
-    ->middleware('signed');
-
-// Store player ratings
-Route::post('games/{game}/players/{player}/rate', [RatingController::class, 'store'])
-    ->name('ratings.store')
-    ->middleware('signed');
-
-// Authentication routes
-Auth::routes();
-
-// Home page route after login
-Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+require __DIR__.'/auth.php';

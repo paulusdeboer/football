@@ -5,87 +5,78 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Rating;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class RatingController extends Controller
 {
-    public function showForm(Game $game, Player $player)
+    public function index()
     {
-        $team1Players = $game->teams()->where('team', 'team1')->get()->sortBy('name');
-        $team2Players = $game->teams()->where('team', 'team2')->get()->sortBy('name');
-
-        // Check if the player has already submitted a rating for this game
-        $hasRated = $game->ratings()->where('rating_player_id', $player->id)->exists();
-
-        return view('ratings.form', compact('game', 'player', 'team1Players', 'team2Players', 'hasRated'));
-    }
-
-    public function store(Request $request, Game $game, Player $player)
-    {
-        $request->validate([
-            'ratings' => 'required|array',
-            'ratings.*' => 'required|numeric|min:0|max:10',
+        $ratings = Rating::with(['ratedPlayer', 'ratingPlayer', 'game'])->get();
+        
+        return Inertia::render('Ratings/Index', [
+            'ratings' => $ratings
         ]);
+    }
 
-        // Check if the player has already submitted a rating for this game
-        $hasRated = $game->ratings()->where('rating_player_id', $player->id)->exists();
+    public function create(Game $game)
+    {
+        $game->load(['teams']);
+        $players = $game->teams()->get();
+        $currentUser = Auth::user();
+        $currentPlayer = Player::where('user_id', $currentUser->id)->first();
+        
+        return Inertia::render('Ratings/Create', [
+            'game' => $game,
+            'players' => $players,
+            'currentPlayer' => $currentPlayer
+        ]);
+    }
 
-        if ($hasRated) {
-            return redirect()->back()->withErrors(['rating' => 'You have already submitted a rating for this game.']);
+    public function store(Request $request, Game $game)
+    {
+        $validated = $request->validate([
+            'ratings' => 'required|array',
+            'ratings.*.player_id' => 'required|exists:players,id',
+            'ratings.*.value' => 'required|integer|min:1|max:10',
+        ]);
+        
+        $currentUser = Auth::user();
+        $ratingPlayer = Player::where('user_id', $currentUser->id)->first();
+        
+        if (!$ratingPlayer) {
+            return redirect()->back()->withErrors(['player' => 'You need to create a player profile first']);
         }
-
-        foreach ($request->ratings as $ratedPlayerId => $ratingValue) {
-            Rating::create([
+        
+        foreach ($validated['ratings'] as $rating) {
+            // Skip self-rating
+            if ($rating['player_id'] == $ratingPlayer->id) {
+                continue;
+            }
+            
+            // Check if rating already exists and update it
+            $existingRating = Rating::where([
                 'game_id' => $game->id,
-                'rated_player_id' => $ratedPlayerId,
-                'rating_player_id' => $player->id,
-                'rating_value' => $ratingValue,
-            ]);
+                'rated_player_id' => $rating['player_id'],
+                'rating_player_id' => $ratingPlayer->id
+            ])->first();
+            
+            if ($existingRating) {
+                $existingRating->update([
+                    'rating_value' => $rating['value']
+                ]);
+            } else {
+                Rating::create([
+                    'game_id' => $game->id,
+                    'rated_player_id' => $rating['player_id'],
+                    'rating_player_id' => $ratingPlayer->id,
+                    'rating_value' => $rating['value']
+                ]);
+            }
         }
-
-        $this->updatePlayerRatings($game);
-
-        $confirmationUrl = URL::temporarySignedRoute(
-            'ratings.confirm', now()->addHours(48), ['game' => $game->id, 'player' => $player->id]
-        );
-
-        return redirect($confirmationUrl)->with('success', __('Player ratings have been submitted.'));
-    }
-
-    public function showConfirmation(Game $game, Player $player)
-    {
-        return view('ratings.confirmation', compact('game', 'player'));
-    }
-
-    public function updatePlayerRatings(Game $game)
-    {
-        $team1Score = $game->team1_score;
-        $team2Score = $game->team2_score;
-        $scoreDifference = abs($team1Score - $team2Score);
-
-        $playersInGame = $game->teams;
-
-        foreach ($playersInGame as $player) {
-            $previousRating = $player->previous_rating;
-
-            // Check if there are already existing ratings for this player in the game
-            $ratings = $game->ratings()->where('rated_player_id', $player->id)->pluck('rating_value');
-
-            $averageRating = $ratings->count() > 0 ? ($ratings->sum() / $ratings->count()) * 100 : 0;
-
-            // Use pivot to determine if the player was in the winning team or not.
-            $team = $player->pivot->team;
-            $won = ($team == 'team1' && $team1Score > $team2Score) || ($team == 'team2' && $team2Score > $team1Score);
-
-            $coefficient = $won ? 1 + ($scoreDifference / 100) : 1 - ($scoreDifference / 100);
-
-            // Use a weighted average so the new rating won't deviate too much.
-            $weightedAverage = ($previousRating * 0.95) + ($averageRating * 0.05);
-            $newPlayerRating = $weightedAverage * $coefficient;
-
-            $player->rating = $newPlayerRating;
-            $player->save();
-        }
+        
+        return redirect()->route('games.show', $game)
+            ->with('message', 'Ratings submitted successfully.');
     }
 }

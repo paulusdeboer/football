@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RatingHistory extends Model
 {
-    protected $fillable = ['player_id', 'rating', 'game_id'];
+    protected $table = 'rating_history';
+    protected $fillable = ['player_id', 'game_id', 'old_rating', 'new_rating'];
 
     public function player()
     {
