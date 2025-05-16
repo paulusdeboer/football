@@ -33,6 +33,7 @@ services:
 
     mailhog:
         image: mailhog/mailhog
+        platform: linux/amd64
         environment:
             COMPOSE_DOCKER_CLI_BUILD: 1
             DOCKER_BUILDKIT: 1
