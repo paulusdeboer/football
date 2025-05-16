@@ -107,10 +107,15 @@ class PlayerController extends Controller
 
         $player->update([
             'name' => $request->name,
-            'email' => $request->email,
             'rating' => $request->rating * 100,
             'type' => $request->type,
         ]);
+        
+        if ($player->user) {
+            $player->user->update([
+                'email' => $request->email
+            ]);
+        }
 
         return redirect()->route('players.index')->with('success', __('Player updated successfully.'));
     }
