@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
+use App\Models\Setting;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,20 +49,50 @@ class TransactionController extends Controller
         if ($transaction->player) {
             $this->updatePlayerBalance($transaction->player);
         }
+        
+        // Update account balance
+        $account = $transaction->account;
+        if ($account) {
+            $account->balance = $account->transactions()->sum('amount');
+            $account->save();
+        }
 
         return response()->json([
             'id' => $transaction->id,
             'date' => $transaction->date,
             'amount' => $transaction->amount,
             'player_name' => $transaction->player?->name,
+            'account_balance' => $account ? $account->balance : null,
         ]);
     }
 
     private function updatePlayerBalance(Player $player): void
     {
-        $player->balance = floor(
-            Transaction::where('player_id', $player->id)->sum('amount') / 4
-        );
+        // We update the raw balance, the conversion to games is done in the view
+        $player->balance = Transaction::where('player_id', $player->id)->sum('amount');
         $player->save();
+    }
+    
+    public function destroy(Transaction $transaction)
+    {
+        $player = $transaction->player;
+        $account = $transaction->account;
+        
+        $transaction->delete();
+        
+        if ($player) {
+            $this->updatePlayerBalance($player);
+        }
+        
+        // Update account balance
+        if ($account) {
+            $account->balance = $account->transactions()->sum('amount');
+            $account->save();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'account_balance' => $account ? $account->balance : null
+        ]);
     }
 }

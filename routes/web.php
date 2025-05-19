@@ -5,6 +5,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
 
     // index, create, store, show, edit, update, destroy
     Route::resource('accounts', AccountController::class);
+    
+    // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 });
 
 // Signed route for players to rate others

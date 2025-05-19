@@ -18,8 +18,9 @@
                 {{ __('Player list') }}
             </div>
             <form method="GET" action="{{ route('players.index') }}" class="float-end">
-                <button type="submit" name="include_deleted" value="{{ session('include_deleted', '0') == '1' ? '0' : '1' }}"
-                        class="btn btn-sm {{ session('include_deleted', '0') == '1' ? 'btn-secondary' : 'btn-primary' }}">
+                <button type="submit" name="include_deleted"
+                    value="{{ session('include_deleted', '0') == '1' ? '0' : '1' }}"
+                    class="btn btn-sm {{ session('include_deleted', '0') == '1' ? 'btn-secondary' : 'btn-primary' }}">
                     {{ session('include_deleted', '0') == '1' ? __('Active players only') : __('All players (including inactive)') }}
                 </button>
             </form>
@@ -28,86 +29,107 @@
         <div class="card-body">
             <table class="table">
                 <thead>
-                <tr>
-                    <th>
-                        <a class="align-middle" href="{{ route('players.index', ['sort_by' => 'name', 'sort_direction' => $sortBy === 'name' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
-                            {{ __('Name') }}
-                            {!! $sortBy === 'name' ? ($sortDirection === 'asc'
-                                ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
-                                : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
-                            ) : '' !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a class="align-middle" href="{{ route('players.index', ['sort_by' => 'email', 'sort_direction' => $sortBy === 'email' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
-                            {{ __('Email') }} {!! $sortBy === 'email' ? ($sortDirection === 'asc'
-                                ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
-                                : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
-                            ) : '' !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a class="align-middle" href="{{ route('players.index', ['sort_by' => 'rating', 'sort_direction' => $sortBy === 'rating' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
-                            {{ __('Rating') }} {!! $sortBy === 'rating' ? ($sortDirection === 'asc'
-                                ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
-                                : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
-                            ) : '' !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a class="align-middle" href="{{ route('players.index', ['sort_by' => 'type', 'sort_direction' => $sortBy === 'type' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
-                            {{ __('Type') }} {!! $sortBy === 'type' ? ($sortDirection === 'asc'
-                                ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
-                                : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
-                            ) : '' !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a class="align-middle" href="{{ route('players.index', ['sort_by' => 'created_at', 'sort_direction' => $sortBy === 'created_at' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
-                            {{ __('Created at') }} {!! $sortBy === 'created_at' ? ($sortDirection === 'asc'
-                                ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
-                                : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
-                            ) : '' !!}
-                        </a>
-                    </th>
-                    <th>{{ __('Actions') }}</th>
-                </tr>
+                    <tr>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'name', 'sort_direction' => $sortBy === 'name' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Name') }}
+                                {!! $sortBy === 'name' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'email', 'sort_direction' => $sortBy === 'email' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Email') }} {!! $sortBy === 'email' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'rating', 'sort_direction' => $sortBy === 'rating' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Rating') }} {!! $sortBy === 'rating' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'type', 'sort_direction' => $sortBy === 'type' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Type') }} {!! $sortBy === 'type' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'balance', 'sort_direction' => $sortBy === 'balance' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Balance') }} {!! $sortBy === 'balance' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>
+                            <a class="align-middle"
+                                href="{{ route('players.index', ['sort_by' => 'created_at', 'sort_direction' => $sortBy === 'created_at' && $sortDirection === 'asc' ? 'desc' : 'asc']) }}">
+                                {{ __('Created at') }} {!! $sortBy === 'created_at' ? ($sortDirection === 'asc'
+        ? '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M5.8 9.7l6.2 6.3 6.2-6.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7c-.2-.2-.4-.3-.7-.3h-11c-.3 0-.5.1-.7.3-.2.2-.3.4-.3.7s.1.5.3.7z"></path></svg>'
+        : '<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.2" baseProfile="tiny" viewBox="0 0 24 24" height="14px" width="14px" xmlns="http://www.w3.org/2000/svg"><path d="M18.2 13.3l-6.2-6.3-6.2 6.3c-.2.2-.3.5-.3.7s.1.5.3.7c.2.2.4.3.7.3h11c.3 0 .5-.1.7-.3.2-.2.3-.5.3-.7s-.1-.5-.3-.7z"></path></svg>'
+    ) : '' !!}
+                            </a>
+                        </th>
+                        <th>{{ __('Actions') }}</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach ($players as $player)
-                    <tr>
-                        <td>{{ $player->name }}</td>
-                        <td>{{ $player->user?->email ?? __('No email') }}</td>
-                        <td>{{ $player->rating }}</td>
-                        <td>{{ ($player->type === 'attacker' ? __('Attacker') : ($player->type === 'defender' ? __('Defender') : __('Both'))) }}</td>
-                        <td>{{ Carbon::parse($player->created_at)->format('d-m-Y') }}</td>
-                        <td class="actions">
-                            <a href="{{ route('players.edit', $player) }}"
-                               class="btn btn-warning btn-sm">{{ __('Edit player') }}</a>
-                            @if ($player->deleted_at)
-                                <form action="{{ route('players.restore', $player->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-success btn-sm">{{ __('Restore') }}</button>
-                                </form>
-                            @else
-                                <button class="btn btn-danger btn-sm"
+                    @foreach ($players as $player)
+                        <tr>
+                            <td>{{ $player->name }}</td>
+                            <td>{{ $player->user?->email ?? __('No email') }}</td>
+                            <td>{{ $player->rating }}</td>
+                            <td>{{ ($player->type === 'attacker' ? __('Attacker') : ($player->type === 'defender' ? __('Defender') : __('Both'))) }}
+                            </td>
+                            <td>
+                                €{{ number_format($player->balance ?? 0, 2, ',', '.') }}
+                                <br>
+                                <small class="text-muted">{{ number_format($player->getBalanceInGames(), 0, ',', '.') }}
+                                    {{ __('games') }}</small>
+                            </td>
+                            <td>{{ Carbon::parse($player->created_at)->format('d-m-Y') }}</td>
+                            <td class="actions">
+                                <a href="{{ route('players.edit', $player) }}"
+                                    class="btn btn-warning btn-sm">{{ __('Edit player') }}</a>
+                                @if ($player->deleted_at)
+                                    <form action="{{ route('players.restore', $player->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success btn-sm">{{ __('Restore') }}</button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-danger btn-sm"
                                         onclick="confirmDelete({{ $player->id }}, '{{ addslashes($player->name) }}')"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deletePlayerModal">
-                                    {{ __('Delete player') }}
-                                </button>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
+                                        data-bs-toggle="modal" data-bs-target="#deletePlayerModal">
+                                        {{ __('Delete player') }}
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deletePlayerModal" tabindex="-1" aria-labelledby="deletePlayerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deletePlayerModal" tabindex="-1" aria-labelledby="deletePlayerModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -142,7 +164,7 @@
                 sessionStorage.setItem('scrollPosition', window.scrollY);
             });
         });
-        window.onload = function() {
+        window.onload = function () {
             const savedScrollPosition = sessionStorage.getItem('scrollPosition');
             if (savedScrollPosition) {
                 window.scrollTo(0, savedScrollPosition);

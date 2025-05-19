@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Setting;
 
 class Player extends Model
 {
@@ -48,6 +49,18 @@ class Player extends Model
     public function gamePlayerRatings()
     {
         return $this->hasMany(GamePlayerRating::class);
+    }
+    
+    /**
+     * Get player balance in games instead of euros
+     * 
+     * @return float
+     */
+    public function getBalanceInGames()
+    {
+        $costPerGame = Setting::getValue('cost_per_game', 4.00);
+        
+        return $costPerGame > 0 ? $this->balance / $costPerGame : 0;
     }
 
     public function balanceHolder()

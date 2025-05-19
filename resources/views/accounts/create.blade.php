@@ -28,11 +28,11 @@
                 @csrf
 
                 <div class="row mb-3">
-                    <div class="col-6">
+                    <div class="col-md-6 mb-3 mb-md-0">
                         <input type="text" name="name" class="form-control"
                                placeholder="{{ __('Account Name') }}" required>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text">€</span>
                             <input type="number" name="balance"
@@ -48,6 +48,8 @@
             </form>
         </div>
     </div>
-    <a href="{{ route('accounts.index') }}"
-       class="btn btn-secondary">{{ __('Back to accounts list') }}</a>
+    <div class="mt-3">
+        <a href="{{ route('accounts.index') }}"
+           class="btn btn-secondary">{{ __('Back to accounts list') }}</a>
+    </div>
 @endsection
