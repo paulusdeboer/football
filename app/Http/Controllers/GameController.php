@@ -154,12 +154,13 @@ class GameController extends Controller
     private function validateGameRequest(Request $request): void
     {
         $request->validate([
-            'players' => 'required|array|size:12',
+            'players' => 'required|array|min:10|max:12',
             'players.*' => 'exists:players,id',
             'played_at' => 'required|date',
         ], [
-            'players.required' => __('You must select 12 players for the game'),
-            'players.size' => __('Exactly 12 players are required'),
+            'players.required' => __('You must select players for the game'),
+            'players.min' => __('At least 10 players are required'),
+            'players.max' => __('Maximum 12 players allowed'),
             'players.*.exists' => __('Some of the selected players are invalid'),
             'played_at.required' => __('The game date is required'),
             'played_at.date' => __('The game date must be a valid date'),
