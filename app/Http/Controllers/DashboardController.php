@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
@@ -11,15 +12,7 @@ class DashboardController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
-     * Show the application dashboard.
-     */
-    public function index(): View
+    public function index(): Response
     {
         // Simulate data, replace this with your own data from the database
         $dates = ['2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01'];
@@ -27,9 +20,6 @@ class DashboardController extends Controller
         $gameLabels = ['Game 1', 'Game 2', 'Game 3', 'Game 4']; // Games
         $averageRatings = [7.5, 8.2, 7.9, 8.5]; // Average ratings per game
 
-        // Get the currently authenticated user
-        $user = auth()->user();
-
-        return view('dashboard', compact('dates', 'ratings', 'gameLabels', 'averageRatings', 'user'));
+        return Inertia::render('Dashboard', compact('dates', 'ratings', 'gameLabels', 'averageRatings'));
     }
 }

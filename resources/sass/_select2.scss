@@ -1,3 +1,11 @@
+.game-players-select {
+    display: none !important;
+}
+
+.game-players-select.is-invalid + .select2-container .select2-selection--multiple {
+    border-color: var(--bs-form-invalid-border-color);
+}
+
 .select2-results__options {
     max-height: 50vh !important;
 }

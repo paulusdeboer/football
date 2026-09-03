@@ -6,3 +6,13 @@ table a {
     color: var(--bs-table-color);
     text-decoration: none;
 }
+
+.table-sort-link {
+    color: var(--bs-table-color);
+    background: transparent;
+    border: 0;
+    font: inherit;
+    padding: 0;
+    text-align: inherit;
+    vertical-align: middle;
+}
