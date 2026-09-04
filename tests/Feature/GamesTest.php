@@ -68,6 +68,7 @@ class GamesTest extends TestCase
         $this->assertStringContainsString('28-08-2026', $html);
         $this->assertStringContainsString('favicon.svg', $html);
         $this->assertStringNotContainsString('Laravel', $html);
+        $this->assertSame('noreply@vrijdagvoetbal.nl', $mail->from[0]['address']);
         $this->assertSame('Vrijdag voetbal', $mail->from[0]['name']);
     }
 

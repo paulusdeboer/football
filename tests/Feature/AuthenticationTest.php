@@ -95,6 +95,7 @@ class AuthenticationTest extends TestCase
         $this->assertStringContainsString('Wachtwoord resetten', $html);
         $this->assertStringContainsString('favicon.svg', $html);
         $this->assertStringNotContainsString('Laravel', $html);
+        $this->assertSame('noreply@vrijdagvoetbal.nl', $message->from[0]);
         $this->assertSame('Vrijdag voetbal', $message->from[1]);
     }
 
