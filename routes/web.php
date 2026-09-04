@@ -29,7 +29,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/players/{id}/restore', [PlayerController::class, 'restore'])->name('players.restore');
 
     // index, create, store, show, edit, update, destroy
-    Route::resource('ratings', RatingController::class);
+    // The public signed submission route below owns the ratings.store name.
+    // Exclude the resource store route to avoid duplicate route names when
+    // Laravel serializes the route collection for production caching.
+    Route::resource('ratings', RatingController::class)->except(['store']);
 
     // index, create, store, show, edit, update, destroy
     Route::resource('game_player_ratings', GamePlayerRatingController::class);
