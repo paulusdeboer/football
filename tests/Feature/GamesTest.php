@@ -98,8 +98,22 @@ class GamesTest extends TestCase
             'rating_request_id' => $fresh->id,
             'type' => 'resend',
         ]);
+        $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.history.0.type', 'initial_send')
+            ->has('ratingRequests.0.history', 1)
+        );
         $this->get($oldUrl)->assertForbidden();
         \Mail::assertSent(RatingRequestMail::class, 1);
+    }
+
+    public function test_game_detail_hides_history_when_only_the_initial_send_exists(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        [$game] = $this->gameWithRatingRequests(1);
+
+        $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.history', [])
+        );
     }
 
     public function test_admin_can_replace_a_request_with_a_chosen_player(): void
@@ -268,6 +282,12 @@ class GamesTest extends TestCase
             'sent_at' => now(),
             'expires_at' => Carbon::now()->addHours(72),
             'token_version' => 1,
+        ]));
+
+        $requests->each(fn ($request) => $request->events()->create([
+            'new_player_id' => $request->player_id,
+            'type' => 'initial_send',
+            'expires_at' => $request->expires_at,
         ]));
 
         return [$game, $requests, $players];

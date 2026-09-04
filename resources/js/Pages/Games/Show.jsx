@@ -173,7 +173,6 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
             {request.history?.length > 0 && (
                 <tr>
                     <td colSpan="5" className="pt-0">
-                        <div className="small text-muted">{t('History')}</div>
                         <ul className="small mt-2 mb-0">
                             {request.history.map((event, index) => (
                                 <li key={`${request.id}-${index}`}>

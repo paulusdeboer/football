@@ -53,7 +53,9 @@ class RatingRequest extends Model
 
     public function events()
     {
-        return $this->hasMany(RatingRequestEvent::class)->latest();
+        return $this->hasMany(RatingRequestEvent::class)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
     }
 
     public function isActive(): bool

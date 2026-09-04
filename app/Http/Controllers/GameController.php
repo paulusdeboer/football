@@ -232,6 +232,12 @@ class GameController extends Controller
 
     private function ratingRequestData($request, $replacementCandidates): array
     {
+        $events = $request->events;
+        $latestSendEvent = $events->first(fn ($event) => in_array($event->type, ['initial_send', 'resend'], true));
+        $history = $events
+            ->reject(fn ($event) => $latestSendEvent && $event->id === $latestSendEvent->id)
+            ->values();
+
         return [
             'id' => $request->id,
             'player_id' => $request->player_id,
@@ -246,7 +252,7 @@ class GameController extends Controller
                 'id' => $player->id,
                 'name' => $player->name,
             ])->values()->all(),
-            'history' => $request->events->map(fn ($event) => [
+            'history' => $history->map(fn ($event) => [
                 'type' => $event->type,
                 'actor_name' => $event->actor?->name,
                 'previous_player_name' => $event->previousPlayer?->name,
