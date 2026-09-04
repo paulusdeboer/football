@@ -36,5 +36,6 @@
     "This rating request is already completed.": "This rating request is already completed.",
     "This rating request has been revoked.": "This rating request has been revoked.",
     "Initial send": "Initial send",
-    "Replaced": "Replaced"
+    "Replaced": "Replaced",
+    "Rating requests for past games cannot be changed.": "Rating requests for past games cannot be changed."
 }

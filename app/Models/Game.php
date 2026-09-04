@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
     use HasFactory;
+
     protected $fillable = ['played_at', 'team1_score', 'team2_score'];
+
+    public function isInPast(): bool
+    {
+        return Carbon::parse($this->played_at)->isPast();
+    }
 
     public function teams()
     {

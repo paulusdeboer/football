@@ -193,5 +193,6 @@
     "This rating request is already completed.": "Dit beoordelingsverzoek is al voltooid.",
     "This rating request has been revoked.": "Dit beoordelingsverzoek is ingetrokken.",
     "Initial send": "Eerste verzending",
-    "Replaced": "Vervangen"
+    "Replaced": "Vervangen",
+    "Rating requests for past games cannot be changed.": "Beoordelingsverzoeken van wedstrijden in het verleden kunnen niet worden gewijzigd."
 }

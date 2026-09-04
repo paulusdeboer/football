@@ -8,7 +8,7 @@ import route from '../../route';
 const date = (value) => value ? new Date(value).toLocaleDateString('nl-NL') : '';
 const dateTime = (value) => value ? new Date(value).toLocaleString('nl-NL') : '';
 
-export default function GamesShow({ game, canEditResult, givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, errors = {} }) {
+export default function GamesShow({ game, canEditResult, canManageRatingRequests, givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, errors = {} }) {
     const { t } = useTranslations();
     const [showRatings, setShowRatings] = useState(true);
     const typeLabel = (type) => ({ attacker: t('Attacker'), defender: t('Defender'), both: t('Both') }[type] ?? type);
@@ -81,7 +81,7 @@ export default function GamesShow({ game, canEditResult, givenRatings, ratingReq
                                                         key={request.id}
                                                         request={request}
                                                         gameId={game.id}
-                                                        canManage={canManage}
+                                                        canManage={canManageRatingRequests && canManage}
                                                         statusLabel={statusLabel}
                                                         t={t}
                                                     />

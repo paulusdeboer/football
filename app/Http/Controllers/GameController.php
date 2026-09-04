@@ -70,6 +70,7 @@ class GameController extends Controller
         return Inertia::render('Games/Show', [
             'game' => $this->gameData($game),
             'canEditResult' => $this->canEditResult($game),
+            'canManageRatingRequests' => ! $game->isInPast(),
             'givenRatings' => $this->givenRatingsData($game),
             'ratingRequests' => $ratingRequests->map(fn ($request) => $this->ratingRequestData(
                 $request,

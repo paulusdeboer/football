@@ -108,6 +108,7 @@ Legenda:
 - [x] Een verzoek vervangen met een lege keuze en controleren dat willekeurig een geschikte deelnemer wordt gekozen.
 - [x] Controleren dat een oude link direct ongeldig is na resend of replacement.
 - [x] Historie van initiële verzending, resend, replacement, fout en voltooiing controleren.
+- [x] Resend en replacement voor een wedstrijd in het verleden zijn niet beschikbaar en worden server-side geweigerd.
 - [x] Alleen het resultaat van de meest recente wedstrijd opnieuw bewerken en controleren dat ratings opnieuw correct worden berekend.
 - [x] Controleren dat oudere wedstrijden met een resultaat geen knop “Resultaat invoeren/bewerken” tonen en niet direct toegankelijk zijn.
 

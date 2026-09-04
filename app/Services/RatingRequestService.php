@@ -46,6 +46,7 @@ class RatingRequestService
 
     public function resend(RatingRequest $ratingRequest, int $actorId): void
     {
+        $this->ensureGameCanManage($ratingRequest->game);
         $this->ensureCanManage($ratingRequest);
 
         $now = now();
@@ -70,6 +71,7 @@ class RatingRequestService
 
     public function replace(RatingRequest $ratingRequest, ?int $playerId, int $actorId): RatingRequest
     {
+        $this->ensureGameCanManage($ratingRequest->game);
         $this->ensureCanManage($ratingRequest);
         $candidates = $this->replacementCandidates($ratingRequest->game, $ratingRequest);
         $replacement = $playerId
@@ -218,5 +220,10 @@ class RatingRequestService
     {
         abort_unless($ratingRequest->status !== RatingRequest::STATUS_COMPLETED, 422, __('This rating request is already completed.'));
         abort_unless($ratingRequest->status !== RatingRequest::STATUS_REVOKED, 422, __('This rating request has been revoked.'));
+    }
+
+    private function ensureGameCanManage(Game $game): void
+    {
+        abort_unless(! $game->isInPast(), 422, __('Rating requests for past games cannot be changed.'));
     }
 }

@@ -40,7 +40,7 @@ class GamesTest extends TestCase
         \Mail::fake();
         $this->actingAs(User::factory()->admin()->create());
         $players = Player::factory()->count(10)->create(['rating' => 700]);
-        $game = Game::factory()->completed()->create();
+        $game = Game::factory()->completed()->create(['played_at' => now()->addDay()]);
         $game->teams()->attach(array_fill_keys($players->take(5)->modelKeys(), ['team' => 'team1']));
         $game->teams()->attach(array_fill_keys($players->skip(5)->modelKeys(), ['team' => 'team2']));
 
@@ -163,11 +163,31 @@ class GamesTest extends TestCase
         $this->assertSame(10, RatingRequest::where('game_id', $game->id)->count());
     }
 
+    public function test_requests_for_past_games_cannot_be_resent_or_replaced(): void
+    {
+        \Mail::fake();
+        $this->actingAs(User::factory()->admin()->create());
+        [$game, $requests, $players] = $this->gameWithRatingRequests(1);
+        $game->update(['played_at' => now()->subMinute()]);
+        $ratingRequest = $requests->first();
+
+        $this->post(route('rating-requests.resend', [$game, $ratingRequest]))
+            ->assertStatus(422);
+        $this->post(route('rating-requests.replace', [$game, $ratingRequest]), [
+            'player_id' => $players[1]->id,
+        ])->assertStatus(422);
+
+        $this->assertSame(1, $ratingRequest->fresh()->token_version);
+        $this->assertSame(RatingRequest::STATUS_PENDING, $ratingRequest->fresh()->status);
+        $this->assertSame(1, RatingRequest::where('game_id', $game->id)->count());
+        \Mail::assertNothingSent();
+    }
+
     public function test_game_detail_exposes_given_ratings_in_the_ratings_overview_shape(): void
     {
         $this->actingAs(User::factory()->admin()->create());
         $players = Player::factory()->count(3)->create();
-        $game = Game::factory()->completed()->create();
+        $game = Game::factory()->completed()->create(['played_at' => now()->addDay()]);
         $game->teams()->attach($players->mapWithKeys(fn ($player, $index) => [
             $player->id => ['team' => $index === 0 ? 'team1' : 'team2'],
         ])->all());
@@ -229,7 +249,7 @@ class GamesTest extends TestCase
     private function gameWithRatingRequests(int $requestCount): array
     {
         $players = Player::factory()->count(10)->create();
-        $game = Game::factory()->completed()->create();
+        $game = Game::factory()->completed()->create(['played_at' => now()->addDay()]);
         $game->teams()->attach(array_fill_keys($players->take(5)->modelKeys(), ['team' => 'team1']));
         $game->teams()->attach(array_fill_keys($players->skip(5)->modelKeys(), ['team' => 'team2']));
 
