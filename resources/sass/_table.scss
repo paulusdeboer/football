@@ -67,6 +67,45 @@ table a {
     font-size: 0.74rem;
 }
 
+.given-ratings {
+    column-gap: 2.5rem;
+    row-gap: 1.25rem;
+}
+
+.given-ratings__table > :not(caption) > * > * {
+    padding: 0 0.5rem;
+}
+
+.given-ratings__table .badge {
+    padding: 0.18rem 0.38rem;
+    font-size: 0.62rem;
+    line-height: 1.1;
+}
+
+.given-ratings__table .rating-badge--red {
+    border-color: #fca5a5;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.given-ratings__table .rating-badge--orange {
+    border-color: #fdba74;
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.given-ratings__table .rating-badge--yellow {
+    border-color: #fcd34d;
+    background: #fef3c7;
+    color: #a16207;
+}
+
+.given-ratings__table .rating-badge--green {
+    border-color: #86efac;
+    background: #dcfce7;
+    color: #15803d;
+}
+
 .actions {
     text-align: right;
     white-space: nowrap;

@@ -1,5 +1,15 @@
 import { useTranslations } from '../i18n';
 
+const ratingBadgeClass = (value) => {
+    const score = Number(value);
+
+    if (score < 6) return 'rating-badge--red';
+    if (score < 7) return 'rating-badge--orange';
+    if (score < 8) return 'rating-badge--yellow';
+
+    return 'rating-badge--green';
+};
+
 export default function GivenRatings({ players = [], ratingsByPlayer = [] }) {
     const { t } = useTranslations();
 
@@ -8,11 +18,11 @@ export default function GivenRatings({ players = [], ratingsByPlayer = [] }) {
     }
 
     return (
-        <div className="d-flex flex-wrap gap-5">
+        <div className="given-ratings d-flex flex-wrap">
             {ratingsByPlayer.map((group) => (
                 <div key={group.rating_player_id}>
                     <strong className="given-ratings__name">{group.rating_player_name}</strong>
-                    <table className="table table-sm mb-0">
+                    <table className="given-ratings__table table table-sm mb-0">
                         <tbody>
                             {players.map((player) => {
                                 const rating = group.ratings.find((item) => item.rated_player_id === player.id);
@@ -22,7 +32,9 @@ export default function GivenRatings({ players = [], ratingsByPlayer = [] }) {
                                         <td>{player.name}</td>
                                         <td className="text-end">
                                             {rating ? (
-                                                <span className="badge bg-primary">{rating.rating_value}</span>
+                                                <span className={`badge rating-badge ${ratingBadgeClass(rating.rating_value)}`}>
+                                                    {rating.rating_value}
+                                                </span>
                                             ) : (
                                                 <span className="badge bg-dark-subtle">-</span>
                                             )}
