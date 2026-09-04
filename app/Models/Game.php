@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,12 +11,7 @@ class Game extends Model
 
     protected $fillable = ['played_at', 'team1_score', 'team2_score'];
 
-    public function isInPast(): bool
-    {
-        return Carbon::parse($this->played_at)->isPast();
-    }
-
-    public function isLatestCompleted(): bool
+    public function canEditResult(): bool
     {
         $latestId = self::query()
             ->whereNotNull('team1_score')

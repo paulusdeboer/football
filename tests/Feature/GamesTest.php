@@ -177,7 +177,7 @@ class GamesTest extends TestCase
         $this->assertSame(10, RatingRequest::where('game_id', $game->id)->count());
     }
 
-    public function test_requests_for_past_games_cannot_be_resent_or_replaced(): void
+    public function test_requests_for_non_latest_completed_games_cannot_be_resent_or_replaced(): void
     {
         \Mail::fake();
         $this->actingAs(User::factory()->admin()->create());
@@ -198,7 +198,7 @@ class GamesTest extends TestCase
         \Mail::assertNothingSent();
     }
 
-    public function test_latest_completed_past_game_can_manage_rating_requests(): void
+    public function test_latest_completed_game_can_manage_rating_requests(): void
     {
         \Mail::fake();
         $this->actingAs(User::factory()->admin()->create());

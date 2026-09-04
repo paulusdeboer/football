@@ -36,5 +36,5 @@
     "This rating request has been revoked.": "This rating request has been revoked.",
     "Initial send": "Initial send",
     "Replaced": "Replaced",
-    "Rating requests for past games cannot be changed.": "Rating requests for past games cannot be changed."
+    "Rating requests cannot be changed for this game.": "Rating requests cannot be changed for this game."
 }

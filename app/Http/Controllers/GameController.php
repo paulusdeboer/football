@@ -69,8 +69,8 @@ class GameController extends Controller
 
         return Inertia::render('Games/Show', [
             'game' => $this->gameData($game),
-            'canEditResult' => $this->canEditResult($game),
-            'canManageRatingRequests' => ! $game->isInPast() || $this->canEditResult($game),
+            'canEditResult' => $game->canEditResult(),
+            'canManageRatingRequests' => $game->canEditResult(),
             'givenRatings' => $this->givenRatingsData($game),
             'ratingRequests' => $ratingRequests->map(fn ($request) => $this->ratingRequestData(
                 $request,
@@ -125,7 +125,7 @@ class GameController extends Controller
 
     public function enterResult(Game $game): Response
     {
-        if ($game->team1_score !== null && $game->team2_score !== null && ! $this->canEditResult($game)) {
+        if ($game->team1_score !== null && $game->team2_score !== null && ! $game->canEditResult()) {
             abort(403, __('Only the most recent game result can be edited.'));
         }
 
@@ -145,7 +145,7 @@ class GameController extends Controller
             'send_rating_requests' => ['nullable', 'boolean'],
         ]);
 
-        if ($game->team1_score !== null && $game->team2_score !== null && ! $this->canEditResult($game)) {
+        if ($game->team1_score !== null && $game->team2_score !== null && ! $game->canEditResult()) {
             return redirect()->route('games.show', $game)->with('error', __('Only the most recent game result can be edited.'));
         }
 
@@ -218,11 +218,6 @@ class GameController extends Controller
             ->orderByDesc('played_at')
             ->orderByDesc('id')
             ->value('id');
-    }
-
-    private function canEditResult(Game $game): bool
-    {
-        return $game->isLatestCompleted();
     }
 
     private function hasResult(Game $game): bool
