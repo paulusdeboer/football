@@ -8,49 +8,52 @@ use App\Models\GamePlayerRating;
 use App\Models\Player;
 use App\Models\RatingRequest;
 use App\Services\RatingCalculator;
-use Illuminate\Database\Eloquent\Collection;
+use App\Services\TeamBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GameController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
-        $user = auth()->user();
-
         $sortBy = $request->get('sort_by', 'played_at');
         $sortDirection = $request->get('sort_direction', 'desc');
-
         $allowedSortColumns = ['played_at', 'team1_score', 'team2_score'];
-        if (!in_array($sortBy, $allowedSortColumns)) {
+
+        if (! in_array($sortBy, $allowedSortColumns, true)) {
             $sortBy = 'played_at';
         }
+        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
+            $sortDirection = 'desc';
+        }
 
-        $games = Game::orderBy($sortBy, $sortDirection)->get();
-
-        return view('games.index', compact('games', 'user', 'sortBy', 'sortDirection'));
+        return Inertia::render('Games/Index', [
+            'games' => Game::query()->orderBy($sortBy, $sortDirection)->get(),
+            'sortBy' => $sortBy,
+            'sortDirection' => $sortDirection,
+            'latestCompletedGameId' => $this->latestCompletedGameId(),
+        ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
-        $players = Player::orderBy('name')->get();
-        $user = auth()->user();
-
-        return view('games.create', compact('players', 'user'));
+        return Inertia::render('Games/Form', [
+            'mode' => 'create',
+            'game' => null,
+            'players' => Player::orderBy('name')->get(['id', 'name']),
+            'selectedPlayers' => [],
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $this->validateGameRequest($request);
-
-        $game = Game::create([
-            'played_at' => $request->played_at,
-        ]);
-
+        $game = Game::create(['played_at' => $request->played_at]);
         $players = Player::whereIn('id', $request->players)->get();
 
         $this->storeGamePlayerRatings($game, $players);
@@ -59,92 +62,101 @@ class GameController extends Controller
         return redirect()->route('games.show', $game);
     }
 
-    public function show(Game $game): View
+    public function show(Game $game): Response
     {
-        $user = auth()->user();
+        $ratingRequests = $game->ratingRequests()->with('player.user')->get();
+        $team1Ratings = $this->ratingsForTeam($game, 'team1');
+        $team2Ratings = $this->ratingsForTeam($game, 'team2');
 
-        $ratingRequests = $game->ratingRequests()->get();
-
-        $team1Ratings = $game->gamePlayerRatings()
-            ->whereHas('player', function ($query) use ($game) {
-                $query->whereHas('teams', function ($subQuery) use ($game) {
-                    $subQuery->where('game_id', $game->id)
-                        ->where('team', 'team1');
-                });
-            })
-            ->with('player')
-            ->get();
-
-        $team2Ratings = $game->gamePlayerRatings()
-            ->whereHas('player', function ($query) use ($game) {
-                $query->whereHas('teams', function ($subQuery) use ($game) {
-                    $subQuery->where('game_id', $game->id)
-                        ->where('team', 'team2');
-                });
-            })
-            ->with('player')
-            ->get();
-
-        $team1Rating = $team1Ratings->sum('rating');
-        $team2Rating = $team2Ratings->sum('rating');
-
-        return view('games.show', compact('game', 'user', 'ratingRequests', 'team1Rating', 'team2Rating', 'team1Ratings', 'team2Ratings'));
+        return Inertia::render('Games/Show', [
+            'game' => $this->gameData($game),
+            'canEditResult' => $this->canEditResult($game),
+            'givenRatings' => $this->givenRatingsData($game),
+            'ratingRequests' => $ratingRequests->map(fn ($request) => [
+                'id' => $request->id,
+                'player_name' => $request->player?->name,
+                'player_email' => $request->player?->user?->email,
+            ])->values(),
+            'team1Rating' => $team1Ratings->sum('rating'),
+            'team2Rating' => $team2Ratings->sum('rating'),
+            'team1Ratings' => $this->ratingData($team1Ratings),
+            'team2Ratings' => $this->ratingData($team2Ratings),
+        ]);
     }
 
-    public function edit($id): View
+    public function edit(Game $game): Response
     {
-        $game = Game::findOrFail($id);
-        $user = auth()->user();
+        if ($this->hasResult($game)) {
+            abort(403, __('A game with a result can no longer be edited.'));
+        }
 
-        $players = Player::orderBy('name')->get();
-
-        $selectedPlayers = $game->teams->pluck('id')->toArray();
-
-        return view('games.edit', compact('game', 'user', 'players', 'selectedPlayers'));
+        return Inertia::render('Games/Form', [
+            'mode' => 'edit',
+            'game' => $this->gameData($game),
+            'players' => Player::orderBy('name')->get(['id', 'name']),
+            'selectedPlayers' => $game->teams->pluck('id')->values(),
+        ]);
     }
 
     public function update(Request $request, Game $game): RedirectResponse
     {
+        if ($this->hasResult($game)) {
+            return redirect()->route('games.show', $game)
+                ->with('error', __('A game with a result can no longer be edited.'));
+        }
+
         $this->validateGameRequest($request);
-
-        $game->update([
-            'played_at' => $request->played_at,
-        ]);
-
+        $game->update(['played_at' => $request->played_at]);
         $players = Player::whereIn('id', $request->players)->get();
 
         $game->teams()->detach();
         $game->gamePlayerRatings()->delete();
-
         $this->storeGamePlayerRatings($game, $players);
         $this->handleGameTeams($game, $players);
 
         return redirect()->route('games.show', $game)->with('success', __('Game updated successfully.'));
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Game $game): RedirectResponse
     {
-        $game = Game::findOrFail($id);
         $game->delete();
+
         return redirect()->route('games.index')->with('success', __('Game deleted successfully.'));
     }
 
-    public function enterResult(Game $game): View
+    public function enterResult(Game $game): Response
     {
-        $user = auth()->user();
-        return view('games.enter-result', compact('game', 'user'));
+        if ($game->team1_score !== null && $game->team2_score !== null && ! $this->canEditResult($game)) {
+            abort(403, __('Only the most recent game result can be edited.'));
+        }
+
+        return Inertia::render('Games/EnterResult', [
+            'game' => $this->gameData($game),
+            'team1Players' => $game->teams()->where('team', 'team1')->orderBy('name')->get(['players.id', 'players.name']),
+            'team2Players' => $game->teams()->where('team', 'team2')->orderBy('name')->get(['players.id', 'players.name']),
+            'hasSentRatingRequests' => $game->ratingRequests()->exists(),
+        ]);
     }
 
     public function storeResult(Request $request, Game $game): RedirectResponse
     {
+        $request->validate([
+            'team1_score' => ['required', 'integer', 'min:0'],
+            'team2_score' => ['required', 'integer', 'min:0'],
+            'send_rating_requests' => ['nullable', 'boolean'],
+        ]);
+
+        if ($game->team1_score !== null && $game->team2_score !== null && ! $this->canEditResult($game)) {
+            return redirect()->route('games.show', $game)->with('error', __('Only the most recent game result can be edited.'));
+        }
+
         $game->update([
             'team1_score' => $request->team1_score,
             'team2_score' => $request->team2_score,
         ]);
-
         $this->updatePlayerRatings($game);
 
-        if ($request->send_rating_requests && !$game->ratingRequests()->exists()) {
+        if ($request->boolean('send_rating_requests') && ! $game->ratingRequests()->exists()) {
             $this->sendRatingRequests($game);
         }
 
@@ -169,15 +181,13 @@ class GameController extends Controller
 
     private function handleGameTeams(Game $game, $players): void
     {
-        $teams = $this->createTeams($players);
-
+        $teams = app(TeamBuilder::class)->build($players);
         $syncData = [];
-        foreach ($teams as $team => $players) {
-            foreach ($players as $player) {
+        foreach ($teams as $team => $teamPlayers) {
+            foreach ($teamPlayers as $player) {
                 $syncData[$player->id] = ['team' => $team];
             }
         }
-
         $game->teams()->sync($syncData);
     }
 
@@ -193,152 +203,36 @@ class GameController extends Controller
         }
     }
 
-    private function createTeams($players): array
-    {
-        $attackers = $players->where('type', 'attacker')->sortByDesc('rating')->values();
-        $defenders = $players->where('type', 'defender')->sortByDesc('rating')->values();
-        $allRounders = $players->where('type', 'both')->sortByDesc('rating')->values();
-
-        $team1 = collect();
-        $team2 = collect();
-
-        $this->balanceAttackersAndDefenders($attackers, $defenders, $allRounders);
-
-        $this->distributeAttackersAndDefenders($team1, $team2, $attackers, $defenders);
-
-        $this->distributeDraftStyle($team1, $team2, $allRounders);
-
-        $this->optimizeTeams($team1, $team2);
-
-        return ['team1' => $team1, 'team2' => $team2];
-    }
-
-    private function balanceAttackersAndDefenders(&$attackers, &$defenders, $allRounders): void
-    {
-        if ($attackers->count() % 2 !== 0 && $allRounders->isNotEmpty()) {
-            // Add the last all-rounder to attackers and remove it from allRounders
-            $attackers->push($allRounders->pop());
-            $attackers = $attackers->sortByDesc('rating')->values();
-        }
-
-        if ($defenders->count() % 2 !== 0 && $allRounders->isNotEmpty()) {
-            // Add the last all-rounder to defenders and remove it from allRounders
-            $defenders->push($allRounders->pop());
-            $defenders = $defenders->sortByDesc('rating')->values();
-        }
-    }
-
-    private function distributeAttackersAndDefenders($team1, $team2, &$attackers, &$defenders): void
-    {
-        $attackers = $this->checkAndDistributePlayers($team1, $team2, $attackers);
-
-        $defenders = $this->checkAndDistributePlayers($team1, $team2, $defenders);
-
-        $remainingPlayers = $attackers->merge($defenders);
-        if ($remainingPlayers->isNotEmpty()) {
-            $this->distributeDraftStyle($team1, $team2, $remainingPlayers);
-        }
-    }
-
-    private function checkAndDistributePlayers($team1, $team2, $players): Collection
-    {
-        if ($players->count() >= 2) {
-            if ($players->count() == 2) {
-                $this->distributeDraftStyle($team1, $team2, $players);
-            } else {
-                // If there are more than 2 players, distribute the best 2 players
-                $bestPlayers = $players->slice(0, 2);
-                $this->distributeDraftStyle($team1, $team2, $bestPlayers);
-            }
-            // Remove the distributed players from the group
-            return $players->slice(2);
-        }
-        return $players;
-    }
-
-    private function distributeDraftStyle($team1, $team2, $players): void
-    {
-        foreach ($players as $player) {
-            // Distribute players based on the number of players in each team
-            if ($team1->count() < $team2->count() || $team1->sum('rating') < $team2->sum('rating')) {
-                $team1->push($player);
-            } else {
-                $team2->push($player);
-            }
-        }
-    }
-
-    private function optimizeTeams(&$team1, &$team2): void
-    {
-        $swappedWith = [];
-        $madeSwap = true;
-        $tolerance = 20;
-
-        while ($madeSwap) {
-            $madeSwap = false;
-            $bestSwap = null;
-            $team1Rating = $team1->sum('rating');
-            $team2Rating = $team2->sum('rating');
-
-            // Stop if the difference in team ratings is within the allowed tolerance
-            if (abs($team1Rating - $team2Rating) <= $tolerance) {
-                break;
-            }
-
-            foreach ($team1 as $player1) {
-                foreach ($team2 as $player2) {
-                    // Ensure that the types are the same
-                    if ($player1->type !== $player2->type) {
-                        continue;
-                    }
-
-                    $newTeam1Rating = $team1Rating - $player1->rating + $player2->rating;
-                    $newTeam2Rating = $team2Rating - $player2->rating + $player1->rating;
-
-                    // Check if the swap improves the team balance
-                    if (abs($newTeam1Rating - $newTeam2Rating) < abs($team1Rating - $team2Rating)) {
-                        if (!in_array($player2->id, $swappedWith)) {
-                            // Save the best swap for this iteration
-                            if (!$bestSwap || abs($newTeam1Rating - $newTeam2Rating) < abs($bestSwap['ratingDiff'])) {
-                                $bestSwap = [
-                                    'player1' => $player1,
-                                    'player2' => $player2,
-                                    'ratingDiff' => $newTeam1Rating - $newTeam2Rating
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-
-            if ($bestSwap) {
-                // Use filter to remove the players from their current teams
-                $team1 = $team1->filter(fn($player) => $player->id !== $bestSwap['player1']->id);
-                $team2 = $team2->filter(fn($player) => $player->id !== $bestSwap['player2']->id);
-
-                // Swap players between the teams
-                $team1->push($bestSwap['player2']);
-                $team2->push($bestSwap['player1']);
-
-                $swappedWith[] = $bestSwap['player2']->id;
-                $madeSwap = true;
-            }
-        }
-    }
-
     private function updatePlayerRatings(Game $game): void
     {
-        $ratingCalculator = new RatingCalculator();
-        $newRatings = $ratingCalculator->calculate($game);
-
+        $newRatings = app(RatingCalculator::class)->calculate($game);
         foreach ($newRatings as $playerId => $newRating) {
-            Player::where('id', $playerId)->update(['rating' => $newRating]);
+            Player::whereKey($playerId)->update(['rating' => $newRating]);
         }
+    }
+
+    private function latestCompletedGameId(): ?int
+    {
+        return Game::query()
+            ->whereNotNull('team1_score')
+            ->whereNotNull('team2_score')
+            ->orderByDesc('played_at')
+            ->orderByDesc('id')
+            ->value('id');
+    }
+
+    private function canEditResult(Game $game): bool
+    {
+        return (int) $this->latestCompletedGameId() === (int) $game->id;
+    }
+
+    private function hasResult(Game $game): bool
+    {
+        return $game->team1_score !== null && $game->team2_score !== null;
     }
 
     private function sendRatingRequests(Game $game): void
     {
-        // Get players from last game that got a rating request and put them in an exclude array.
         $lastGame = Game::whereNotNull('team1_score')
             ->whereNotNull('team2_score')
             ->where('id', '<', $game->id)
@@ -346,32 +240,72 @@ class GameController extends Controller
             ->first();
         $excludedPlayerIds = $lastGame
             ? RatingRequest::where('game_id', $lastGame->id)->pluck('player_id')->toArray()
-            : [];;
+            : [];
 
-        // Select 3 random players (without the players in the exclude array) and send them email requests to rate others.
-        $players = $game
-            ->teams()
-            ->whereNotIn('players.id', $excludedPlayerIds)
-            ->inRandomOrder()
-            ->limit(3)
-            ->get();
-
+        $players = $game->teams()->whereNotIn('players.id', $excludedPlayerIds)->inRandomOrder()->limit(3)->get();
         foreach ($players as $player) {
-            $tokenUrl = URL::temporarySignedRoute(
-                'players.rate', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
-            );
+            $tokenUrl = URL::temporarySignedRoute('players.rate', now()->addHours(72), [
+                'game' => $game->id,
+                'player' => $player->id,
+            ]);
 
             try {
-                RatingRequest::create([
-                    'game_id' => $game->id,
-                    'player_id' => $player->id
-                ]);
-
+                RatingRequest::create(['game_id' => $game->id, 'player_id' => $player->id]);
                 Mail::to($player->user->email)->send(new RatingRequestMail($game, $tokenUrl));
-
             } catch (\Exception $e) {
-                Log::error("Failed to send rating request to player ID $player->id for game ID $game->id: " . $e->getMessage());
+                Log::error("Failed to send rating request to player ID {$player->id} for game ID {$game->id}: ".$e->getMessage());
             }
         }
+    }
+
+    private function ratingsForTeam(Game $game, string $team)
+    {
+        return $game->gamePlayerRatings()
+            ->whereHas('player', fn ($query) => $query->whereHas('teams', fn ($subQuery) => $subQuery
+                ->where('game_id', $game->id)->where('team', $team)))
+            ->with('player')->get();
+    }
+
+    private function gameData(Game $game): array
+    {
+        return [
+            'id' => $game->id,
+            'played_at' => $game->played_at,
+            'team1_score' => $game->team1_score,
+            'team2_score' => $game->team2_score,
+        ];
+    }
+
+    private function ratingData($ratings): array
+    {
+        return $ratings->map(fn ($rating) => [
+            'id' => $rating->id,
+            'type' => $rating->type,
+            'rating' => $rating->rating,
+            'player' => [
+                'id' => $rating->player?->id,
+                'name' => $rating->player?->name,
+            ],
+        ])->values()->all();
+    }
+
+    private function givenRatingsData(Game $game): array
+    {
+        $ratings = $game->ratings()->with(['ratingPlayer', 'ratedPlayer'])->get();
+
+        return [
+            'players' => $game->teams->unique('id')->sortBy('name')->values()
+                ->map(fn ($player) => ['id' => $player->id, 'name' => $player->name])->all(),
+            'ratingsByPlayer' => $ratings->groupBy('rating_player_id')->map(function ($playerRatings): array {
+                return [
+                    'rating_player_id' => $playerRatings->first()->rating_player_id,
+                    'rating_player_name' => $playerRatings->first()->ratingPlayer?->name,
+                    'ratings' => $playerRatings->map(fn ($rating) => [
+                        'rated_player_id' => $rating->rated_player_id,
+                        'rating_value' => $rating->rating_value,
+                    ])->values()->all(),
+                ];
+            })->values()->all(),
+        ];
     }
 }
