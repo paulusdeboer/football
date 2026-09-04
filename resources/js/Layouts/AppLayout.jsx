@@ -5,6 +5,7 @@ import route from '../route';
 
 export default function AppLayout({ title, children }) {
     const user = usePage().props.auth?.user;
+    const can = usePage().props.auth?.can ?? {};
     const { t } = useTranslations();
 
     const logout = (event) => {
@@ -39,14 +40,16 @@ export default function AppLayout({ title, children }) {
                     <nav className="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                         <div className="sb-sidenav-menu">
                             <div className="nav">
-                                <div className="sb-sidenav-menu-heading">{t('Core')}</div>
-                                <Link className="nav-link" href={route('dashboard')}><div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt" /></div>{t('Dashboard')}</Link>
-                                <div className="sb-sidenav-menu-heading">{t('Football')}</div>
-                                <Link className="nav-link" href={route('games.index')}><div className="sb-nav-link-icon"><i className="fas fa-futbol" /></div>{t('Games')}</Link>
-                                <Link className="nav-link" href={route('ratings.index')}><div className="sb-nav-link-icon"><i className="fas fa-star" /></div>{t('Given ratings')}</Link>
-                                <Link className="nav-link" href={route('games.create')}><div className="sb-nav-link-icon"><i className="fas fa-plus" /></div>{t('Create game')}</Link>
-                                <Link className="nav-link" href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
-                                <Link className="nav-link" href={route('players.create')}><div className="sb-nav-link-icon"><i className="fas fa-user-plus" /></div>{t('Create players')}</Link>
+                                {can.accessAdminArea && <>
+                                    <div className="sb-sidenav-menu-heading">{t('Core')}</div>
+                                    <Link className="nav-link" href={route('dashboard')}><div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt" /></div>{t('Dashboard')}</Link>
+                                    <div className="sb-sidenav-menu-heading">{t('Football')}</div>
+                                    <Link className="nav-link" href={route('games.index')}><div className="sb-nav-link-icon"><i className="fas fa-futbol" /></div>{t('Games')}</Link>
+                                    <Link className="nav-link" href={route('ratings.index')}><div className="sb-nav-link-icon"><i className="fas fa-star" /></div>{t('Given ratings')}</Link>
+                                    <Link className="nav-link" href={route('games.create')}><div className="sb-nav-link-icon"><i className="fas fa-plus" /></div>{t('Create game')}</Link>
+                                    <Link className="nav-link" href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
+                                    <Link className="nav-link" href={route('players.create')}><div className="sb-nav-link-icon"><i className="fas fa-user-plus" /></div>{t('Create players')}</Link>
+                                </>}
                             </div>
                         </div>
                         <div className="sb-sidenav-footer"><div className="small">{t('Logged in as')}:</div>{user?.name}</div>

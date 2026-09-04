@@ -15,7 +15,7 @@ class GamesTest extends TestCase
 
     public function test_game_creation_persists_snapshots_and_balanced_teams(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
         $players = Player::factory()->count(10)->create();
 
         $response = $this->post('/games', [
@@ -34,7 +34,7 @@ class GamesTest extends TestCase
     public function test_result_submission_recalculates_player_ratings_and_can_send_three_requests(): void
     {
         \Mail::fake();
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
         $players = Player::factory()->count(10)->create(['rating' => 700]);
         $game = Game::factory()->completed()->create();
         $game->teams()->attach(array_fill_keys($players->take(5)->modelKeys(), ['team' => 'team1']));
@@ -74,7 +74,7 @@ class GamesTest extends TestCase
 
     public function test_game_detail_exposes_given_ratings_in_the_ratings_overview_shape(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
         $players = Player::factory()->count(3)->create();
         $game = Game::factory()->completed()->create();
         $game->teams()->attach($players->mapWithKeys(fn ($player, $index) => [
@@ -98,7 +98,7 @@ class GamesTest extends TestCase
 
     public function test_only_the_latest_completed_game_result_can_be_edited(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
         $olderGame = Game::factory()->completed(1, 0)->create(['played_at' => '2026-08-21 20:00']);
         $latestGame = Game::factory()->completed(2, 1)->create(['played_at' => '2026-08-28 20:00']);
 

@@ -12,7 +12,7 @@ Legenda:
 
 - [x] Laravel start zonder de oude `Auth::routes()`-bootfout.
 - [x] `npm run build` succesvol uitgevoerd.
-- [x] PHPUnit-suite succesvol uitgevoerd: 29 tests geslaagd, 159 assertions.
+- [x] PHPUnit-suite succesvol uitgevoerd: 41 tests geslaagd, 225 assertions.
 - [x] Nederlandse vertalingen zijn als JSON gevalideerd.
 - [x] MailHog draait lokaal op `http://localhost:8025`.
 - [ ] Browserconsole controleren op JavaScript-fouten tijdens de belangrijkste flows.
@@ -23,10 +23,12 @@ Legenda:
 - [x] Inloggen met de bestaande gebruikersnaam- en wachtwoordpayload.
 - [x] Ongeldige login toont een validatiefout.
 - [x] Optie “wachtwoord onthouden” wordt verwerkt.
-- [x] Registreren met naam, e-mail en wachtwoord.
+- [x] Openbare registratie is uitgeschakeld.
+- [x] Player-login wordt geweigerd met een duidelijke melding.
 - [x] Gast wordt vanaf beschermde pagina’s naar login doorgestuurd.
 - [x] Uitloggen beëindigt de sessie en gaat naar login.
 - [x] Wachtwoord resetten via de reset-tokenflow.
+- [x] Wachtwoordreset is gebruikersspecifiek bij dubbele e-mailadressen.
 - [x] Resetlink aanvragen vanuit de UI en controleren in MailHog; resetlink werkt.
 - [x] Resetmail gebruikt de Vrijdag-voetbalopmaak en toont geen Laravel-branding.
 - [x] E-mailverificatie openen, opnieuw verzenden en verifiëren.
@@ -39,10 +41,16 @@ Legenda:
 - [x] Navigatie naar dashboard, wedstrijden, gegeven beoordelingen en spelers.
 - [x] Uitklapmenu met gebruikersaccount en logout werkt.
 - [x] Header en gebruikersaccountmenu staan rechts uitgelijnd.
+- [x] Alleen admins zien de normale applicatienavigatie.
 
 ## 4. Spelers
 
 - [x] Spelerslijst wordt als de juiste Inertia-pagina geladen.
+- [x] Spelerslijst toont de rol als kleurbadge.
+- [x] Rollen kunnen via speler bewerken worden gewijzigd.
+- [x] Spelerslijst toont spelersnaam en gebruikersnaam afzonderlijk.
+- [x] Gebruikersnaam kan via speler bewerken worden gewijzigd en blijft uniek.
+- [x] Dubbele e-mailadressen blijven toegestaan.
 - [x] Meerdere spelers tegelijk aanmaken.
 - [x] Succesmelding gebruikt enkelvoud en meervoud correct bij spelers aanmaken.
 - [x] Succesmelding bij speler bijwerken is Nederlandstalig.

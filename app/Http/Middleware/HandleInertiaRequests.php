@@ -12,10 +12,23 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ] : null,
+                'can' => [
+                    'accessAdminArea' => (bool) $user?->isAdmin(),
+                    'managePlayers' => (bool) $user?->isAdmin(),
+                    'manageGames' => (bool) $user?->isAdmin(),
+                    'viewGivenRatings' => (bool) $user?->isAdmin(),
+                ],
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
@@ -29,7 +42,7 @@ class HandleInertiaRequests extends Middleware
     private function translations(): array
     {
         $translations = [];
-        $locales = array_unique([app()->getLocale(), config('app.fallback_locale', 'en')]);
+        $locales = array_reverse(array_unique([app()->getLocale(), config('app.fallback_locale', 'en')]));
 
         foreach ($locales as $locale) {
             $path = lang_path("{$locale}.json");

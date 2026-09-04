@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import AppLayout from '../../Layouts/AppLayout';
+import RoleBadge from '../../Components/RoleBadge';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
 
@@ -64,7 +65,8 @@ export default function PlayersIndex({ players, sortBy, sortDirection, includeDe
                                 <thead>
                                     <tr>
                                         {[
-                                            ['name', 'Name'],
+                                            ['name', 'Player name'],
+                                            ['username', 'Username'],
                                             ['email', 'Email'],
                                             ['rating', 'Rating'],
                                             ['type', 'Type'],
@@ -76,6 +78,7 @@ export default function PlayersIndex({ players, sortBy, sortDirection, includeDe
                                                 </button>
                                             </th>
                                         ))}
+                                        <th>{t('Role')}</th>
                                         <th>{t('Actions')}</th>
                                     </tr>
                                 </thead>
@@ -83,10 +86,12 @@ export default function PlayersIndex({ players, sortBy, sortDirection, includeDe
                                     {players.map((player) => (
                                         <tr key={player.id} className={player.deleted_at ? 'table-secondary' : ''}>
                                             <td>{player.name}</td>
+                                            <td>{player.user?.name ?? t('No username')}</td>
                                             <td>{player.user?.email ?? t('No email')}</td>
                                             <td>{(player.rating / 100).toFixed(2)}</td>
                                             <td>{t(player.type === 'attacker' ? 'Attacker' : player.type === 'defender' ? 'Defender' : 'Both')}</td>
                                             <td>{date(player.created_at)}</td>
+                                            <td><RoleBadge role={player.user?.role ?? 'player'} /></td>
                                             <td className="actions">
                                                 {player.deleted_at ? (
                                                     <button type="button" onClick={() => restore(player)} className="btn btn-success btn-sm">
