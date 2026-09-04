@@ -58,7 +58,7 @@ class RatingRequestService
             'revoked_at' => null,
             'token_version' => $ratingRequest->token_version + 1,
         ]);
-        $ratingRequest->events()->create([
+        $ratingRequest->events()->forceCreate([
             'actor_user_id' => $actorId,
             'previous_player_id' => $ratingRequest->player_id,
             'new_player_id' => $ratingRequest->player_id,
@@ -74,11 +74,11 @@ class RatingRequestService
         $this->ensureGameCanManage($ratingRequest->game);
         $this->ensureCanManage($ratingRequest);
         $candidates = $this->replacementCandidates($ratingRequest->game, $ratingRequest);
-        $replacement = $playerId
+        $replacement = $playerId !== null
             ? $candidates->firstWhere('id', $playerId)
             : ($candidates->isEmpty() ? null : $candidates->random());
 
-        if (! $replacement) {
+        if (! ($replacement instanceof Player)) {
             throw ValidationException::withMessages([
                 'player_id' => __('No suitable replacement player is available.'),
             ]);
@@ -89,7 +89,7 @@ class RatingRequestService
             'status' => RatingRequest::STATUS_REVOKED,
             'revoked_at' => $now,
         ]);
-        $ratingRequest->events()->create([
+        $ratingRequest->events()->forceCreate([
             'actor_user_id' => $actorId,
             'previous_player_id' => $ratingRequest->player_id,
             'new_player_id' => $replacement->id,
@@ -127,7 +127,7 @@ class RatingRequestService
             'status' => RatingRequest::STATUS_COMPLETED,
             'completed_at' => now(),
         ]);
-        $ratingRequest->events()->create([
+        $ratingRequest->events()->forceCreate([
             'type' => 'complete',
             'previous_player_id' => $ratingRequest->player_id,
             'new_player_id' => $ratingRequest->player_id,
@@ -186,7 +186,7 @@ class RatingRequestService
             'replacement_of_id' => $replacementOf?->id,
         ]);
 
-        $ratingRequest->events()->create([
+        $ratingRequest->events()->forceCreate([
             'actor_user_id' => $actorId,
             'previous_player_id' => $replacementOf?->player_id,
             'new_player_id' => $player->id,
@@ -204,7 +204,7 @@ class RatingRequestService
                 ->send(new RatingRequestMail($ratingRequest->game, $this->signedUrl($ratingRequest)));
         } catch (Throwable $exception) {
             $ratingRequest->update(['status' => RatingRequest::STATUS_SEND_FAILED]);
-            $ratingRequest->events()->create([
+            $ratingRequest->events()->forceCreate([
                 'actor_user_id' => $actorId,
                 'previous_player_id' => $ratingRequest->player_id,
                 'new_player_id' => $ratingRequest->player_id,
@@ -218,7 +218,11 @@ class RatingRequestService
 
     private function ensureCanManage(RatingRequest $ratingRequest): void
     {
-        abort_unless($ratingRequest->status !== RatingRequest::STATUS_COMPLETED, 422, __('This rating request is already completed.'));
+        abort_unless(
+            $ratingRequest->status !== RatingRequest::STATUS_COMPLETED && ! $ratingRequest->hasSubmittedRating(),
+            422,
+            __('This rating request is already completed.'),
+        );
         abort_unless($ratingRequest->status !== RatingRequest::STATUS_REVOKED, 422, __('This rating request has been revoked.'));
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RatingRequest extends Model
 {
@@ -51,7 +52,8 @@ class RatingRequest extends Model
         return $this->hasMany(self::class, 'replacement_of_id');
     }
 
-    public function events()
+    /** @return HasMany<RatingRequestEvent> */
+    public function events(): HasMany
     {
         return $this->hasMany(RatingRequestEvent::class)
             ->orderByDesc('created_at')
@@ -61,6 +63,13 @@ class RatingRequest extends Model
     public function isActive(): bool
     {
         return in_array($this->status, [self::STATUS_PENDING, self::STATUS_SEND_FAILED], true);
+    }
+
+    public function hasSubmittedRating(): bool
+    {
+        return $this->game->ratings()
+            ->where('rating_player_id', $this->player_id)
+            ->exists();
     }
 
     public function displayStatus(): string

@@ -164,6 +164,34 @@ class GamesTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_request_cannot_be_resent_or_replaced_after_player_submitted_a_rating(): void
+    {
+        \Mail::fake();
+        $this->actingAs(User::factory()->admin()->create());
+        [$game, $requests, $players] = $this->gameWithRatingRequests(1);
+        $ratingRequest = $requests->first();
+        $game->ratings()->create([
+            'rating_player_id' => $ratingRequest->player_id,
+            'rated_player_id' => $players[1]->id,
+            'rating_value' => 8,
+        ]);
+
+        $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.has_submitted_rating', true)
+        );
+
+        $this->post(route('rating-requests.resend', [$game, $ratingRequest]))
+            ->assertStatus(422);
+        $this->post(route('rating-requests.replace', [$game, $ratingRequest]), [
+            'player_id' => $players[1]->id,
+        ])->assertStatus(422);
+
+        $this->assertSame(1, $ratingRequest->fresh()->token_version);
+        $this->assertSame(RatingRequest::STATUS_PENDING, $ratingRequest->fresh()->status);
+        $this->assertSame(1, RatingRequest::where('game_id', $game->id)->count());
+        \Mail::assertNothingSent();
+    }
+
     public function test_random_replacement_fails_when_no_suitable_player_exists(): void
     {
         $this->actingAs(User::factory()->admin()->create());

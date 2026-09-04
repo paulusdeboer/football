@@ -74,7 +74,7 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
                                         </thead>
                                         <tbody>
                                             {ratingRequests.map((request) => {
-                                                const canManage = !['completed', 'revoked'].includes(request.status);
+                                                const canManage = !request.has_submitted_rating && !['completed', 'revoked'].includes(request.status);
 
                                                 return (
                                                     <RatingRequestRow
