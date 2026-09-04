@@ -173,19 +173,17 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
             {request.history?.length > 0 && (
                 <tr>
                     <td colSpan="5" className="pt-0">
-                        <details>
-                            <summary>{t('View history')}</summary>
-                            <ul className="small mt-2 mb-0">
-                                {request.history.map((event, index) => (
-                                    <li key={`${request.id}-${index}`}>
-                                        {t(event.type === 'initial_send' ? 'Initial send' : event.type === 'send_failed' ? 'Send failed' : event.type === 'resend' ? 'Resend' : event.type === 'replace' ? 'Replaced' : 'Completed')}
-                                        {' — '}{dateTime(event.created_at)}
-                                        {event.actor_name ? ` (${event.actor_name})` : ''}
-                                        {event.previous_player_name && event.new_player_name && event.previous_player_name !== event.new_player_name ? `: ${event.previous_player_name} → ${event.new_player_name}` : ''}
-                                    </li>
-                                ))}
-                            </ul>
-                        </details>
+                        <div className="small text-muted">{t('History')}</div>
+                        <ul className="small mt-2 mb-0">
+                            {request.history.map((event, index) => (
+                                <li key={`${request.id}-${index}`}>
+                                    {t(event.type === 'initial_send' ? 'Initial send' : event.type === 'send_failed' ? 'Send failed' : event.type === 'resend' ? 'Resend' : event.type === 'replace' ? 'Replaced' : 'Completed')}
+                                    {' — '}{dateTime(event.created_at)}
+                                    {event.actor_name ? ` (${event.actor_name})` : ''}
+                                    {event.previous_player_name && event.new_player_name && event.previous_player_name !== event.new_player_name ? `: ${event.previous_player_name} → ${event.new_player_name}` : ''}
+                                </li>
+                            ))}
+                        </ul>
                     </td>
                 </tr>
             )}
