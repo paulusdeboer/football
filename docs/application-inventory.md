@@ -29,6 +29,7 @@
 
 - Players rate other players through a signed, temporary link.
 - A rating request is valid for 72 hours and a rating player may submit only once per game.
+- Administrators can resend or replace requests from the game detail page; each request keeps a lifecycle and audit history.
 - Ratings are stored on a 0–10 scale with one decimal place.
 - Rating calculation uses the game result, the snapshot rating and the average submitted rating.
 

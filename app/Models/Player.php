@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Player extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $fillable = ['name', 'rating', 'type', 'user_id'];
 
     protected static function boot()
@@ -43,6 +44,16 @@ class Player extends Model
     public function ratings()
     {
         return $this->hasMany(Rating::class, 'rated_player_id');
+    }
+
+    public function givenRatings()
+    {
+        return $this->hasMany(Rating::class, 'rating_player_id');
+    }
+
+    public function ratingRequests()
+    {
+        return $this->hasMany(RatingRequest::class);
     }
 
     public function gamePlayerRatings()

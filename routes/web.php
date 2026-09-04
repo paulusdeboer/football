@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\RatingRequestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\RatingController;
@@ -22,6 +23,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('games', GameController::class);
     Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
     Route::post('/games/{game}/results', [GameController::class, 'storeResult'])->name('games.store-result');
+    Route::post('/games/{game}/rating-requests/{ratingRequest}/resend', [RatingRequestController::class, 'resend'])
+        ->name('rating-requests.resend');
+    Route::post('/games/{game}/rating-requests/{ratingRequest}/replace', [RatingRequestController::class, 'replace'])
+        ->name('rating-requests.replace');
 
     // index, create, store, show, edit, update, destroy
     Route::resource('players', PlayerController::class);
@@ -38,17 +43,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // Signed route for players to rate others
-Route::get('games/{game}/rate/{player}', [RatingController::class, 'showForm'])
+Route::get('games/{game}/rate/{ratingRequest}', [RatingController::class, 'showForm'])
     ->name('players.rate')
     ->middleware('signed');
 
 // Signed route for players that finished rating others
-Route::get('games/{game}/rate/{player}/confirm', [RatingController::class, 'showConfirmation'])
+Route::get('games/{game}/rate/{ratingRequest}/confirm', [RatingController::class, 'showConfirmation'])
     ->name('ratings.confirm')
     ->middleware('signed');
 
 // Store player ratings
-Route::post('games/{game}/players/{player}/rate', [RatingController::class, 'store'])
+Route::post('games/{game}/players/{ratingRequest}/rate', [RatingController::class, 'store'])
     ->name('ratings.store')
     ->middleware('signed');
 
