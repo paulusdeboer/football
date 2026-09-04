@@ -16,7 +16,7 @@ class PasswordResetNotification extends ResetPassword
     {
         $resetUrl = url(route('password.reset', [
             'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
+            'user_id' => $notifiable->getKey(),
         ], false));
 
         $expiresIn = config('auth.passwords.'.config('auth.defaults.passwords').'.expire');

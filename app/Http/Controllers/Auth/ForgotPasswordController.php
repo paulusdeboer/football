@@ -23,7 +23,7 @@ class ForgotPasswordController extends Controller
         $user = User::where('name', $request->name)->first();
 
         if ($user) {
-            Password::sendResetLink(['email' => $user->email]);
+            Password::sendResetLink(['id' => $user->getKey()]);
         }
 
         return back()->with('status', __('password_reset_link_sent', [

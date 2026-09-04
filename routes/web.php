@@ -4,7 +4,6 @@ use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PlayerController;
@@ -18,7 +17,7 @@ Route::get('/', function () {
 });
 
 // Authenticated routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     // index, create, store, show, edit, update, destroy
     Route::resource('games', GameController::class);
     Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
@@ -57,8 +56,6 @@ Route::post('games/{game}/players/{player}/rate', [RatingController::class, 'sto
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
     Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -77,4 +74,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // Home page route after login
-Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])
+    ->name('dashboard');

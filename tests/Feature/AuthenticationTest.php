@@ -21,7 +21,7 @@ class AuthenticationTest extends TestCase
 
     public function test_user_can_log_in_with_the_existing_username_payload(): void
     {
-        $user = User::factory()->create(['name' => 'Test player', 'password' => bcrypt('secret')]);
+        $user = User::factory()->admin()->create(['name' => 'Test player', 'password' => bcrypt('secret')]);
 
         $response = $this->post('/login', [
             'name' => 'Test player',
@@ -35,7 +35,7 @@ class AuthenticationTest extends TestCase
 
     public function test_invalid_login_returns_validation_errors(): void
     {
-        User::factory()->create(['name' => 'Test player', 'password' => bcrypt('secret')]);
+        User::factory()->admin()->create(['name' => 'Test player', 'password' => bcrypt('secret')]);
 
         $this->from('/login')->post('/login', [
             'name' => 'Test player',
@@ -43,17 +43,10 @@ class AuthenticationTest extends TestCase
         ])->assertRedirect('/login')->assertSessionHasErrors('name');
     }
 
-    public function test_user_can_register_with_the_existing_payload_and_redirect(): void
+    public function test_public_registration_is_closed(): void
     {
-        $this->post('/register', [
-            'name' => 'New player',
-            'email' => 'new-player@example.test',
-            'password' => 'secret-password',
-            'password_confirmation' => 'secret-password',
-        ])->assertRedirect('/dashboard');
-
-        $this->assertAuthenticated();
-        $this->assertDatabaseHas('users', ['name' => 'New player', 'email' => 'new-player@example.test']);
+        $this->get('/register')->assertNotFound();
+        $this->post('/register')->assertNotFound();
     }
 
     public function test_user_can_reset_a_password_through_the_explicit_reset_routes(): void
@@ -63,12 +56,56 @@ class AuthenticationTest extends TestCase
 
         $this->post('/password/reset', [
             'token' => $token,
-            'email' => $user->email,
+            'user_id' => $user->id,
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ])->assertRedirect('/login');
 
         $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
+    }
+
+    public function test_password_reset_targets_the_selected_user_when_emails_are_shared(): void
+    {
+        $target = User::factory()->create([
+            'name' => 'Manoach Bolks',
+            'email' => 'shared@example.test',
+            'password' => 'target-old-password',
+        ]);
+        $other = User::factory()->create([
+            'name' => 'Emiel Bolks',
+            'email' => 'shared@example.test',
+            'password' => 'other-old-password',
+        ]);
+        $token = Password::broker()->createToken($target);
+
+        $this->post('/password/reset', [
+            'token' => $token,
+            'user_id' => $target->id,
+            'password' => 'target-new-password',
+            'password_confirmation' => 'target-new-password',
+        ])->assertRedirect('/login');
+
+        $this->assertTrue(Hash::check('target-new-password', $target->fresh()->password));
+        $this->assertTrue(Hash::check('other-old-password', $other->fresh()->password));
+    }
+
+    public function test_password_reset_token_cannot_be_used_for_another_user_with_the_same_email(): void
+    {
+        $target = User::factory()->create(['email' => 'shared@example.test']);
+        $other = User::factory()->create(['email' => 'shared@example.test']);
+        $targetPassword = $target->password;
+        $otherPassword = $other->password;
+        $token = Password::broker()->createToken($target);
+
+        $this->from('/password/reset')->post('/password/reset', [
+            'token' => $token,
+            'user_id' => $other->id,
+            'password' => 'should-not-be-applied',
+            'password_confirmation' => 'should-not-be-applied',
+        ])->assertRedirect('/password/reset')->assertSessionHasErrors('user_id');
+
+        $this->assertSame($targetPassword, $target->fresh()->password);
+        $this->assertSame($otherPassword, $other->fresh()->password);
     }
 
     public function test_password_reset_request_does_not_inject_html_into_the_status_message(): void
@@ -106,9 +143,23 @@ class AuthenticationTest extends TestCase
 
     public function test_user_can_log_out(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         $this->post('/logout')->assertRedirect('/login');
+        $this->assertGuest();
+    }
+
+    public function test_player_cannot_log_in_to_the_normal_application(): void
+    {
+        User::factory()->create(['name' => 'Test player', 'password' => bcrypt('secret')]);
+
+        $this->from('/login')->post('/login', [
+            'name' => 'Test player',
+            'password' => 'secret',
+        ])->assertRedirect('/login')->assertSessionHasErrors([
+            'name' => 'Alleen beheerders kunnen inloggen.',
+        ]);
+
         $this->assertGuest();
     }
 }
