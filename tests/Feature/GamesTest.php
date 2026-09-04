@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\Player;
 use App\Models\RatingRequest;
 use App\Models\User;
+use App\Services\RatingRequestService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -112,6 +113,20 @@ class GamesTest extends TestCase
         [$game] = $this->gameWithRatingRequests(1);
 
         $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.history', [])
+        );
+    }
+
+    public function test_game_detail_keeps_completion_time_out_of_request_history(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        [$game, $requests] = $this->gameWithRatingRequests(1);
+
+        app(RatingRequestService::class)->markCompleted($requests->first());
+
+        $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.status', RatingRequest::STATUS_COMPLETED)
+            ->where('ratingRequests.0.completed_at', fn ($completedAt): bool => $completedAt !== null)
             ->where('ratingRequests.0.history', [])
         );
     }

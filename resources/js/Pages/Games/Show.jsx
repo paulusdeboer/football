@@ -12,13 +12,17 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
     const { t } = useTranslations();
     const [showRatings, setShowRatings] = useState(true);
     const typeLabel = (type) => ({ attacker: t('Attacker'), defender: t('Defender'), both: t('Both') }[type] ?? type);
-    const statusLabel = (status) => ({
-        pending: t('Pending'),
-        completed: t('Completed'),
-        expired: t('Expired'),
-        revoked: t('Revoked'),
-        send_failed: t('Send failed'),
-    }[status] ?? status);
+    const statusLabel = (status, completedAt = null) => {
+        const label = ({
+            pending: t('Pending'),
+            completed: t('Completed'),
+            expired: t('Expired'),
+            revoked: t('Revoked'),
+            send_failed: t('Send failed'),
+        }[status] ?? status);
+
+        return status === 'completed' && completedAt ? `${label} — ${dateTime(completedAt)}` : label;
+    };
     const renderTeam = (ratings) => (
         <ul>
             {[...ratings]
@@ -147,7 +151,7 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
         <>
             <tr>
                 <td>{request.player_name} ({request.player_email})</td>
-                <td><span className={`badge text-bg-${request.status === 'completed' ? 'success' : request.status === 'expired' ? 'warning' : request.status === 'send_failed' ? 'danger' : request.status === 'revoked' ? 'secondary' : 'primary'}`}>{statusLabel(request.status)}</span></td>
+                <td><span className={`badge text-bg-${request.status === 'completed' ? 'success' : request.status === 'expired' ? 'warning' : request.status === 'send_failed' ? 'danger' : request.status === 'revoked' ? 'secondary' : 'primary'}`}>{statusLabel(request.status, request.completed_at)}</span></td>
                 <td>{dateTime(request.sent_at)}</td>
                 <td>{dateTime(request.expires_at)}</td>
                 <td className="actions">

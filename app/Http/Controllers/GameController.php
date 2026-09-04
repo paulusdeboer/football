@@ -233,7 +233,7 @@ class GameController extends Controller
         $events = $request->events;
         $latestSendEvent = $events->first(fn ($event) => in_array($event->type, ['initial_send', 'resend'], true));
         $history = $events
-            ->reject(fn ($event) => $latestSendEvent && $event->id === $latestSendEvent->id)
+            ->reject(fn ($event) => $event->type === 'complete' || ($latestSendEvent && $event->id === $latestSendEvent->id))
             ->values();
 
         return [
