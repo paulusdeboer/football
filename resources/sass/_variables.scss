@@ -1,14 +1,49 @@
+// Bootstrap is kept for its grid, form and utility primitives, but its
+// default palette is replaced by the Friday football design tokens below.
+$body-bg: #eef3f9;
+$body-color: #1b2a39;
+$font-family-sans-serif: 'Poppins', 'Segoe UI', sans-serif;
+$font-size-base: 0.84rem;
+$line-height-base: 1.55;
+$primary: #e97817;
+$secondary: #52687a;
+$success: #159a68;
+$info: #3678b8;
+$warning: #e28a23;
+$danger: #cc4450;
+$dark: #132536;
+$light: #f5f8fc;
+$border-radius: 0.75rem;
+$border-radius-sm: 0.55rem;
+$border-radius-lg: 1rem;
+
 html {
-    font-size: 0.9rem;
+    font-size: 0.94rem;
 }
 
-// Body
-$body-bg: #f8fafc;
-
-// Typography
-$font-family-sans-serif: 'Nunito', sans-serif;
-$font-size-base: 0.9rem;
-$line-height-base: 1.6;
+:root {
+    --football-navy-950: #0d1d2c;
+    --football-navy-900: #132536;
+    --football-navy-800: #1b3448;
+    --football-navy-700: #2d5068;
+    --football-orange: #e97817;
+    --football-orange-dark: #c95c0c;
+    --football-orange-soft: #fff1e5;
+    --football-surface: #f5f8fc;
+    --football-surface-blue: #edf3fa;
+    --football-card: #ffffff;
+    --football-line: #dce5ef;
+    --football-line-strong: #cbd7e5;
+    --football-ink: #1b2a39;
+    --football-muted: #718092;
+    --football-success: #159a68;
+    --football-danger: #cc4450;
+    --football-info: #3678b8;
+    --football-shadow: 0 12px 32px rgba(25, 48, 70, 0.07);
+    --football-shadow-sm: 0 4px 14px rgba(25, 48, 70, 0.06);
+    --font-heading: 'Montserrat', 'Segoe UI', sans-serif;
+    --font-body: 'Poppins', 'Segoe UI', sans-serif;
+}
 
 .chart-container {
     min-height: 320px;

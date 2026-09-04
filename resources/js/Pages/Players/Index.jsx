@@ -36,24 +36,26 @@ export default function PlayersIndex({ players, sortBy, sortDirection, includeDe
     };
 
     const restore = (player) => router.patch(route('players.restore', player.id));
-    const arrow = (column) => sortBy === column ? (sortDirection === 'asc' ? '▲' : '▼') : '';
+    const arrow = (column) => sortBy === column
+        ? <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'} table-sort-icon`} aria-hidden="true" />
+        : null;
+    const openPlayer = (event, playerId) => {
+        if (event.target.closest('a, button, select, input, textarea, form')) return;
+
+        router.visit(route('players.edit', playerId));
+    };
 
     return (
         <AppLayout title="Players">
             <div className="container-fluid px-4">
-                <div className="d-flex justify-content-between align-items-center">
-                    <h1 className="mt-4">{t('Players')}</h1>
+                <div className="d-flex justify-content-end align-items-center">
                     <Link href={route('players.create')} className="btn btn-primary">
                         {t('Create player')}
                     </Link>
                 </div>
 
-                <div className="card mb-4">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <i className="fas fa-table me-1" />
-                            {t('Player list')}
-                        </div>
+                <div className="card table-card mb-4">
+                    <div className="card-header table-card-header d-flex justify-content-end align-items-center">
                         <button type="button" onClick={toggleDeleted} className={`btn btn-sm ${includeDeleted === '1' ? 'btn-secondary' : 'btn-primary'}`}>
                             {includeDeleted === '1' ? t('Active players only') : t('All players (including inactive)')}
                         </button>
@@ -84,7 +86,19 @@ export default function PlayersIndex({ players, sortBy, sortDirection, includeDe
                                 </thead>
                                 <tbody>
                                     {players.map((player) => (
-                                        <tr key={player.id} className={player.deleted_at ? 'table-secondary' : ''}>
+                                        <tr
+                                            key={player.id}
+                                            className={player.deleted_at ? 'table-secondary' : 'table-row-linkable'}
+                                            onClick={player.deleted_at ? undefined : (event) => openPlayer(event, player.id)}
+                                            onKeyDown={player.deleted_at ? undefined : (event) => {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    openPlayer(event, player.id);
+                                                }
+                                            }}
+                                            tabIndex={player.deleted_at ? undefined : '0'}
+                                            role={player.deleted_at ? undefined : 'link'}
+                                        >
                                             <td>{player.name}</td>
                                             <td>{player.user?.name ?? t('No username')}</td>
                                             <td>{player.user?.email ?? t('No email')}</td>

@@ -34,13 +34,10 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
     const hasResult = game.team1_score !== null && game.team2_score !== null;
 
     return (
-        <AppLayout title="Game">
+        <AppLayout title={`${t('Game')} ${t('on')} ${date(game.played_at)}`}>
             <div className="container-fluid px-4">
-                <h1 className="mt-4">{t('Welcome')}</h1>
-
                 <div className="card mb-4">
-                    <div className="card-header d-flex justify-content-between">
-                        <span>{t('Game')} {t('on')} {date(game.played_at)}</span>
+                    <div className="card-header d-flex justify-content-end">
                         <span>
                             {!hasResult && (
                                 <Link href={route('games.edit', game.id)} className="btn btn-primary btn-sm me-2">
@@ -110,8 +107,8 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
                     </div>
                 </div>
 
-                <div className="card mb-4">
-                    <div className="card-header">
+                <div className="card table-card mb-4">
+                    <div className="card-header table-card-header">
                         <i className="fas fa-table me-1" />
                         {t('Ratings list')}
                     </div>
@@ -153,10 +150,10 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
                 <td><span className={`badge text-bg-${request.status === 'completed' ? 'success' : request.status === 'expired' ? 'warning' : request.status === 'send_failed' ? 'danger' : request.status === 'revoked' ? 'secondary' : 'primary'}`}>{statusLabel(request.status)}</span></td>
                 <td>{dateTime(request.sent_at)}</td>
                 <td>{dateTime(request.expires_at)}</td>
-                <td>
+                <td className="actions">
                     {canManage && (
                         <div className="d-flex flex-wrap gap-1">
-                            <button type="button" className="btn btn-outline-primary btn-sm" onClick={resend}>
+                            <button type="button" className="btn btn-sm" onClick={resend}>
                                 {t('Resend')}
                             </button>
                             <form onSubmit={replace} className="d-flex gap-1">
@@ -164,7 +161,7 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
                                     <option value="">{t('Random suitable player')}</option>
                                     {request.replacement_players?.map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}
                                 </select>
-                                <button type="submit" className="btn btn-outline-warning btn-sm">{t('Replace')}</button>
+                                <button type="submit" className="btn btn-sm">{t('Replace')}</button>
                             </form>
                         </div>
                     )}

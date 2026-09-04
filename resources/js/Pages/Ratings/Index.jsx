@@ -15,13 +15,7 @@ export default function RatingsIndex({ games }) {
     return (
         <AppLayout title="Given ratings">
             <div className="container-fluid px-4">
-                <h1 className="mt-4">{t('Welcome')}</h1>
-
-                <div className="card mb-4">
-                    <div className="card-header">
-                        <i className="fas fa-table me-1" />
-                        {t('Ratings list')}
-                    </div>
+                <div className="card table-card mb-4">
                     <div className="card-body">
                         <div className="table-responsive">
                             <table className="table">

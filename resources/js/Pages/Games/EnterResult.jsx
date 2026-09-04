@@ -19,8 +19,6 @@ export default function EnterResult({ game, team1Players, team2Players, hasSentR
     return (
         <AppLayout title="Enter result">
             <div className="container-fluid px-4">
-                <h1 className="mt-4">{t('Enter result')}</h1>
-
                 <div className="card mb-4">
                     <div className="card-body">
                         <form onSubmit={submit} id="game-form">

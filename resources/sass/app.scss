@@ -1,28 +1,23 @@
-// Bootstrap
-@import 'bootstrap/scss/bootstrap';
+// Design tokens must be loaded before Bootstrap so its base variables use
+// the Friday football palette.
+@import 'variables';
 
-// Bootstrap theme
-@import 'bootstrap_theme';
+// Bootstrap primitives
+@import 'bootstrap/scss/bootstrap';
 
 // Select2
 @import 'select2/dist/css/select2.min.css';
 @import 'select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css';
 
 // Fonts
-@import url('https://fonts.bunny.net/css?family=Nunito');
+@import url('https://fonts.bunny.net/css?family=Montserrat:600,700,800|Poppins:300,400,500,600,700');
 @import 'font-awesome/fontawesome';
 @import 'font-awesome/regular';
 @import 'font-awesome/solid';
 @import 'font-awesome/brands';
 @import 'font-awesome/v4-shims';
 
-// Icons
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
-
 // Custom CSS
 @import 'custom';
 @import "table";
 @import "select2";
-
-// Variables
-@import 'variables';

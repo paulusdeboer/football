@@ -29,7 +29,10 @@ class GameController extends Controller
         }
 
         return Inertia::render('Games/Index', [
-            'games' => Game::query()->orderBy($sortBy, $sortDirection)->get(),
+            'games' => Game::query()
+                ->withCount(['teams', 'ratingRequests'])
+                ->orderBy($sortBy, $sortDirection)
+                ->get(),
             'sortBy' => $sortBy,
             'sortDirection' => $sortDirection,
             'latestCompletedGameId' => $this->latestCompletedGameId(),

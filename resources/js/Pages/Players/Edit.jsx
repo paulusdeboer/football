@@ -23,7 +23,6 @@ export default function PlayersEdit({ player }) {
     return (
         <AppLayout title="Edit player">
             <div className="container-fluid px-4">
-                <h1 className="mt-4">{t('Edit player')}</h1>
                 <form onSubmit={submit}>
                     <div className="row g-4 mb-4">
                         <div className="col-lg-7">

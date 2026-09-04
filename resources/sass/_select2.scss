@@ -9,3 +9,26 @@
 .select2-results__options {
     max-height: 50vh !important;
 }
+
+.select2-container--bootstrap-5 .select2-selection {
+    min-height: 2.65rem;
+    border-color: var(--football-line-strong);
+    border-radius: 0.65rem;
+}
+
+.select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: var(--football-orange);
+    box-shadow: 0 0 0 0.2rem rgba(233, 120, 23, 0.14);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    overflow: hidden;
+    border-color: var(--football-line-strong);
+    border-radius: 0.65rem;
+    box-shadow: var(--football-shadow-sm);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: var(--football-orange);
+}

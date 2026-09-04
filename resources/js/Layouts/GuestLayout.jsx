@@ -7,18 +7,14 @@ export default function GuestLayout({ title, children }) {
     return (
         <>
             <Head title={t(title)} />
-            <div className="bg-primary min-vh-100">
-                <div id="layoutAuthentication">
-                    <div id="layoutAuthentication_content">
-                        <main>
-                            <div className="container">
-                                <div className="row justify-content-center">
-                                    <div className="col-lg-7">{children}</div>
-                                </div>
-                            </div>
-                        </main>
+            <div className="guest-page">
+                <main className="guest-page__content">
+                    <div className="guest-page__brand">
+                        <img src="/favicon.svg" alt="" aria-hidden="true" />
+                        <div className="mt-2"><h1 className="mb-0">{t('app_name')}</h1></div>
                     </div>
-                </div>
+                    {children}
+                </main>
             </div>
         </>
     );

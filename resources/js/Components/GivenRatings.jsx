@@ -11,7 +11,7 @@ export default function GivenRatings({ players = [], ratingsByPlayer = [] }) {
         <div className="d-flex flex-wrap gap-5">
             {ratingsByPlayer.map((group) => (
                 <div key={group.rating_player_id}>
-                    <strong>{group.rating_player_name}</strong>
+                    <strong className="given-ratings__name">{group.rating_player_name}</strong>
                     <table className="table table-sm mb-0">
                         <tbody>
                             {players.map((player) => {
