@@ -17,6 +17,18 @@ class Game extends Model
         return Carbon::parse($this->played_at)->isPast();
     }
 
+    public function isLatestCompleted(): bool
+    {
+        $latestId = self::query()
+            ->whereNotNull('team1_score')
+            ->whereNotNull('team2_score')
+            ->orderByDesc('played_at')
+            ->orderByDesc('id')
+            ->value('id');
+
+        return (int) $this->id === (int) $latestId;
+    }
+
     public function teams()
     {
         return $this->belongsToMany(Player::class, 'teams')->withPivot('team')->withTrashed();

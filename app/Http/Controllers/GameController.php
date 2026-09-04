@@ -70,7 +70,7 @@ class GameController extends Controller
         return Inertia::render('Games/Show', [
             'game' => $this->gameData($game),
             'canEditResult' => $this->canEditResult($game),
-            'canManageRatingRequests' => ! $game->isInPast(),
+            'canManageRatingRequests' => ! $game->isInPast() || $this->canEditResult($game),
             'givenRatings' => $this->givenRatingsData($game),
             'ratingRequests' => $ratingRequests->map(fn ($request) => $this->ratingRequestData(
                 $request,
@@ -222,7 +222,7 @@ class GameController extends Controller
 
     private function canEditResult(Game $game): bool
     {
-        return (int) $this->latestCompletedGameId() === (int) $game->id;
+        return $game->isLatestCompleted();
     }
 
     private function hasResult(Game $game): bool

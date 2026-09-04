@@ -224,6 +224,6 @@ class RatingRequestService
 
     private function ensureGameCanManage(Game $game): void
     {
-        abort_unless(! $game->isInPast(), 422, __('Rating requests for past games cannot be changed.'));
+        abort_unless(! $game->isInPast() || $game->isLatestCompleted(), 422, __('Rating requests for past games cannot be changed.'));
     }
 }

@@ -183,6 +183,7 @@ class GamesTest extends TestCase
         $this->actingAs(User::factory()->admin()->create());
         [$game, $requests, $players] = $this->gameWithRatingRequests(1);
         $game->update(['played_at' => now()->subMinute()]);
+        Game::factory()->completed()->create(['played_at' => now()->addMinute()]);
         $ratingRequest = $requests->first();
 
         $this->post(route('rating-requests.resend', [$game, $ratingRequest]))
@@ -195,6 +196,20 @@ class GamesTest extends TestCase
         $this->assertSame(RatingRequest::STATUS_PENDING, $ratingRequest->fresh()->status);
         $this->assertSame(1, RatingRequest::where('game_id', $game->id)->count());
         \Mail::assertNothingSent();
+    }
+
+    public function test_latest_completed_past_game_can_manage_rating_requests(): void
+    {
+        \Mail::fake();
+        $this->actingAs(User::factory()->admin()->create());
+        [$game, $requests] = $this->gameWithRatingRequests(1);
+        $game->update(['played_at' => now()->subMinute()]);
+
+        $this->post(route('rating-requests.resend', [$game, $requests->first()]))
+            ->assertRedirect("/games/{$game->id}");
+
+        $this->assertSame(2, $requests->first()->fresh()->token_version);
+        \Mail::assertSent(RatingRequestMail::class, 1);
     }
 
     public function test_game_detail_exposes_given_ratings_in_the_ratings_overview_shape(): void
