@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\RatingRequestMail;
 use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
-use App\Models\RatingRequest;
 use App\Services\RatingCalculator;
+use App\Services\RatingRequestService;
 use App\Services\TeamBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -64,7 +60,10 @@ class GameController extends Controller
 
     public function show(Game $game): Response
     {
-        $ratingRequests = $game->ratingRequests()->with('player.user')->get();
+        $ratingRequestService = app(RatingRequestService::class);
+        $ratingRequests = $game->ratingRequests()
+            ->with(['player.user', 'events.actor', 'events.previousPlayer', 'events.newPlayer'])
+            ->get();
         $team1Ratings = $this->ratingsForTeam($game, 'team1');
         $team2Ratings = $this->ratingsForTeam($game, 'team2');
 
@@ -72,11 +71,10 @@ class GameController extends Controller
             'game' => $this->gameData($game),
             'canEditResult' => $this->canEditResult($game),
             'givenRatings' => $this->givenRatingsData($game),
-            'ratingRequests' => $ratingRequests->map(fn ($request) => [
-                'id' => $request->id,
-                'player_name' => $request->player?->name,
-                'player_email' => $request->player?->user?->email,
-            ])->values(),
+            'ratingRequests' => $ratingRequests->map(fn ($request) => $this->ratingRequestData(
+                $request,
+                $ratingRequestService->replacementCandidates($game, $request),
+            ))->values(),
             'team1Rating' => $team1Ratings->sum('rating'),
             'team2Rating' => $team2Ratings->sum('rating'),
             'team1Ratings' => $this->ratingData($team1Ratings),
@@ -157,7 +155,7 @@ class GameController extends Controller
         $this->updatePlayerRatings($game);
 
         if ($request->boolean('send_rating_requests') && ! $game->ratingRequests()->exists()) {
-            $this->sendRatingRequests($game);
+            app(RatingRequestService::class)->createInitialRequests($game);
         }
 
         return redirect()->route('games.show', $game);
@@ -231,31 +229,32 @@ class GameController extends Controller
         return $game->team1_score !== null && $game->team2_score !== null;
     }
 
-    private function sendRatingRequests(Game $game): void
+    private function ratingRequestData($request, $replacementCandidates): array
     {
-        $lastGame = Game::whereNotNull('team1_score')
-            ->whereNotNull('team2_score')
-            ->where('id', '<', $game->id)
-            ->latest('played_at')
-            ->first();
-        $excludedPlayerIds = $lastGame
-            ? RatingRequest::where('game_id', $lastGame->id)->pluck('player_id')->toArray()
-            : [];
-
-        $players = $game->teams()->whereNotIn('players.id', $excludedPlayerIds)->inRandomOrder()->limit(3)->get();
-        foreach ($players as $player) {
-            $tokenUrl = URL::temporarySignedRoute('players.rate', now()->addHours(72), [
-                'game' => $game->id,
-                'player' => $player->id,
-            ]);
-
-            try {
-                RatingRequest::create(['game_id' => $game->id, 'player_id' => $player->id]);
-                Mail::to($player->user->email)->send(new RatingRequestMail($game, $tokenUrl));
-            } catch (\Exception $e) {
-                Log::error("Failed to send rating request to player ID {$player->id} for game ID {$game->id}: ".$e->getMessage());
-            }
-        }
+        return [
+            'id' => $request->id,
+            'player_id' => $request->player_id,
+            'player_name' => $request->player?->name,
+            'player_email' => $request->player?->user?->email,
+            'status' => $request->displayStatus(),
+            'sent_at' => $request->sent_at?->toIso8601String(),
+            'expires_at' => $request->expires_at?->toIso8601String(),
+            'completed_at' => $request->completed_at?->toIso8601String(),
+            'revoked_at' => $request->revoked_at?->toIso8601String(),
+            'replacement_players' => $replacementCandidates->map(fn ($player) => [
+                'id' => $player->id,
+                'name' => $player->name,
+            ])->values()->all(),
+            'history' => $request->events->map(fn ($event) => [
+                'type' => $event->type,
+                'actor_name' => $event->actor?->name,
+                'previous_player_name' => $event->previousPlayer?->name,
+                'new_player_name' => $event->newPlayer?->name,
+                'expires_at' => $event->expires_at?->toIso8601String(),
+                'details' => $event->type === 'send_failed' ? $event->details : null,
+                'created_at' => $event->created_at?->toIso8601String(),
+            ])->values()->all(),
+        ];
     }
 
     private function ratingsForTeam(Game $game, string $team)

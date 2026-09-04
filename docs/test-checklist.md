@@ -102,6 +102,12 @@ Legenda:
 - [x] Checkbox is uitgeschakeld nadat requests al bestaan.
 - [x] Controleren dat dubbele rating requests niet ontstaan.
 - [x] MailHog controleren op inhoud, ontvanger, link en vervaltijd van de e-mail.
+- [x] Op de wedstrijdpagina status, verzendtijd en vervaldatum van elk beoordelingsverzoek controleren.
+- [x] Een verlopen verzoek opnieuw versturen en controleren dat de nieuwe link 72 uur geldig is.
+- [x] Een verzoek vervangen door een gekozen deelnemer.
+- [x] Een verzoek vervangen met een lege keuze en controleren dat willekeurig een geschikte deelnemer wordt gekozen.
+- [x] Controleren dat een oude link direct ongeldig is na resend of replacement.
+- [x] Historie van initiële verzending, resend, replacement, fout en voltooiing controleren.
 - [x] Alleen het resultaat van de meest recente wedstrijd opnieuw bewerken en controleren dat ratings opnieuw correct worden berekend.
 - [x] Controleren dat oudere wedstrijden met een resultaat geen knop “Resultaat invoeren/bewerken” tonen en niet direct toegankelijk zijn.
 
@@ -119,6 +125,7 @@ Legenda:
 - [x] Beoordeling versturen via de link uit MailHog.
 - [x] Bevestigingspagina na versturen controleren.
 - [x] Verlopen signed link controleren met een gecontroleerde testlink.
+- [x] Een voltooide aanvraag opnieuw openen en de read-only melding controleren.
 
 ## 8. Beoordelingsoverzicht
 

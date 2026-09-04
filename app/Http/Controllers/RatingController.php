@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Rating;
+use App\Models\RatingRequest;
 use App\Services\RatingCalculator;
+use App\Services\RatingRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,8 +47,13 @@ class RatingController extends Controller
         ]);
     }
 
-    public function showForm(Game $game, Player $player): Response
+    public function showForm(Request $request, Game $game, RatingRequest $ratingRequest, RatingRequestService $service): Response
     {
+        $this->ensureRequestMatchesGame($game, $ratingRequest);
+        $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
+        $service->ensureViewable($ratingRequest);
+        $player = $ratingRequest->player;
+
         return Inertia::render('Ratings/Form', [
             'game' => [
                 'id' => $game->id,
@@ -56,14 +65,15 @@ class RatingController extends Controller
             'team1Players' => $game->teams()->where('team', 'team1')->orderBy('name')->get(['players.id', 'players.name']),
             'team2Players' => $game->teams()->where('team', 'team2')->orderBy('name')->get(['players.id', 'players.name']),
             'hasRated' => $game->ratings()->where('rating_player_id', $player->id)->exists(),
-            'storeUrl' => URL::temporarySignedRoute(
-                'ratings.store', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
-            ),
+            'storeUrl' => $service->signedUrl($ratingRequest, 'ratings.store'),
         ]);
     }
 
-    public function store(Request $request, Game $game, Player $player): RedirectResponse
+    public function store(Request $request, Game $game, RatingRequest $ratingRequest, RatingRequestService $service): RedirectResponse
     {
+        $this->ensureRequestMatchesGame($game, $ratingRequest);
+        $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
+        $player = $ratingRequest->player;
         $request->validate([
             'ratings' => ['required', 'array'],
             'ratings.*' => ['required', 'numeric', 'min:0', 'max:10'],
@@ -73,31 +83,58 @@ class RatingController extends Controller
             return back()->withErrors(['rating' => 'You have already submitted a rating for this game.']);
         }
 
-        foreach ($request->ratings as $ratedPlayerId => $ratingValue) {
-            Rating::create([
-                'game_id' => $game->id,
-                'rated_player_id' => $ratedPlayerId,
-                'rating_player_id' => $player->id,
-                'rating_value' => $ratingValue,
-            ]);
-        }
+        $service->ensureUsable($ratingRequest);
 
-        foreach (app(RatingCalculator::class)->calculate($game) as $playerId => $newRating) {
-            Player::whereKey($playerId)->update(['rating' => $newRating]);
-        }
+        DB::transaction(function () use ($request, $game, $player, $ratingRequest, $service): void {
+            $ratingRequest->refresh();
+            $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
+            $service->ensureUsable($ratingRequest);
+
+            if ($game->ratings()->where('rating_player_id', $player->id)->exists()) {
+                throw ValidationException::withMessages(['rating' => 'You have already submitted a rating for this game.']);
+            }
+
+            foreach ($request->ratings as $ratedPlayerId => $ratingValue) {
+                Rating::create([
+                    'game_id' => $game->id,
+                    'rated_player_id' => $ratedPlayerId,
+                    'rating_player_id' => $player->id,
+                    'rating_value' => $ratingValue,
+                ]);
+            }
+
+            foreach (app(RatingCalculator::class)->calculate($game) as $playerId => $newRating) {
+                Player::whereKey($playerId)->update(['rating' => $newRating]);
+            }
+
+            $service->markCompleted($ratingRequest);
+        });
 
         $confirmationUrl = URL::temporarySignedRoute(
-            'ratings.confirm', now()->addHours(72), ['game' => $game->id, 'player' => $player->id]
+            'ratings.confirm', now()->addHours(72), [
+                'game' => $game->id,
+                'ratingRequest' => $ratingRequest->id,
+                'v' => $ratingRequest->token_version,
+            ]
         );
 
         return redirect($confirmationUrl)->with('success', __('Player ratings have been submitted.'));
     }
 
-    public function showConfirmation(Game $game, Player $player): Response
+    public function showConfirmation(Request $request, Game $game, RatingRequest $ratingRequest, RatingRequestService $service): Response
     {
+        $this->ensureRequestMatchesGame($game, $ratingRequest);
+        $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
+
         return Inertia::render('Ratings/Confirmation', [
             'game' => ['id' => $game->id, 'played_at' => $game->played_at],
-            'player' => ['id' => $player->id, 'name' => $player->name],
+            'player' => ['id' => $ratingRequest->player_id, 'name' => $ratingRequest->player?->name],
         ]);
+    }
+
+    private function ensureRequestMatchesGame(Game $game, RatingRequest $ratingRequest): void
+    {
+        abort_unless((int) $ratingRequest->game_id === (int) $game->id, 404);
+        abort_unless($game->teams()->whereKey($ratingRequest->player_id)->exists(), 404);
     }
 }
