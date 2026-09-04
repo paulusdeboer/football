@@ -3,7 +3,6 @@
 The public Inertia entry points are smoke-tested against the local Docker app:
 
 - `/login` renders the login form;
-- `/register` renders the registration form;
 - `/password/reset` renders the username-based reset form;
 - the root URL redirects to `/login`.
 

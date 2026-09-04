@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +18,7 @@ class PlayerController extends Controller
     {
         $sortBy = $request->get('sort_by', session('sort_by', 'name'));
         $sortDirection = $request->get('sort_direction', session('sort_direction', 'asc'));
-        $allowedSortColumns = ['name', 'rating', 'type', 'created_at', 'email'];
+        $allowedSortColumns = ['name', 'username', 'rating', 'type', 'created_at', 'email'];
         $sortBy = in_array($sortBy, $allowedSortColumns, true) ? $sortBy : 'name';
         $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
         $includeDeleted = $request->has('include_deleted')
@@ -29,13 +31,13 @@ class PlayerController extends Controller
             'include_deleted' => $includeDeleted,
         ]);
 
-        $query = Player::query()->with('user');
+        $query = Player::query()->with(['user' => fn ($query) => $query->withTrashed()]);
         if ($includeDeleted === '1') {
             $query->withTrashed();
         }
-        if ($sortBy === 'email') {
+        if (in_array($sortBy, ['email', 'username'], true)) {
             $query->leftJoin('users', 'players.user_id', '=', 'users.id')
-                ->orderBy('users.email', $sortDirection)
+                ->orderBy('users.'.($sortBy === 'email' ? 'email' : 'name'), $sortDirection)
                 ->select('players.*');
         } else {
             $query->orderBy($sortBy, $sortDirection);
@@ -58,7 +60,13 @@ class PlayerController extends Controller
     {
         $request->validate([
             'players' => ['required', 'array'],
-            'players.*.name' => ['required', 'string', 'max:255'],
+            'players.*.name' => [
+                'required',
+                'string',
+                'max:255',
+                'distinct',
+                Rule::unique('users', 'name'),
+            ],
             'players.*.email' => ['required', 'email'],
             'players.*.rating' => ['required', 'numeric', 'min:0', 'max:10'],
             'players.*.type' => ['required', 'in:attacker,defender,both'],
@@ -94,9 +102,11 @@ class PlayerController extends Controller
             'player' => [
                 'id' => $player->id,
                 'name' => $player->name,
+                'username' => $player->user?->name ?? $player->name,
                 'email' => $player->user?->email,
                 'rating' => $player->rating / 100,
                 'type' => $player->type,
+                'role' => $player->user?->role ?? User::ROLE_PLAYER,
             ],
         ]);
     }
@@ -105,23 +115,50 @@ class PlayerController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'name')->ignore($player->user_id),
+            ],
             'email' => ['required', 'email'],
             'rating' => ['required', 'numeric', 'min:0', 'max:10'],
             'type' => ['required', 'in:attacker,defender,both'],
+            'role' => ['required', 'in:'.User::ROLE_ADMIN.','.User::ROLE_PLAYER],
         ]);
 
-        $player->update([
-            'name' => $request->name,
-            'rating' => $request->rating * 100,
-            'type' => $request->type,
-        ]);
-        $player->user?->update(['email' => $request->email]);
+        $this->ensureRoleChangeAllowed($request, $player, $request->string('role')->toString());
+
+        DB::transaction(function () use ($request, $player): void {
+            $player->update([
+                'name' => $request->name,
+                'rating' => $request->rating * 100,
+                'type' => $request->type,
+            ]);
+            $player->user?->update([
+                'name' => $request->username,
+                'email' => $request->email,
+                'role' => $request->role,
+            ]);
+        });
 
         return redirect()->route('players.index')->with('success', __('Player updated successfully.'));
     }
 
-    public function destroy(Player $player): RedirectResponse
+    public function destroy(Request $request, Player $player): RedirectResponse
     {
+        if ($player->user_id === $request->user()->id) {
+            return redirect()->route('players.index')->with('error', __('You cannot delete your own player account.'));
+        }
+
+        if ($player->user?->isProtectedAdmin()) {
+            return redirect()->route('players.index')->with('error', __('This administrator account is protected.'));
+        }
+
+        if ($player->user?->isAdmin() && User::where('role', User::ROLE_ADMIN)->count() === 1) {
+            return redirect()->route('players.index')->with('error', __('The last administrator cannot be deleted.'));
+        }
+
         $player->delete();
 
         return redirect()->route('players.index')->with('success', __('Player deleted successfully.'));
@@ -132,5 +169,30 @@ class PlayerController extends Controller
         Player::withTrashed()->findOrFail($id)->restore();
 
         return redirect()->route('players.index')->with('status', __('Player restored successfully.'));
+    }
+
+    private function ensureRoleChangeAllowed(Request $request, Player $player, string $role): void
+    {
+        if ($role !== User::ROLE_PLAYER || ! $player->user) {
+            return;
+        }
+
+        if ($player->user_id === $request->user()->id) {
+            throw ValidationException::withMessages([
+                'role' => __('You cannot remove your own administrator role.'),
+            ]);
+        }
+
+        if ($player->user->isProtectedAdmin()) {
+            throw ValidationException::withMessages([
+                'role' => __('This administrator account is protected.'),
+            ]);
+        }
+
+        if ($player->user->isAdmin() && User::where('role', User::ROLE_ADMIN)->count() === 1) {
+            throw ValidationException::withMessages([
+                'role' => __('The last administrator cannot be demoted.'),
+            ]);
+        }
     }
 }

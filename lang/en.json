@@ -1,3 +1,16 @@
 {
-
+    "Role": "Role",
+    "Player name": "Player name",
+    "Player details": "Player details",
+    "User details": "User details",
+    "Used to log in.": "Used to log in.",
+    "Admin": "Admin",
+    "Player": "Player",
+    "Only administrators can log in.": "Only administrators can log in.",
+    "You cannot remove your own administrator role.": "You cannot remove your own administrator role.",
+    "The last administrator cannot be demoted.": "The last administrator cannot be demoted.",
+    "This administrator account is protected.": "This administrator account is protected.",
+    "You cannot delete your own player account.": "You cannot delete your own player account.",
+    "The last administrator cannot be deleted.": "The last administrator cannot be deleted.",
+    "No username": "No username"
 }

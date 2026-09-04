@@ -31,6 +31,14 @@ class LoginController extends Controller
             throw ValidationException::withMessages(['name' => __('auth.failed')]);
         }
 
+        if (! Auth::user()?->isAdmin()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'name' => __('Only administrators can log in.'),
+            ]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));

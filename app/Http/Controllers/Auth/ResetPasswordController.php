@@ -20,7 +20,7 @@ class ResetPasswordController extends Controller
     {
         return Inertia::render('Auth/ResetPassword', [
             'token' => $token,
-            'email' => $request->email,
+            'userId' => $request->integer('user_id'),
         ]);
     }
 
@@ -28,12 +28,17 @@ class ResetPasswordController extends Controller
     {
         $request->validate([
             'token' => ['required'],
-            'email' => ['required', 'email'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            [
+                'id' => $request->integer('user_id'),
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+                'token' => $request->token,
+            ],
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
@@ -47,6 +52,6 @@ class ResetPasswordController extends Controller
             return redirect()->route('login')->with('status', __($status));
         }
 
-        throw ValidationException::withMessages(['email' => [__($status)]]);
+        throw ValidationException::withMessages(['user_id' => [__($status)]]);
     }
 }

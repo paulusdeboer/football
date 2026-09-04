@@ -21,8 +21,9 @@ use an isolated SQLite in-memory database.
 2. Take a final database backup.
 3. Deploy the new branch through Plesk.
 4. Run only additive migrations, cache rebuilds and asset builds; never run `migrate:fresh`, `db:wipe`, seeders or `key:generate`.
-5. Verify document root, permissions, storage and Vite build output.
-6. Run login, player, game, result, rating and mail smoke tests.
+5. Run `php artisan migrate --force`. The additive migrations assign the `admin` role automatically to Sjoerd Koffeman (`skoffeman@live.nl`) and Paulus de Boer (`paulusdeboer8@outlook.com`), matching both name and email because duplicate email addresses are allowed. The fallback command accepts the same two values: `php artisan users:bootstrap-admin "Sjoerd Koffeman" skoffeman@live.nl`.
+6. Verify document root, permissions, storage and Vite build output.
+7. Run admin login, player-role restriction, player, game, result, rating and mail smoke tests.
 
 ## Rollback
 
