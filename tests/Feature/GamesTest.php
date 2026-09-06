@@ -207,6 +207,33 @@ class GamesTest extends TestCase
         \Mail::assertNothingSent();
     }
 
+    public function test_historical_expired_request_with_submitted_rating_is_displayed_as_completed(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        [$game, $requests, $players] = $this->gameWithRatingRequests(1);
+        $ratingRequest = $requests->first();
+        $ratingRequest->update([
+            'status' => RatingRequest::STATUS_EXPIRED,
+            'expires_at' => now()->subDay(),
+            'completed_at' => null,
+        ]);
+        $game->ratings()->create([
+            'rating_player_id' => $ratingRequest->player_id,
+            'rated_player_id' => $players[1]->id,
+            'rating_value' => 8,
+        ]);
+
+        $this->get("/games/{$game->id}")->assertInertia(fn ($page) => $page
+            ->where('ratingRequests.0.status', RatingRequest::STATUS_COMPLETED)
+            ->where('ratingRequests.0.completed_at', null)
+        );
+
+        $this->assertDatabaseHas('rating_requests', [
+            'id' => $ratingRequest->id,
+            'status' => RatingRequest::STATUS_EXPIRED,
+        ]);
+    }
+
     public function test_random_replacement_fails_when_no_suitable_player_exists(): void
     {
         $this->actingAs(User::factory()->admin()->create());

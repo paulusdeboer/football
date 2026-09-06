@@ -17,12 +17,18 @@ export default function GamesForm({ mode, game, players, selectedPlayers = [] })
             placeholder: t('Select players'),
             closeOnSelect: false,
             dropdownCssClass: 'select2--small',
+            selectionCssClass: 'compact-multiple-selection',
         });
         const updatePlayers = () => setData('players', ($select.val() ?? []).map(String));
+        const clearPlayerSearch = () => {
+            $select.next('.select2-container').find('.select2-search__field').val('').trigger('input');
+        };
         $select.on('change', updatePlayers);
+        $select.on('select2:select', clearPlayerSearch);
 
         return () => {
             $select.off('change', updatePlayers);
+            $select.off('select2:select', clearPlayerSearch);
             if ($select.hasClass('select2-hidden-accessible')) $select.select2('destroy');
         };
     }, []);

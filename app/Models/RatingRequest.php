@@ -74,6 +74,13 @@ class RatingRequest extends Model
 
     public function displayStatus(): string
     {
+        // Historical requests can still be marked as expired even though the
+        // player submitted ratings before the request status was updated.
+        // The submitted rating is the reliable source of completion.
+        if ($this->hasSubmittedRating()) {
+            return self::STATUS_COMPLETED;
+        }
+
         if ($this->isActive() && $this->expires_at?->isPast()) {
             return self::STATUS_EXPIRED;
         }
