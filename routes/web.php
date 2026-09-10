@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\GamePlayerRatingController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\RatingRequestController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\GamePlayerRatingController;
+use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\RatingRequestController;
+use App\Http\Controllers\WhatsappController;
+use Illuminate\Support\Facades\Route;
 
 // Redirect root URL to login page
 Route::get('/', function () {
@@ -19,6 +21,14 @@ Route::get('/', function () {
 
 // Authenticated routes
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/settings/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
+    Route::put('/settings/whatsapp', [WhatsappController::class, 'save'])->name('whatsapp.save');
+    Route::put('/settings/whatsapp/token', [WhatsappController::class, 'saveToken'])->name('whatsapp.token');
+    Route::post('/settings/whatsapp/status', [WhatsappController::class, 'status'])->middleware('throttle:30,1')->name('whatsapp.status');
+    Route::post('/settings/whatsapp/qr', [WhatsappController::class, 'qr'])->middleware('throttle:10,1')->name('whatsapp.qr');
+    Route::get('/settings/whatsapp/groups', [WhatsappController::class, 'groups'])->name('whatsapp.groups');
+    Route::post('/settings/whatsapp/test', [WhatsappController::class, 'test'])->middleware('throttle:6,1')->name('whatsapp.test');
+    Route::post('/games/{game}/whatsapp/{message}/retry', [WhatsappController::class, 'retry'])->middleware('throttle:6,1')->name('whatsapp.retry');
     // index, create, store, show, edit, update, destroy
     Route::resource('games', GameController::class);
     Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
@@ -79,6 +89,6 @@ Route::middleware('auth')->group(function () {
 });
 
 // Home page route after login
-Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'admin'])
     ->name('dashboard');

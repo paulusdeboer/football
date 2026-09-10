@@ -1,4 +1,12 @@
 const patterns = {
+    'whatsapp.index': () => '/settings/whatsapp',
+    'whatsapp.save': () => '/settings/whatsapp',
+    'whatsapp.token': () => '/settings/whatsapp/token',
+    'whatsapp.status': () => '/settings/whatsapp/status',
+    'whatsapp.qr': () => '/settings/whatsapp/qr',
+    'whatsapp.groups': () => '/settings/whatsapp/groups',
+    'whatsapp.test': () => '/settings/whatsapp/test',
+    'whatsapp.retry': (p) => `/games/${p[0]}/whatsapp/${p[1]}/retry`,
     dashboard: () => '/dashboard',
     login: () => '/login',
     logout: () => '/logout',

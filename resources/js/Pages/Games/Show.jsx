@@ -2,13 +2,14 @@ import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import GivenRatings from '../../Components/GivenRatings';
+import WhatsappStatus from '../../Components/WhatsappStatus';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
 
 const date = (value) => value ? new Date(value).toLocaleDateString('nl-NL') : '';
 const dateTime = (value) => value ? new Date(value).toLocaleString('nl-NL') : '';
 
-export default function GamesShow({ game, canEditResult, canManageRatingRequests, givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, errors = {} }) {
+export default function GamesShow({ game, canEditResult, canManageRatingRequests, givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, whatsappMessage = null, errors = {} }) {
     const { t } = useTranslations();
     const [showRatings, setShowRatings] = useState(true);
     const typeLabel = (type) => ({ attacker: t('Attacker'), defender: t('Defender'), both: t('Both') }[type] ?? type);
@@ -56,6 +57,7 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
                         </span>
                     </div>
                     <div className="card-body">
+                        <WhatsappStatus message={whatsappMessage} gameId={game.id} error={errors.whatsapp} />
                         <p><strong>{t('Result')}:</strong> {hasResult ? `${game.team1_score} - ${game.team2_score}` : ''}</p>
 
                         {ratingRequests.length > 0 && (

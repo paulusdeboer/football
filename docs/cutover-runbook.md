@@ -22,8 +22,9 @@ use an isolated SQLite in-memory database.
 3. Deploy the new branch through Plesk.
 4. Run only additive migrations, cache rebuilds and asset builds; never run `migrate:fresh`, `db:wipe`, seeders or `key:generate`.
 5. Run `php artisan migrate --force`. The additive migrations assign the `admin` role automatically to Sjoerd Koffeman (`skoffeman@live.nl`) and Paulus de Boer (`paulusdeboer8@outlook.com`), matching both name and email because duplicate email addresses are allowed. The fallback command accepts the same two values: `php artisan users:bootstrap-admin "Sjoerd Koffeman" skoffeman@live.nl`.
-6. Verify document root, permissions, storage and Vite build output.
-7. Run admin login, player-role restriction, player, game, result, rating and mail smoke tests.
+6. Refresh Laravel's caches **after** the new files and migrations are in place. Run `php artisan optimize:clear`, then `php artisan config:cache`, `php artisan route:cache` and `php artisan view:cache`. The route-cache step is required for new pages such as `/settings/whatsapp`; otherwise the frontend link can be present while the production server still returns 404 from an older cached route collection.
+7. Verify document root, permissions, storage and Vite build output.
+8. Run admin login, player-role restriction, player, game, result, rating, WhatsApp settings and mail smoke tests. Confirm `php artisan route:list --path=settings/whatsapp` shows the WhatsApp routes before opening the page.
 
 ## Rollback
 

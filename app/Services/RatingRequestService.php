@@ -17,10 +17,10 @@ class RatingRequestService
 {
     public const LINK_LIFETIME_HOURS = 72;
 
-    public function createInitialRequests(Game $game): void
+    public function createInitialRequests(Game $game): Collection
     {
         if ($game->ratingRequests()->exists()) {
-            return;
+            return collect();
         }
 
         $lastGame = Game::whereNotNull('team1_score')
@@ -38,10 +38,14 @@ class RatingRequestService
             ->limit(3)
             ->get();
 
+        $created = collect();
         foreach ($players as $player) {
             $ratingRequest = $this->createRequest($game, $player);
+            $created->push($ratingRequest);
             $this->send($ratingRequest);
         }
+
+        return $created;
     }
 
     public function resend(RatingRequest $ratingRequest, int $actorId): void

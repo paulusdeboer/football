@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
+use App\Models\WhatsappMessage;
+use App\Models\WhatsappSetting;
 use App\Services\RatingCalculator;
 use App\Services\RatingRequestService;
 use App\Services\TeamBuilder;
+use App\Services\WhatsappService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,17 +50,14 @@ class GameController extends Controller
             'game' => null,
             'players' => Player::orderBy('name')->get(['id', 'name']),
             'selectedPlayers' => [],
+            'whatsappReady' => WhatsappSetting::current()->ready(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $this->validateGameRequest($request);
-        $game = Game::create(['played_at' => $request->played_at]);
-        $players = Player::whereIn('id', $request->players)->get();
-
-        $this->storeGamePlayerRatings($game, $players);
-        $this->handleGameTeams($game, $players);
+        $game = $this->saveGame($request);
 
         return redirect()->route('games.show', $game);
     }
@@ -83,6 +84,8 @@ class GameController extends Controller
             'team2Rating' => $team2Ratings->sum('rating'),
             'team1Ratings' => $this->ratingData($team1Ratings),
             'team2Ratings' => $this->ratingData($team2Ratings),
+            'whatsappMessage' => ($message = WhatsappMessage::where('game_id', $game->id)->latest('id')->first())
+                ? app(WhatsappService::class)->data($message) : null,
         ]);
     }
 
@@ -97,6 +100,7 @@ class GameController extends Controller
             'game' => $this->gameData($game),
             'players' => Player::orderBy('name')->get(['id', 'name']),
             'selectedPlayers' => $game->teams->pluck('id')->values(),
+            'whatsappReady' => WhatsappSetting::current()->ready(),
         ]);
     }
 
@@ -108,13 +112,7 @@ class GameController extends Controller
         }
 
         $this->validateGameRequest($request);
-        $game->update(['played_at' => $request->played_at]);
-        $players = Player::whereIn('id', $request->players)->get();
-
-        $game->teams()->detach();
-        $game->gamePlayerRatings()->delete();
-        $this->storeGamePlayerRatings($game, $players);
-        $this->handleGameTeams($game, $players);
+        $game = $this->saveGame($request, $game);
 
         return redirect()->route('games.show', $game)->with('success', __('Game updated successfully.'));
     }
@@ -137,6 +135,7 @@ class GameController extends Controller
             'team1Players' => $game->teams()->where('team', 'team1')->orderBy('name')->get(['players.id', 'players.name']),
             'team2Players' => $game->teams()->where('team', 'team2')->orderBy('name')->get(['players.id', 'players.name']),
             'hasSentRatingRequests' => $game->ratingRequests()->exists(),
+            'whatsappReady' => WhatsappSetting::current()->ready(),
         ]);
     }
 
@@ -146,20 +145,61 @@ class GameController extends Controller
             'team1_score' => ['required', 'integer', 'min:0'],
             'team2_score' => ['required', 'integer', 'min:0'],
             'send_rating_requests' => ['nullable', 'boolean'],
+            'send_whatsapp' => ['nullable', 'boolean'],
+            'whatsapp_action_key' => ['required_if:send_whatsapp,true', 'nullable', 'uuid'],
         ]);
 
         if ($game->team1_score !== null && $game->team2_score !== null && ! $game->canEditResult()) {
             return redirect()->route('games.show', $game)->with('error', __('Only the most recent game result can be edited.'));
         }
 
-        $game->update([
-            'team1_score' => $request->team1_score,
-            'team2_score' => $request->team2_score,
-        ]);
-        $this->updatePlayerRatings($game);
+        $sendRatingRequests = $request->boolean('send_rating_requests');
+        $sendWhatsapp = $sendRatingRequests && $request->boolean('send_whatsapp');
+        $whatsapp = app(WhatsappService::class);
+        [$game, $whatsappMessage] = DB::transaction(function () use ($request, $game, $sendRatingRequests, $sendWhatsapp, $whatsapp) {
+            $settings = WhatsappSetting::lockForUpdate()->findOrFail(1);
+            $game = Game::lockForUpdate()->findOrFail($game->id);
+            $hash = hash('sha256', json_encode([
+                'result', $game->id, (int) $request->team1_score, (int) $request->team2_score,
+                $sendRatingRequests, $sendWhatsapp,
+            ]));
+            if ($sendWhatsapp) {
+                $existing = $whatsapp->existing($request->whatsapp_action_key, $request->user()->id, $hash);
+                if ($existing) {
+                    return [$game, $existing];
+                }
+            }
 
-        if ($request->boolean('send_rating_requests') && ! $game->ratingRequests()->exists()) {
-            app(RatingRequestService::class)->createInitialRequests($game);
+            $game->update([
+                'team1_score' => $request->team1_score,
+                'team2_score' => $request->team2_score,
+            ]);
+            $this->updatePlayerRatings($game);
+
+            if ($sendRatingRequests && ! $game->ratingRequests()->exists()) {
+                app(RatingRequestService::class)->createInitialRequests($game);
+            }
+
+            if (! $sendWhatsapp) {
+                return [$game, null];
+            }
+
+            $requests = $game->ratingRequests()->with('player.user')->get();
+            $message = $whatsapp->prepare(
+                $settings,
+                $game,
+                $request->user()->id,
+                $request->whatsapp_action_key,
+                'rating_requests',
+                $hash,
+                null,
+                $whatsapp->ratingRequestsBody($game, $requests),
+            );
+
+            return [$game, $message];
+        });
+        if ($whatsappMessage) {
+            $whatsapp->dispatch($whatsappMessage);
         }
 
         return redirect()->route('games.show', $game);
@@ -169,8 +209,10 @@ class GameController extends Controller
     {
         $request->validate([
             'players' => 'required|array|min:10|max:12',
-            'players.*' => 'exists:players,id',
+            'players.*' => 'distinct|exists:players,id',
             'played_at' => 'required|date',
+            'send_whatsapp' => ['nullable', 'boolean'],
+            'whatsapp_action_key' => ['required_if:send_whatsapp,true', 'nullable', 'uuid'],
         ], [
             'players.required' => __('You must select players for the game'),
             'players.min' => __('At least 10 players are required'),
@@ -179,6 +221,46 @@ class GameController extends Controller
             'played_at.required' => __('The game date is required'),
             'played_at.date' => __('The game date must be a valid date'),
         ]);
+    }
+
+    private function saveGame(Request $request, ?Game $game = null): Game
+    {
+        $service = app(WhatsappService::class);
+        [$game, $message] = DB::transaction(function () use ($request, $game, $service) {
+            $settings = WhatsappSetting::lockForUpdate()->findOrFail(1);
+            $hash = hash('sha256', json_encode([
+                $game?->id, $request->played_at, collect($request->players)->map(fn ($id) => (int) $id)->sort()->values()->all(),
+            ]));
+            if ($request->boolean('send_whatsapp')) {
+                $existing = $service->existing($request->whatsapp_action_key, $request->user()->id, $hash);
+                if ($existing) {
+                    return [Game::findOrFail($existing->game_id), $existing];
+                }
+            }
+            $kind = $game ? 'update' : 'create';
+            if ($game) {
+                $game = Game::lockForUpdate()->findOrFail($game->id);
+                abort_if($this->hasResult($game), 403);
+                $game->update(['played_at' => $request->played_at]);
+                $game->teams()->detach();
+                $game->gamePlayerRatings()->delete();
+            } else {
+                $game = Game::create(['played_at' => $request->played_at]);
+            }
+            $players = Player::whereIn('id', $request->players)->get();
+            $this->storeGamePlayerRatings($game, $players);
+            $this->handleGameTeams($game, $players);
+            $message = $request->boolean('send_whatsapp')
+                ? $service->prepare($settings, $game, $request->user()->id, $request->whatsapp_action_key, $kind, $hash)
+                : null;
+
+            return [$game, $message];
+        });
+        if ($message) {
+            $service->dispatch($message);
+        }
+
+        return $game;
     }
 
     private function handleGameTeams(Game $game, $players): void

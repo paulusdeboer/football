@@ -44,6 +44,7 @@ export default function AppLayout({ title, children }) {
                                         <Link className={`nav-link ${currentPath === '/games/create' ? 'active' : ''}`} href={route('games.create')}><div className="sb-nav-link-icon"><i className="fas fa-plus" /></div>{t('Create game')}</Link>
                                         <Link className={`nav-link ${isIndexActive('players', ['/players/create']) ? 'active' : ''}`} href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
                                         <Link className={`nav-link ${currentPath === '/players/create' ? 'active' : ''}`} href={route('players.create')}><div className="sb-nav-link-icon"><i className="fas fa-user-plus" /></div>{t('Create players')}</Link>
+                                        <Link className={`nav-link ${currentPath === '/settings/whatsapp' ? 'active' : ''}`} href={route('whatsapp.index')}><div className="sb-nav-link-icon"><i className="fab fa-whatsapp" /></div>{t('WhatsApp')}</Link>
                                     </>}
                                 </div>
                             </div>

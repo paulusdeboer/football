@@ -3,12 +3,14 @@ import AppLayout from '../../Layouts/AppLayout';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
 
-export default function EnterResult({ game, team1Players, team2Players, hasSentRatingRequests }) {
+export default function EnterResult({ game, team1Players, team2Players, hasSentRatingRequests, whatsappReady = false }) {
     const { t } = useTranslations();
     const { data, setData, post, processing, errors } = useForm({
         team1_score: game.team1_score ?? '',
         team2_score: game.team2_score ?? '',
         send_rating_requests: !hasSentRatingRequests,
+        send_whatsapp: whatsappReady && !hasSentRatingRequests,
+        whatsapp_action_key: crypto.randomUUID(),
     });
 
     const submit = (event) => {
@@ -29,12 +31,29 @@ export default function EnterResult({ game, team1Players, team2Players, hasSentR
                                     type="checkbox"
                                     checked={data.send_rating_requests}
                                     disabled={hasSentRatingRequests}
-                                    onChange={(event) => setData('send_rating_requests', event.target.checked)}
+                                    onChange={(event) => setData(current => ({ ...current, send_rating_requests: event.target.checked, send_whatsapp: event.target.checked ? whatsappReady : false }))}
                                 />
                                 <label className="form-check-label" htmlFor="send_rating_requests">
                                     {t('Send rating request e-mails')}
                                 </label>
                             </div>
+
+                            {data.send_rating_requests && (
+                                <div className="form-check mb-3">
+                                    <input
+                                        className="form-check-input"
+                                        id="send_whatsapp"
+                                        type="checkbox"
+                                        checked={data.send_whatsapp}
+                                        disabled={!whatsappReady || processing}
+                                        onChange={(event) => setData('send_whatsapp', event.target.checked)}
+                                    />
+                                    <label className="form-check-label" htmlFor="send_whatsapp">
+                                        {t('WhatsApp send lineup')}
+                                    </label>
+                                    {!whatsappReady && <div className="small text-muted">{t('WhatsApp setup required')} <Link href={route('whatsapp.index')}>{t('WhatsApp settings')}</Link></div>}
+                                </div>
+                            )}
 
                             <div className="row">
                                 <div className="col-3">
