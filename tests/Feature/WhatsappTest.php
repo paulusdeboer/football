@@ -182,9 +182,15 @@ class WhatsappTest extends TestCase
         $this->assertSame('rating_requests', $message->kind);
         $this->assertSame('accepted', $message->status);
         $this->assertStringStartsWith('Beoordelingsaanvragen — 11-09-2026', $message->body);
+        $this->assertStringContainsString('Uitslag: Team 1 4 - 1 Team 2', $message->body);
         foreach ($game->ratingRequests()->with('player.user')->get() as $ratingRequest) {
             $this->assertStringContainsString($ratingRequest->player->name.' ('.$ratingRequest->player->user->email.')', $message->body);
         }
+        $recipients = substr($message->body, strpos($message->body, 'Verzoeken verstuurd naar:'));
+        $firstRequest = $game->ratingRequests()->with('player.user')->get()->sortBy(fn ($request) => $request->player->name, SORT_NATURAL | SORT_FLAG_CASE)->first();
+        $this->assertStringContainsString("Verzoeken verstuurd naar:\n{$firstRequest->player->name} ({$firstRequest->player->user->email})", $recipients);
+        $this->assertStringNotContainsString("\nTeam 1\n", $recipients);
+        $this->assertStringNotContainsString("\nTeam 2\n", $recipients);
         $this->assertStringNotContainsString('700', $message->body);
     }
 

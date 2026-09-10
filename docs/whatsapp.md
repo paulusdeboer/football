@@ -36,7 +36,8 @@ verzendpogingen, maar kan een reeds gestarte provideroproep niet terugnemen.
   ingeschakeld. Bewerken: de checkbox staat standaard uit.
 - Bij het invoeren van een wedstrijdresultaat verschijnt dezelfde checkbox alleen
   wanneer ‘Stuur beoordelingsaanvragen per e-mail’ is aangevinkt. Het bericht bevat
-  de spelers en e-mailadressen van de beoordelingsverzoeken die zijn aangemaakt.
+  de uitslag en de spelers en e-mailadressen van de beoordelingsverzoeken die zijn
+  aangemaakt.
 - Berichten bevatten de wedstrijddatum, teamtotalen, posities en namen uit de
   opgeslagen indeling. Individuele cijfers worden nooit verstuurd.
 - ‘Geaccepteerd door WhatsApp-dienst’ is de API-bevestiging, geen afleverbevestiging.

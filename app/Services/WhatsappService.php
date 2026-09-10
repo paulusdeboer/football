@@ -42,23 +42,23 @@ class WhatsappService
 
     public function ratingRequestsBody(Game $game, Collection $requests): string
     {
-        $lines = ['Beoordelingsaanvragen — '.Carbon::parse($game->played_at)->format('d-m-Y'), '', 'Verzoeken verstuurd naar:'];
-        $teams = $game->teams()->get()->keyBy('id');
+        $lines = [
+            'Beoordelingsaanvragen — '.Carbon::parse($game->played_at)->format('d-m-Y'),
+            'Uitslag: Team 1 '.($game->team1_score ?? '—').' - '.($game->team2_score ?? '—').' Team 2',
+            '',
+            'Verzoeken verstuurd naar:',
+        ];
 
-        foreach (['team1' => 1, 'team2' => 2] as $team => $number) {
-            $teamRequests = $requests
-                ->filter(fn ($request) => $teams->get($request->player_id)?->pivot?->team === $team)
-                ->sortBy(fn ($request) => $request->player?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE);
-            if ($teamRequests->isEmpty()) {
-                continue;
-            }
-            $lines[] = '';
-            $lines[] = "Team {$number}";
-            foreach ($teamRequests as $request) {
-                $name = preg_replace('/[\r\n]+/u', ' ', (string) ($request->player?->name ?? 'Onbekende speler'));
-                $email = (string) ($request->player?->user?->email ?? 'onbekend e-mailadres');
-                $lines[] = "{$name} ({$email})";
-            }
+        $sortedRequests = $requests->sortBy(fn ($request) => $request->player?->name ?? '', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        foreach ($sortedRequests as $request) {
+            $name = preg_replace('/[\r\n]+/u', ' ', (string) ($request->player?->name ?? 'Onbekende speler'));
+            $email = (string) ($request->player?->user?->email ?? 'onbekend e-mailadres');
+            $recipient = "{$name} ({$email})";
+            $lines[] = $recipient;
+        }
+
+        if ($sortedRequests->isEmpty()) {
+            $lines[] = '—';
         }
 
         return implode("\n", $lines);
