@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
+import { clearSelect2SearchPreservingScroll } from '../../select2';
 
 export default function GamesForm({ mode, game, players, selectedPlayers = [], whatsappReady = false }) {
     const { t } = useTranslations();
@@ -20,9 +21,7 @@ export default function GamesForm({ mode, game, players, selectedPlayers = [], w
             selectionCssClass: 'compact-multiple-selection',
         });
         const updatePlayers = () => setData(current => ({ ...current, players: ($select.val() ?? []).map(String) }));
-        const clearPlayerSearch = () => {
-            $select.next('.select2-container').find('.select2-search__field').val('').trigger('input');
-        };
+        const clearPlayerSearch = () => clearSelect2SearchPreservingScroll($select);
         $select.on('change', updatePlayers);
         $select.on('select2:select', clearPlayerSearch);
 

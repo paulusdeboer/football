@@ -4,6 +4,7 @@ import AppLayout from '../Layouts/AppLayout';
 import ChartCard from '../Components/ChartCard';
 import {useTranslations} from '../i18n';
 import route from '../route';
+import {clearSelect2SearchPreservingScroll} from '../select2';
 
 const date = (value) => value ? new Date(value).toLocaleDateString('nl-NL') : '—';
 const number = (value, decimals = 2) => value === null || value === undefined ? '—' : Number(value).toFixed(decimals);
@@ -110,9 +111,7 @@ export default function Dashboard({filters, players, summary, ranking, charts, r
 
         const updatePeriod = () => updateFilters({period: $period.val(), player_ids: $players.val() ?? []});
         const updatePlayers = () => updateFilters({period: $period.val(), player_ids: $players.val() ?? []});
-        const clearPlayerSearch = () => {
-            $players.next('.select2-container').find('.select2-search__field').val('').trigger('input');
-        };
+        const clearPlayerSearch = () => clearSelect2SearchPreservingScroll($players);
         $period.on('change', updatePeriod);
         $players.on('change', updatePlayers);
         $players.on('select2:select', clearPlayerSearch);
