@@ -22,6 +22,9 @@ export default function EnterResult({ game, team1Players, team2Players, hasSentR
         <AppLayout title="Enter result">
             <div className="container-fluid px-4">
                 <div className="card mb-4">
+                    <div className="card-header d-flex justify-content-end">
+                        <Link href={route('games.index')} className="btn btn-secondary">{t('Back to games list')}</Link>
+                    </div>
                     <div className="card-body">
                         <form onSubmit={submit} id="game-form">
                             <div className="form-check mb-3">
@@ -105,10 +108,6 @@ export default function EnterResult({ game, team1Players, team2Players, hasSentR
                         </button>
                     </div>
                 </div>
-
-                <Link href={route('games.index')} className="btn btn-secondary">
-                    {t('Back to games list')}
-                </Link>
             </div>
         </AppLayout>
     );

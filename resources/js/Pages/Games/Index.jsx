@@ -5,7 +5,7 @@ import route from '../../route';
 
 const date = (value) => value ? new Date(value).toLocaleDateString('nl-NL') : '';
 
-export default function GamesIndex({ games, sortBy, sortDirection, latestCompletedGameId }) {
+export default function GamesIndex({ games, sortBy, sortDirection, latestCompletedGameId, canManageGames = false }) {
     const { t } = useTranslations();
 
     const sort = (column) => router.get(
@@ -43,9 +43,7 @@ export default function GamesIndex({ games, sortBy, sortDirection, latestComplet
             <div className="container-fluid px-4">
                 <div className="card table-card mb-4">
                     <div className="card-header table-card-header d-flex justify-content-end align-items-center gap-3">
-                        <Link href={route('games.create')} className="btn btn-primary">
-                            {t('Create game')}
-                        </Link>
+                        {canManageGames && <Link href={route('games.create')} className="btn btn-primary">{t('Create game')}</Link>}
                     </div>
                     <div className="card-body">
                         <div className="table-responsive">
@@ -105,13 +103,13 @@ export default function GamesIndex({ games, sortBy, sortDirection, latestComplet
                                                     <Link href={route('games.show', game.id)} className="btn btn-info btn-sm me-1">
                                                         {t('View')}
                                                     </Link>
-                                                    {hasResult ? (
+                                                    {canManageGames && hasResult ? (
                                                         Number(game.id) === Number(latestCompletedGameId) && (
                                                             <Link href={route('games.enter-result', game.id)} className="btn btn-warning btn-sm">
                                                                 {t('Edit result')}
                                                             </Link>
                                                         )
-                                                    ) : (
+                                                    ) : canManageGames ? (
                                                         <>
                                                             <Link href={route('games.edit', game.id)} className="btn btn-warning btn-sm me-1">
                                                                 {t('Edit game')}
@@ -123,7 +121,7 @@ export default function GamesIndex({ games, sortBy, sortDirection, latestComplet
                                                                 {t('Delete game')}
                                                             </button>
                                                         </>
-                                                    )}
+                                                    ) : null}
                                                 </td>
                                             </tr>
                                         );

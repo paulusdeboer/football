@@ -1,15 +1,23 @@
 import { usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 export default function FlashMessage() {
     const { flash = {} } = usePage().props;
+    const message = flash.success || flash.status || flash.error;
+    const type = flash.error ? 'error' : 'success';
 
-    if (!flash.success && !flash.status && !flash.error) return null;
+    useEffect(() => {
+        if (!message) return;
 
-    return (
-        <div className="container-fluid px-4 pt-3">
-            {flash.success && <div className="alert alert-success">{flash.success}</div>}
-            {flash.status && <div className="alert alert-success">{flash.status}</div>}
-            {flash.error && <div className="alert alert-danger">{flash.error}</div>}
-        </div>
-    );
+        const options = { toastId: `${type}:${message}` };
+
+        if (type === 'error') {
+            toast.error(message, options);
+        } else {
+            toast.success(message, options);
+        }
+    }, [flash, message, type]);
+
+    return null;
 }

@@ -18,6 +18,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_PLAYER = 'player';
 
+    public const ROLE_FINANCE = 'finance';
+
     public const PROTECTED_ADMIN_IDENTITIES = [
         [
             'name' => 'Sjoerd Koffeman',
@@ -77,6 +79,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isPlayer(): bool
     {
         return $this->role === self::ROLE_PLAYER;
+    }
+
+    public function isFinance(): bool
+    {
+        return $this->role === self::ROLE_FINANCE;
+    }
+
+    public function canManageFinance(): bool
+    {
+        return $this->isAdmin() || $this->isFinance();
     }
 
     /**

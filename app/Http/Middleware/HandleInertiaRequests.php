@@ -25,6 +25,8 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'can' => [
                     'accessAdminArea' => (bool) $user?->isAdmin(),
+                    'accessFinanceArea' => (bool) $user?->canManageFinance(),
+                    'manageFinance' => (bool) $user?->canManageFinance(),
                     'managePlayers' => (bool) $user?->isAdmin(),
                     'manageGames' => (bool) $user?->isAdmin(),
                     'viewGivenRatings' => (bool) $user?->isAdmin(),

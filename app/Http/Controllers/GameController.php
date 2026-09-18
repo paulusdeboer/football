@@ -9,6 +9,7 @@ use App\Models\WhatsappMessage;
 use App\Models\WhatsappSetting;
 use App\Services\RatingCalculator;
 use App\Services\RatingRequestService;
+use App\Services\FinanceService;
 use App\Services\TeamBuilder;
 use App\Services\WhatsappService;
 use Illuminate\Http\RedirectResponse;
@@ -40,6 +41,7 @@ class GameController extends Controller
             'sortBy' => $sortBy,
             'sortDirection' => $sortDirection,
             'latestCompletedGameId' => $this->latestCompletedGameId(),
+            'canManageGames' => (bool) $request->user()?->isAdmin(),
         ]);
     }
 
@@ -50,6 +52,9 @@ class GameController extends Controller
             'game' => null,
             'players' => Player::orderBy('name')->get(['id', 'name']),
             'selectedPlayers' => [],
+            'chargeAccounts' => [],
+            'chargeUnits' => [],
+            'defaultMatchFeeCents' => app(FinanceService::class)->defaultMatchFeeCents(),
             'whatsappReady' => WhatsappSetting::current()->ready(),
         ]);
     }
@@ -73,8 +78,12 @@ class GameController extends Controller
 
         return Inertia::render('Games/Show', [
             'game' => $this->gameData($game),
-            'canEditResult' => $game->canEditResult(),
-            'canManageRatingRequests' => $game->canEditResult(),
+            'financialCharges' => $this->financialChargesData($game),
+            'canManageFinance' => (bool) request()->user()?->canManageFinance(),
+            'canManageGames' => (bool) request()->user()?->isAdmin(),
+            'canManageWhatsapp' => (bool) request()->user()?->isAdmin(),
+            'canEditResult' => (bool) request()->user()?->isAdmin() && $game->canEditResult(),
+            'canManageRatingRequests' => (bool) request()->user()?->isAdmin() && $game->canEditResult(),
             'givenRatings' => $this->givenRatingsData($game),
             'ratingRequests' => $ratingRequests->map(fn ($request) => $this->ratingRequestData(
                 $request,
@@ -100,6 +109,8 @@ class GameController extends Controller
             'game' => $this->gameData($game),
             'players' => Player::orderBy('name')->get(['id', 'name']),
             'selectedPlayers' => $game->teams->pluck('id')->values(),
+            ...$this->chargeAllocationData($game),
+            'defaultMatchFeeCents' => app(FinanceService::class)->defaultMatchFeeCents(),
             'whatsappReady' => WhatsappSetting::current()->ready(),
         ]);
     }
@@ -119,7 +130,15 @@ class GameController extends Controller
 
     public function destroy(Game $game): RedirectResponse
     {
-        $game->delete();
+        if ($this->hasResult($game)) {
+            return redirect()->route('games.index')->with('error', __('A game with a result cannot be deleted.'));
+        }
+
+        DB::transaction(function () use ($game): void {
+            $game = Game::lockForUpdate()->findOrFail($game->id);
+            app(FinanceService::class)->deleteGameCharges($game, request()->user());
+            $game->delete();
+        });
 
         return redirect()->route('games.index')->with('success', __('Game deleted successfully.'));
     }
@@ -211,6 +230,11 @@ class GameController extends Controller
             'players' => 'required|array|min:10|max:12',
             'players.*' => 'distinct|exists:players,id',
             'played_at' => 'required|date',
+            'fee' => ['nullable'],
+            'charge_accounts' => ['nullable', 'array'],
+            'charge_accounts.*' => ['required', 'integer', 'exists:players,id'],
+            'charge_units' => ['nullable', 'array'],
+            'charge_units.*' => ['required', 'integer', 'min:0'],
             'send_whatsapp' => ['nullable', 'boolean'],
             'whatsapp_action_key' => ['required_if:send_whatsapp,true', 'nullable', 'uuid'],
         ], [
@@ -226,10 +250,16 @@ class GameController extends Controller
     private function saveGame(Request $request, ?Game $game = null): Game
     {
         $service = app(WhatsappService::class);
-        [$game, $message] = DB::transaction(function () use ($request, $game, $service) {
+        $finance = app(FinanceService::class);
+        $feeCents = $this->gameFeeCents($request, $finance, $game);
+        $financialTrackingEnabled = $game === null || $game->fee_cents !== null;
+        $chargeAccounts = $request->input('charge_accounts', []);
+        $chargeUnits = $request->input('charge_units', []);
+        [$game, $message] = DB::transaction(function () use ($request, $game, $service, $finance, $feeCents, $financialTrackingEnabled, $chargeAccounts, $chargeUnits) {
             $settings = WhatsappSetting::lockForUpdate()->findOrFail(1);
             $hash = hash('sha256', json_encode([
                 $game?->id, $request->played_at, collect($request->players)->map(fn ($id) => (int) $id)->sort()->values()->all(),
+                $feeCents, $chargeAccounts, $chargeUnits,
             ]));
             if ($request->boolean('send_whatsapp')) {
                 $existing = $service->existing($request->whatsapp_action_key, $request->user()->id, $hash);
@@ -241,15 +271,21 @@ class GameController extends Controller
             if ($game) {
                 $game = Game::lockForUpdate()->findOrFail($game->id);
                 abort_if($this->hasResult($game), 403);
-                $game->update(['played_at' => $request->played_at]);
+                $game->update([
+                    'played_at' => $request->played_at,
+                    'fee_cents' => $financialTrackingEnabled ? $feeCents : null,
+                ]);
                 $game->teams()->detach();
                 $game->gamePlayerRatings()->delete();
             } else {
-                $game = Game::create(['played_at' => $request->played_at]);
+                $game = Game::create(['played_at' => $request->played_at, 'fee_cents' => $feeCents]);
             }
             $players = Player::whereIn('id', $request->players)->get();
             $this->storeGamePlayerRatings($game, $players);
             $this->handleGameTeams($game, $players);
+            if ($financialTrackingEnabled) {
+                $finance->syncGameCharges($game, $players, $chargeAccounts, $chargeUnits, $feeCents, $request->user());
+            }
             $message = $request->boolean('send_whatsapp')
                 ? $service->prepare($settings, $game, $request->user()->id, $request->whatsapp_action_key, $kind, $hash)
                 : null;
@@ -358,9 +394,66 @@ class GameController extends Controller
         return [
             'id' => $game->id,
             'played_at' => $game->played_at,
+            'fee_cents' => $game->fee_cents,
             'team1_score' => $game->team1_score,
             'team2_score' => $game->team2_score,
         ];
+    }
+
+    private function chargeAllocationData(Game $game): array
+    {
+        $transactions = $game->balanceTransactions()
+            ->where('type', \App\Models\PlayerBalanceTransaction::TYPE_MATCH_CHARGE)
+            ->get();
+
+        return [
+            'chargeAccounts' => $transactions->mapWithKeys(fn ($transaction): array => [
+                (string) $transaction->source_player_id => (string) $transaction->player_id,
+            ])->all(),
+            'chargeUnits' => $transactions->mapWithKeys(fn ($transaction): array => [
+                (string) $transaction->source_player_id => (int) $transaction->units,
+            ])->all(),
+        ];
+    }
+
+    private function financialChargesData(Game $game): array
+    {
+        return $game->balanceTransactions()
+            ->where('type', \App\Models\PlayerBalanceTransaction::TYPE_MATCH_CHARGE)
+            ->with(['player', 'participant'])
+            ->get()
+            ->groupBy('source_player_id')
+            ->map(fn ($transactions): array => [
+                'participant_id' => $transactions->first()->source_player_id,
+                'participant_name' => $transactions->first()->participant?->name,
+                'account_name' => $transactions->first()->player?->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function gameFeeCents(Request $request, FinanceService $finance, ?Game $game = null): int
+    {
+        $value = $request->input('fee');
+        if ($value === null || trim((string) $value) === '') {
+            return $game?->fee_cents ?? $finance->defaultMatchFeeCents();
+        }
+
+        try {
+            $feeCents = $finance->parseAmountToCents($value, true);
+        } catch (\InvalidArgumentException) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'fee' => __('Enter a valid amount with at most two decimals.'),
+            ]);
+        }
+
+        if ($feeCents < 0) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'fee' => __('The match fee cannot be negative.'),
+            ]);
+        }
+
+        return $feeCents;
     }
 
     private function ratingData($ratings): array

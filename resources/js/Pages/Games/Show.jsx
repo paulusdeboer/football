@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import GivenRatings from '../../Components/GivenRatings';
+import Select2Field from '../../Components/Select2Field';
 import WhatsappStatus from '../../Components/WhatsappStatus';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
@@ -9,7 +10,7 @@ import route from '../../route';
 const date = (value) => value ? new Date(value).toLocaleDateString('nl-NL') : '';
 const dateTime = (value) => value ? new Date(value).toLocaleString('nl-NL') : '';
 
-export default function GamesShow({ game, canEditResult, canManageRatingRequests, givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, whatsappMessage = null, errors = {} }) {
+export default function GamesShow({ game, canEditResult, canManageRatingRequests, canManageGames = false, canManageWhatsapp = false, canManageFinance = false, financialCharges = [], givenRatings, ratingRequests, team1Rating, team2Rating, team1Ratings, team2Ratings, whatsappMessage = null, errors = {} }) {
     const { t } = useTranslations();
     const [showRatings, setShowRatings] = useState(true);
     const typeLabel = (type) => ({ attacker: t('Attacker'), defender: t('Defender'), both: t('Both') }[type] ?? type);
@@ -42,23 +43,57 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
         <AppLayout title={`${t('Game')} ${t('on')} ${date(game.played_at)}`}>
             <div className="container-fluid px-4">
                 <div className="card mb-4">
-                    <div className="card-header d-flex justify-content-end">
-                        <span>
-                            {!hasResult && (
-                                <Link href={route('games.edit', game.id)} className="btn btn-primary btn-sm me-2">
+                    <div className="card-header d-flex justify-content-end align-items-center gap-2">
+                        <div className="game-detail-actions d-flex flex-wrap justify-content-end align-items-center gap-1">
+                            {canManageGames && !hasResult && (
+                                <Link href={route('games.edit', game.id)} className="btn btn-primary">
                                     {t('Edit game')}
                                 </Link>
                             )}
-                            {(!hasResult || canEditResult) && (
-                                <Link href={route('games.enter-result', game.id)} className="btn btn-secondary btn-sm">
+                            {canManageGames && (!hasResult || canEditResult) && (
+                                <Link href={route('games.enter-result', game.id)} className="btn btn-warning game-detail-action">
                                     {hasResult ? t('Edit result') : t('Enter result')}
                                 </Link>
                             )}
-                        </span>
+                            <Link href={route('games.index')} className="btn btn-secondary">{t('Back to games list')}</Link>
+                        </div>
                     </div>
                     <div className="card-body">
-                        <WhatsappStatus message={whatsappMessage} gameId={game.id} error={errors.whatsapp} />
+                        {canManageWhatsapp && <WhatsappStatus message={whatsappMessage} gameId={game.id} error={errors.whatsapp} />}
                         <p><strong>{t('Result')}:</strong> {hasResult ? `${game.team1_score} - ${game.team2_score}` : ''}</p>
+
+                        {(financialCharges.length > 0 || canManageFinance) && (
+                            <div className="mb-4">
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 className="mb-0">{t('Financial charges')}</h5>
+                                    {canManageFinance && (
+                                        <span className="actions">
+                                            <Link href={route('finance.games.charges.edit', game.id)} className="btn btn-warning btn-sm">{t('Edit financial charges')}</Link>
+                                        </span>
+                                    )}
+                                </div>
+                                {financialCharges.length > 0 ? (
+                                    <div className="table-responsive">
+                                        <table className="table table-sm align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('Player')}</th>
+                                                    <th>{t('Charged account')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {financialCharges.map(charge => (
+                                                    <tr key={charge.participant_id}>
+                                                        <td>{charge.participant_name}</td>
+                                                        <td>{charge.account_name}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : <span className="text-muted">{t('No financial charges recorded.')}</span>}
+                            </div>
+                        )}
 
                         {ratingRequests.length > 0 && (
                             <div className="mb-4">
@@ -123,9 +158,6 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
                     </div>
                 </div>
 
-                <Link href={route('games.index')} className="btn btn-secondary">
-                    {t('Back to games list')}
-                </Link>
             </div>
         </AppLayout>
     );
@@ -163,10 +195,10 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
                                 {t('Resend')}
                             </button>
                             <form onSubmit={replace} className="d-flex gap-1">
-                                <select className="form-select form-select-sm" value={replacementPlayer} onChange={(event) => setReplacementPlayer(event.target.value)}>
+                                <Select2Field className="form-select form-select-sm" value={replacementPlayer} onChange={setReplacementPlayer} width="style" allowClear>
                                     <option value="">{t('Random suitable player')}</option>
                                     {request.replacement_players?.map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}
-                                </select>
+                                </Select2Field>
                                 <button type="submit" className="btn btn-sm">{t('Replace')}</button>
                             </form>
                         </div>

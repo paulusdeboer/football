@@ -31,7 +31,9 @@ class LoginController extends Controller
             throw ValidationException::withMessages(['name' => __('auth.failed')]);
         }
 
-        if (! Auth::user()?->isAdmin()) {
+        $user = Auth::user();
+
+        if (! $user?->canManageFinance()) {
             Auth::logout();
 
             throw ValidationException::withMessages([
@@ -41,7 +43,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($user->isFinance() ? route('finance.index') : route('dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse

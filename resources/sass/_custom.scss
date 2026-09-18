@@ -432,6 +432,10 @@ textarea:focus-visible {
     box-shadow: 0 0 0 0.2rem rgba(233, 120, 23, 0.14);
 }
 
+.table-remove-button {
+    min-height: 2.65rem;
+}
+
 .form-label,
 label {
     color: var(--football-navy-800);
@@ -454,6 +458,30 @@ label {
     border: 1px solid transparent;
     border-radius: 0.75rem;
     font-size: 0.83rem;
+}
+
+.Toastify__toast-container {
+    top: 5.75rem;
+    right: 1.25rem;
+    width: min(28rem, calc(100vw - 2.5rem));
+}
+
+.Toastify__toast {
+    border: 1px solid var(--football-line);
+    border-radius: 0.8rem;
+    box-shadow: var(--football-shadow);
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.83rem;
+}
+
+.Toastify__toast--success {
+    background: #e8f8f1;
+    color: #146044;
+}
+
+.Toastify__toast--error {
+    background: #fff0f1;
+    color: #8f2934;
 }
 
 .table-responsive {

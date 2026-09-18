@@ -10,6 +10,7 @@ export default function AppLayout({ title, children }) {
     const pageTitle = title === 'Dashboard'
         ? `${t('Dashboard')} - ${t('Welcome')} ${user?.name ?? ''}`.trim()
         : t(title);
+    const homeRoute = can.accessAdminArea ? route('dashboard') : route('finance.index');
 
     const currentPath = typeof window === 'undefined' ? '' : window.location.pathname;
     const isActive = (section) => section === 'dashboard'
@@ -30,7 +31,7 @@ export default function AppLayout({ title, children }) {
                     <div id="layoutSidenav_nav">
                         <nav className="football-sidebar sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                             <div className="football-sidebar__brand">
-                                <Link className="app-brand" href={route('dashboard')}>
+                                <Link className="app-brand" href={homeRoute}>
                                     <img className="app-brand-logo" src="/favicon.svg" alt="" aria-hidden="true" />
                                     <span>{t('app_name')}</span>
                                 </Link>
@@ -44,8 +45,20 @@ export default function AppLayout({ title, children }) {
                                         <Link className={`nav-link ${currentPath === '/games/create' ? 'active' : ''}`} href={route('games.create')}><div className="sb-nav-link-icon"><i className="fas fa-plus" /></div>{t('Create game')}</Link>
                                         <Link className={`nav-link ${isIndexActive('players', ['/players/create']) ? 'active' : ''}`} href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
                                         <Link className={`nav-link ${currentPath === '/players/create' ? 'active' : ''}`} href={route('players.create')}><div className="sb-nav-link-icon"><i className="fas fa-user-plus" /></div>{t('Create players')}</Link>
+                                        {can.accessFinanceArea && (
+                                            <Link className={`nav-link ${isActive('finance') ? 'active' : ''}`} href={route('finance.index')}>
+                                                <div className="sb-nav-link-icon"><i className="fas fa-wallet" /></div>{t('Finance')}
+                                            </Link>
+                                        )}
                                         <Link className={`nav-link ${currentPath === '/settings/whatsapp' ? 'active' : ''}`} href={route('whatsapp.index')}><div className="sb-nav-link-icon"><i className="fab fa-whatsapp" /></div>{t('WhatsApp')}</Link>
                                     </>}
+                                    {!can.accessAdminArea && can.accessFinanceArea ? <>
+                                        <Link className={`nav-link ${isIndexActive('games', ['/games/create']) ? 'active' : ''}`} href={route('games.index')}><div className="sb-nav-link-icon"><i className="fas fa-futbol" /></div>{t('Games')}</Link>
+                                        <Link className={`nav-link ${isIndexActive('players', ['/players/create']) ? 'active' : ''}`} href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
+                                        <Link className={`nav-link ${isActive('finance') ? 'active' : ''}`} href={route('finance.index')}>
+                                            <div className="sb-nav-link-icon"><i className="fas fa-wallet" /></div>{t('Finance')}
+                                        </Link>
+                                    </> : null}
                                 </div>
                             </div>
                             <div className="sb-sidenav-footer football-sidebar__footer"><div className="small">{t('Logged in as')}:</div>{user?.name}</div>

@@ -158,6 +158,22 @@ table a {
     color: #b91c1c;
 }
 
+.game-detail-actions .game-detail-action {
+    border: 1px solid #d7deea;
+    border-radius: 0.6rem;
+    background: #fff;
+    color: var(--football-navy-700);
+    font-size: 0.78rem;
+    font-weight: 400;
+}
+
+.game-detail-actions .game-detail-action:hover,
+.game-detail-actions .game-detail-action:focus {
+    border-color: var(--football-orange);
+    background: #fff7ed;
+    color: var(--football-orange-dark);
+}
+
 .badge {
     display: inline-flex;
     align-items: center;

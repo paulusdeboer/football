@@ -60,4 +60,14 @@ class Player extends Model
     {
         return $this->hasMany(GamePlayerRating::class);
     }
+
+    public function balanceTransactions()
+    {
+        return $this->hasMany(PlayerBalanceTransaction::class);
+    }
+
+    public function matchChargesAsParticipant()
+    {
+        return $this->hasMany(PlayerBalanceTransaction::class, 'source_player_id');
+    }
 }

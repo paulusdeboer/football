@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GamePlayerRatingController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RatingRequestController;
@@ -29,8 +30,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/settings/whatsapp/groups', [WhatsappController::class, 'groups'])->name('whatsapp.groups');
     Route::post('/settings/whatsapp/test', [WhatsappController::class, 'test'])->middleware('throttle:6,1')->name('whatsapp.test');
     Route::post('/games/{game}/whatsapp/{message}/retry', [WhatsappController::class, 'retry'])->middleware('throttle:6,1')->name('whatsapp.retry');
-    // index, create, store, show, edit, update, destroy
-    Route::resource('games', GameController::class);
+    // create, store, edit, update, destroy
+    Route::resource('games', GameController::class)->except(['index', 'show']);
     Route::get('/games/{game}/enter-result', [GameController::class, 'enterResult'])->name('games.enter-result');
     Route::post('/games/{game}/results', [GameController::class, 'storeResult'])->name('games.store-result');
     Route::post('/games/{game}/rating-requests/{ratingRequest}/resend', [RatingRequestController::class, 'resend'])
@@ -39,7 +40,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('rating-requests.replace');
 
     // index, create, store, show, edit, update, destroy
-    Route::resource('players', PlayerController::class);
+    Route::resource('players', PlayerController::class)->except(['index']);
     Route::patch('/players/{id}/restore', [PlayerController::class, 'restore'])->name('players.restore');
 
     // index, create, store, show, edit, update, destroy
@@ -50,6 +51,28 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // index, create, store, show, edit, update, destroy
     Route::resource('game_player_ratings', GamePlayerRatingController::class);
+});
+
+// Admins and finance managers can inspect the team administration read-only.
+Route::middleware(['auth', 'finance'])->group(function () {
+    Route::get('/games', [GameController::class, 'index'])->name('games.index');
+    Route::get('/games/{game}', [GameController::class, 'show'])->name('games.show');
+    Route::get('/players', [PlayerController::class, 'index'])->name('players.index');
+});
+
+Route::middleware(['auth', 'finance'])->prefix('finance')->name('finance.')->group(function () {
+    Route::get('/', [FinanceController::class, 'index'])->name('index');
+    Route::get('/top-ups', [FinanceController::class, 'topUps'])->name('topups');
+    Route::post('/top-ups', [FinanceController::class, 'storeTopUps'])->name('topups.store');
+    Route::put('/settings', [FinanceController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/players/{player}', [FinanceController::class, 'player'])->name('players.show');
+    Route::put('/transactions/{transaction}', [FinanceController::class, 'updateTransaction'])
+        ->name('transactions.update');
+    Route::get('/games/{game}/charges', [FinanceController::class, 'gameCharges'])
+        ->name('games.charges.edit');
+    Route::put('/games/{game}/charges', [FinanceController::class, 'updateGameCharges'])
+        ->name('games.charges.update');
+    Route::get('/export', [FinanceController::class, 'export'])->name('export');
 });
 
 // Signed route for players to rate others

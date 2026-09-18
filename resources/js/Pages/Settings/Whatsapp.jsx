@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
+import Select2Field from '../../Components/Select2Field';
 import WhatsappStatus from '../../Components/WhatsappStatus';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
@@ -114,10 +115,10 @@ export default function Whatsapp({ settings: initialSettings }) {
         disconnected: t('WhatsApp disconnected'), error: t('WhatsApp connection error'),
     };
     return <AppLayout title="WhatsApp"><div className="container-fluid px-4">
-        <p>{t('WhatsApp shared account explanation')}</p>
-        {error && <div className="alert alert-danger" role="alert">{error}</div>}
-        {notice && <div className="alert alert-info" role="status">{notice}</div>}
         <div className="card mb-4"><div className="card-header">{t('WhatsApp connection')}</div><div className="card-body">
+            <p>{t('WhatsApp shared account explanation')}</p>
+            {error && <div className="alert alert-danger" role="alert">{error}</div>}
+            {notice && <div className="alert alert-info" role="status">{notice}</div>}
             <dl className="row mb-3">
                 <dt className="col-sm-4">{t('WhatsApp status')}</dt><dd className="col-sm-8">{status[settings.connection_status]}</dd>
                 <dt className="col-sm-4">{t('WhatsApp linked number')}</dt><dd className="col-sm-8">{settings.phone ?? '—'}</dd>
@@ -144,11 +145,11 @@ export default function Whatsapp({ settings: initialSettings }) {
             <p>{t('WhatsApp group explanation')}</p>
             <button className="btn btn-outline-primary mb-3" disabled={busy || settings.connection_status !== 'connected'} onClick={() => getGroups()}>{t('WhatsApp load groups')}</button>
             <label htmlFor="whatsapp-group" className="form-label d-block">{t('WhatsApp selected group')}</label>
-            <select id="whatsapp-group" className="form-select" value={groupId} onChange={event => setGroupId(event.target.value)} disabled={busy}>
+            <Select2Field id="whatsapp-group" className="form-select" value={groupId} onChange={setGroupId} disabled={busy} placeholder={t('WhatsApp choose group')} allowClear>
                 <option value="">{t('WhatsApp choose group')}</option>
                 {settings.group_id && !groups.some(group => group.id === settings.group_id) && <option value={settings.group_id}>{settings.group_name}</option>}
                 {groups.map(group => <option key={group.id} value={group.id}>{group.name} ({group.id})</option>)}
-            </select>
+            </Select2Field>
             {nextOffset !== null && <button className="btn btn-link" disabled={busy} onClick={() => getGroups(nextOffset)}>{t('WhatsApp more groups')}</button>}
             <div className="d-flex flex-wrap gap-2 mt-3">
                 <button className="btn btn-primary" disabled={busy || !groupId || groupId === settings.group_id} onClick={() => save(false)}>{t('WhatsApp save group')}</button>

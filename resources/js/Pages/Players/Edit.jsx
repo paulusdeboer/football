@@ -1,6 +1,7 @@
 import { Link, useForm } from '@inertiajs/react';
 import AppLayout from '../../Layouts/AppLayout';
 import RoleBadge from '../../Components/RoleBadge';
+import Select2Field from '../../Components/Select2Field';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
 
@@ -27,10 +28,11 @@ export default function PlayersEdit({ player }) {
                     <div className="row g-4 mb-4">
                         <div className="col-lg-7">
                             <div className="card h-100">
-                                <div className="card-header">
+                                <div className="card-header d-flex justify-content-between align-items-center gap-2">
                                     <h5 className="mb-0">{t('Player details')}</h5>
+                                    <Link href={route('players.index')} className="btn btn-secondary">{t('Back to players list')}</Link>
                                 </div>
-                                <div className="card-body">
+                                <div className="card-body d-flex flex-column">
                                     <div className="row g-3">
                                         <div className="col-12">
                                             <label className="form-label" htmlFor="name">{t('Player name')}</label>
@@ -60,14 +62,15 @@ export default function PlayersEdit({ player }) {
                                         </div>
                                         <div className="col-md-6">
                                             <label className="form-label" htmlFor="type">{t('Type')}</label>
-                                            <select id="type" className={`form-select ${errors.type ? 'is-invalid' : ''}`} value={data.type} onChange={e => setData('type', e.target.value)}>
+                                            <Select2Field id="type" className={`form-select ${errors.type ? 'is-invalid' : ''}`} value={data.type} onChange={value => setData('type', value)}>
                                                 <option value="attacker">{t('Attacker')}</option>
                                                 <option value="defender">{t('Defender')}</option>
                                                 <option value="both">{t('Both')}</option>
-                                            </select>
+                                            </Select2Field>
                                             {errors.type && <div className="invalid-feedback">{errors.type}</div>}
                                         </div>
                                     </div>
+                                    <button disabled={processing} type="submit" className="btn btn-primary align-self-start mt-auto">{t('Save player')}</button>
                                 </div>
                             </div>
                         </div>
@@ -105,19 +108,17 @@ export default function PlayersEdit({ player }) {
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="role">{t('Role')}</label>
-                                        <select id="role" className={`form-select ${errors.role ? 'is-invalid' : ''}`} value={data.role} onChange={e => setData('role', e.target.value)}>
+                                        <Select2Field id="role" className={`form-select ${errors.role ? 'is-invalid' : ''}`} value={data.role} onChange={value => setData('role', value)}>
                                             <option value="player">{t('Player')}</option>
+                                            <option value="finance">{t('Finance manager')}</option>
                                             <option value="admin">{t('Admin')}</option>
-                                        </select>
+                                        </Select2Field>
                                         {errors.role && <div className="invalid-feedback">{errors.role}</div>}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <button disabled={processing} type="submit" className="btn btn-primary">{t('Save player')}</button>
-                    <Link href={route('players.index')} className="btn btn-secondary ms-2">{t('Back to players list')}</Link>
                 </form>
             </div>
         </AppLayout>

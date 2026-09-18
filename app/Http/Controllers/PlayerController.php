@@ -48,6 +48,7 @@ class PlayerController extends Controller
             'sortBy' => $sortBy,
             'sortDirection' => $sortDirection,
             'includeDeleted' => $includeDeleted,
+            'canManagePlayers' => (bool) $request->user()?->isAdmin(),
         ]);
     }
 
@@ -70,6 +71,8 @@ class PlayerController extends Controller
             'players.*.email' => ['required', 'email'],
             'players.*.rating' => ['required', 'numeric', 'min:0', 'max:10'],
             'players.*.type' => ['required', 'in:attacker,defender,both'],
+        ], [
+            'players.*.name.unique' => __('A player with this name already exists.'),
         ]);
 
         DB::transaction(function () use ($request): void {
@@ -124,7 +127,7 @@ class PlayerController extends Controller
             'email' => ['required', 'email'],
             'rating' => ['required', 'numeric', 'min:0', 'max:10'],
             'type' => ['required', 'in:attacker,defender,both'],
-            'role' => ['required', 'in:'.User::ROLE_ADMIN.','.User::ROLE_PLAYER],
+            'role' => ['required', 'in:'.User::ROLE_ADMIN.','.User::ROLE_FINANCE.','.User::ROLE_PLAYER],
         ]);
 
         $this->ensureRoleChangeAllowed($request, $player, $request->string('role')->toString());
@@ -173,7 +176,7 @@ class PlayerController extends Controller
 
     private function ensureRoleChangeAllowed(Request $request, Player $player, string $role): void
     {
-        if ($role !== User::ROLE_PLAYER || ! $player->user) {
+        if ($role === User::ROLE_ADMIN || ! $player->user || ! $player->user->isAdmin()) {
             return;
         }
 

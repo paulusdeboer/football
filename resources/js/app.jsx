@@ -1,3 +1,4 @@
+import 'react-toastify/dist/ReactToastify.css';
 import '../sass/app.scss';
 import './bootstrap';
 import $ from 'jquery';
@@ -6,6 +7,7 @@ import select2 from 'select2';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { ToastContainer } from 'react-toastify';
 import route from './route';
 
 window.$ = window.jQuery = $;
@@ -16,7 +18,20 @@ createInertiaApp({
     title: (title) => `${title} - Vrijdag voetbal`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(
+            <>
+                <App {...props} />
+                <ToastContainer
+                    position="top-right"
+                    autoClose={4000}
+                    newestOnTop
+                    closeOnClick
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+            </>,
+        );
     },
     progress: { color: '#4B5563' },
 });

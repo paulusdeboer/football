@@ -130,6 +130,28 @@ class PlayersTest extends TestCase
         $this->assertSame(2, User::where('email', 'shared@example.test')->count());
     }
 
+    public function test_creating_a_player_with_an_inactive_existing_name_returns_a_validation_error(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $inactiveUser = User::factory()->create(['name' => 'Inactive player']);
+        $inactivePlayer = Player::factory()->create([
+            'name' => 'Inactive player',
+            'user_id' => $inactiveUser->id,
+        ]);
+        $inactivePlayer->delete();
+
+        $this->from('/players/create')->post('/players', [
+            'players' => [[
+                'name' => 'Inactive player',
+                'email' => 'new-email@example.test',
+                'rating' => 8,
+                'type' => 'both',
+            ]],
+        ])->assertRedirect('/players/create')->assertSessionHasErrors('players.0.name');
+
+        $this->assertSame(1, Player::withTrashed()->where('name', 'Inactive player')->count());
+    }
+
     public function test_admin_can_update_a_players_role_from_the_existing_edit_flow(): void
     {
         $this->actingAs(User::factory()->admin()->create());
