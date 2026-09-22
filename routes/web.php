@@ -41,6 +41,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // index, create, store, show, edit, update, destroy
     Route::resource('players', PlayerController::class)->except(['index']);
+    Route::get('/players', [PlayerController::class, 'index'])->name('players.index');
     Route::patch('/players/{id}/restore', [PlayerController::class, 'restore'])->name('players.restore');
 
     // index, create, store, show, edit, update, destroy
@@ -53,11 +54,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('game_player_ratings', GamePlayerRatingController::class);
 });
 
-// Admins and finance managers can inspect the team administration read-only.
+// Admins and finance managers can inspect games read-only.
 Route::middleware(['auth', 'finance'])->group(function () {
     Route::get('/games', [GameController::class, 'index'])->name('games.index');
     Route::get('/games/{game}', [GameController::class, 'show'])->name('games.show');
-    Route::get('/players', [PlayerController::class, 'index'])->name('players.index');
 });
 
 Route::middleware(['auth', 'finance'])->prefix('finance')->name('finance.')->group(function () {
