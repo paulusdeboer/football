@@ -15,9 +15,17 @@ use App\Http\Controllers\RatingRequestController;
 use App\Http\Controllers\WhatsappController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root URL to login page
+// Redirect users to the appropriate home page.
 Route::get('/', function () {
-    return redirect()->route('login');
+    $user = request()->user();
+
+    if ($user?->isFinance()) {
+        return redirect()->route('finance.index');
+    }
+
+    return $user
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 // Authenticated routes
