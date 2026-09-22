@@ -54,7 +54,6 @@ export default function AppLayout({ title, children }) {
                                     </>}
                                     {!can.accessAdminArea && can.accessFinanceArea ? <>
                                         <Link className={`nav-link ${isIndexActive('games', ['/games/create']) ? 'active' : ''}`} href={route('games.index')}><div className="sb-nav-link-icon"><i className="fas fa-futbol" /></div>{t('Games')}</Link>
-                                        <Link className={`nav-link ${isIndexActive('players', ['/players/create']) ? 'active' : ''}`} href={route('players.index')}><div className="sb-nav-link-icon"><i className="fas fa-users" /></div>{t('Players')}</Link>
                                         <Link className={`nav-link ${isActive('finance') ? 'active' : ''}`} href={route('finance.index')}>
                                             <div className="sb-nav-link-icon"><i className="fas fa-wallet" /></div>{t('Finance')}
                                         </Link>

@@ -301,7 +301,7 @@ class FinanceTest extends TestCase
         $this->assertSame(User::ROLE_FINANCE, $player->user->fresh()->role);
     }
 
-    public function test_finance_manager_can_log_in_but_cannot_manage_games(): void
+    public function test_finance_manager_can_log_in_but_cannot_manage_games_or_access_player_overview(): void
     {
         $financeUser = User::factory()->finance()->create(['name' => 'Finance login', 'password' => bcrypt('secret')]);
 
@@ -312,7 +312,7 @@ class FinanceTest extends TestCase
         $this->assertAuthenticatedAs($financeUser);
 
         $this->get('/games')->assertSuccessful();
-        $this->get('/players')->assertSuccessful();
+        $this->get('/players')->assertForbidden();
 
         $game = Game::factory()->create();
         $player = Player::factory()->create();
