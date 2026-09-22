@@ -141,6 +141,13 @@ class AuthenticationTest extends TestCase
         $this->get('/players')->assertRedirect('/login');
     }
 
+    public function test_finance_manager_visiting_the_root_is_redirected_to_finance(): void
+    {
+        $this->actingAs(User::factory()->finance()->create());
+
+        $this->get('/')->assertRedirect(route('finance.index'));
+    }
+
     public function test_user_can_log_out(): void
     {
         $this->actingAs(User::factory()->admin()->create());
