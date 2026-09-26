@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import { useTranslations } from '../../i18n';
 import route from '../../route';
+import { openDatePicker } from '../../datePicker';
 import { clearSelect2SearchPreservingScroll } from '../../select2';
 
 export default function GamesForm({ mode, game, players, selectedPlayers = [], whatsappReady = false }) {
@@ -23,11 +24,11 @@ export default function GamesForm({ mode, game, players, selectedPlayers = [], w
         const updatePlayers = () => setData(current => ({ ...current, players: ($select.val() ?? []).map(String) }));
         const clearPlayerSearch = () => clearSelect2SearchPreservingScroll($select);
         $select.on('change', updatePlayers);
-        $select.on('select2:select', clearPlayerSearch);
+        $select.on('select2:selecting', clearPlayerSearch);
 
         return () => {
             $select.off('change', updatePlayers);
-            $select.off('select2:select', clearPlayerSearch);
+            $select.off('select2:selecting', clearPlayerSearch);
             if ($select.hasClass('select2-hidden-accessible')) $select.select2('destroy');
         };
     }, []);
@@ -47,7 +48,7 @@ export default function GamesForm({ mode, game, players, selectedPlayers = [], w
                             </div>
                             <div className="form-group mb-3">
                                 <label htmlFor="played_at">{t('Select game date')}</label>
-                                <input className={`form-control ${errors.played_at ? 'is-invalid' : ''}`} type="date" id="played_at" value={data.played_at} onChange={e => setData('played_at', e.target.value)} required />
+                                <input className={`form-control ${errors.played_at ? 'is-invalid' : ''}`} type="date" id="played_at" value={data.played_at} onClick={openDatePicker} onChange={e => setData('played_at', e.target.value)} required />
                                 {errors.played_at && <div className="invalid-feedback">{errors.played_at}</div>}
                             </div>
                             <div className="form-group mb-3">
