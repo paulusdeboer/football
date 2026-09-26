@@ -114,12 +114,12 @@ export default function Dashboard({filters, players, summary, ranking, charts, r
         const clearPlayerSearch = () => clearSelect2SearchPreservingScroll($players);
         $period.on('change', updatePeriod);
         $players.on('change', updatePlayers);
-        $players.on('select2:select', clearPlayerSearch);
+        $players.on('select2:selecting', clearPlayerSearch);
 
         return () => {
             $period.off('change', updatePeriod);
             $players.off('change', updatePlayers);
-            $players.off('select2:select', clearPlayerSearch);
+            $players.off('select2:selecting', clearPlayerSearch);
             if ($period.hasClass('select2-hidden-accessible')) $period.select2('destroy');
             if ($players.hasClass('select2-hidden-accessible')) $players.select2('destroy');
         };
@@ -179,7 +179,7 @@ export default function Dashboard({filters, players, summary, ranking, charts, r
                             <div className="col-12 col-md-8 col-xl-9 dashboard-filter dashboard-filter--players">
                                 <label htmlFor="dashboard-player" className="form-label">{t('Players')}</label>
                                 <select ref={playersSelect} id="dashboard-player"
-                                        className="form-select dashboard-player-select" multiple
+                                        className="form-select player-multiselect dashboard-player-select" multiple
                                         defaultValue={selectedPlayerIds}>
                                     {players.map((player) => <option key={player.id}
                                                                      value={player.id}>{player.name}</option>)}

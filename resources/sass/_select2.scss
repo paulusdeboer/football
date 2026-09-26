@@ -6,12 +6,23 @@
     border-color: var(--bs-form-invalid-border-color);
 }
 
-.dashboard-player-select {
+.player-multiselect {
     display: none !important;
 }
 
-.dashboard-player-select + .select2-container {
+.player-multiselect + .select2-container {
     width: 100% !important;
+    max-width: 100%;
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.84rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.player-multiselect + .select2-container .select2-selection__rendered {
+    letter-spacing: normal;
+    text-transform: none;
 }
 
 .compact-multiple-selection.select2-selection--multiple {
@@ -20,6 +31,8 @@
     flex-wrap: wrap;
     gap: 0.375rem;
     min-height: 2.65rem;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .compact-multiple-selection.select2-selection--multiple .select2-selection__rendered {
@@ -36,15 +49,22 @@
 }
 
 .compact-multiple-selection.select2-selection--multiple .select2-search--inline {
+    display: flex;
+    align-items: center;
     flex: 1 1 6rem;
     width: auto;
     min-width: 6rem;
     height: 1.5rem;
+    margin: 0;
 }
 
 .compact-multiple-selection.select2-selection--multiple .select2-search--inline .select2-search__field {
     width: 100% !important;
     min-width: 0;
+    height: 1.5rem;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5rem;
 }
 
 .select2-results__options {
@@ -55,6 +75,34 @@
     min-height: 2.65rem;
     border-color: var(--football-line-strong);
     border-radius: 0.65rem;
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.84rem;
+    font-weight: 400;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    display: flex;
+    align-items: center;
+    height: 2.65rem;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    height: 100%;
+}
+
+.select2-container--bootstrap-5 .select2-selection--multiple {
+    display: flex;
+    align-items: center;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
 }
 
 .select2-container--bootstrap-5.select2-container--focus .select2-selection,
@@ -68,6 +116,12 @@
     border-color: var(--football-line-strong);
     border-radius: 0.65rem;
     box-shadow: var(--football-shadow-sm);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown.select2--small .select2-results__option {
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.84rem;
+    font-weight: 400;
 }
 
 .select2-container--bootstrap-5 .select2-results__option--highlighted {
