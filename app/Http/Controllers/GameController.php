@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayerRating;
 use App\Models\Player;
+use App\Models\RatingRequest;
 use App\Models\WhatsappMessage;
 use App\Models\WhatsappSetting;
 use App\Services\RatingCalculator;
