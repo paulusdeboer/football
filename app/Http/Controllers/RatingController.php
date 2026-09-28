@@ -53,6 +53,11 @@ class RatingController extends Controller
         $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
         $service->ensureViewable($ratingRequest);
         $player = $ratingRequest->player;
+        $expectedRatedPlayerIds = $this->expectedRatedPlayerIds($game, $player);
+        $existingRatings = $game->ratings()
+            ->where('rating_player_id', $player->id)
+            ->get()
+            ->keyBy('rated_player_id');
 
         return Inertia::render('Ratings/Form', [
             'game' => [
@@ -64,7 +69,10 @@ class RatingController extends Controller
             'player' => ['id' => $player->id, 'name' => $player->name],
             'team1Players' => $game->teams()->where('team', 'team1')->orderBy('name')->get(['players.id', 'players.name']),
             'team2Players' => $game->teams()->where('team', 'team2')->orderBy('name')->get(['players.id', 'players.name']),
-            'hasRated' => $game->ratings()->where('rating_player_id', $player->id)->exists(),
+            'hasRated' => $this->hasCompleteRatingSet($expectedRatedPlayerIds, $existingRatings->keys()->all()),
+            'existingRatings' => $existingRatings->mapWithKeys(fn (Rating $rating) => [
+                (string) $rating->rated_player_id => $rating->rating_value,
+            ]),
             'storeUrl' => $service->signedUrl($ratingRequest, 'ratings.store'),
         ]);
     }
@@ -76,31 +84,68 @@ class RatingController extends Controller
         $player = $ratingRequest->player;
         $request->validate([
             'ratings' => ['required', 'array'],
-            'ratings.*' => ['required', 'numeric', 'min:0', 'max:10'],
+            'ratings.*' => ['required', 'numeric', 'min:5', 'max:10'],
         ]);
 
-        if ($game->ratings()->where('rating_player_id', $player->id)->exists()) {
+        $expectedRatedPlayerIds = $this->expectedRatedPlayerIds($game, $player);
+        $submittedRatedPlayerIds = collect(array_keys($request->input('ratings', [])))
+            ->map(fn ($id) => (string) $id)
+            ->all();
+
+        if (array_diff($expectedRatedPlayerIds, $submittedRatedPlayerIds) !== []
+            || array_diff($submittedRatedPlayerIds, $expectedRatedPlayerIds) !== []) {
+            throw ValidationException::withMessages([
+                'ratings' => __('Please rate every player in the game exactly once.'),
+            ]);
+        }
+
+        $existingRatedPlayerIds = $game->ratings()
+            ->where('rating_player_id', $player->id)
+            ->pluck('rated_player_id')
+            ->all();
+        $hasCompleteSubmission = $this->hasCompleteRatingSet($expectedRatedPlayerIds, $existingRatedPlayerIds);
+
+        if ($hasCompleteSubmission) {
             return back()->withErrors(['rating' => 'You have already submitted a rating for this game.']);
         }
 
-        $service->ensureUsable($ratingRequest);
+        $isRepairingPartialSubmission = $ratingRequest->status === RatingRequest::STATUS_COMPLETED
+            && $existingRatedPlayerIds !== [];
 
-        DB::transaction(function () use ($request, $game, $player, $ratingRequest, $service): void {
+        if (! $isRepairingPartialSubmission) {
+            $service->ensureUsable($ratingRequest);
+        }
+
+        DB::transaction(function () use ($request, $game, $player, $ratingRequest, $service, $expectedRatedPlayerIds): void {
             $ratingRequest->refresh();
             $service->ensureMatchesVersion($ratingRequest, $request->query('v'));
-            $service->ensureUsable($ratingRequest);
 
-            if ($game->ratings()->where('rating_player_id', $player->id)->exists()) {
+            $existingRatedPlayerIds = $game->ratings()
+                ->where('rating_player_id', $player->id)
+                ->pluck('rated_player_id')
+                ->all();
+            $hasCompleteSubmission = $this->hasCompleteRatingSet($expectedRatedPlayerIds, $existingRatedPlayerIds);
+
+            if ($hasCompleteSubmission) {
                 throw ValidationException::withMessages(['rating' => 'You have already submitted a rating for this game.']);
             }
 
+            $isRepairingPartialSubmission = $ratingRequest->status === RatingRequest::STATUS_COMPLETED
+                && $existingRatedPlayerIds !== [];
+
+            if (! $isRepairingPartialSubmission) {
+                $service->ensureUsable($ratingRequest);
+            }
+
             foreach ($request->ratings as $ratedPlayerId => $ratingValue) {
-                Rating::create([
-                    'game_id' => $game->id,
-                    'rated_player_id' => $ratedPlayerId,
-                    'rating_player_id' => $player->id,
-                    'rating_value' => $ratingValue,
-                ]);
+                Rating::updateOrCreate(
+                    [
+                        'game_id' => $game->id,
+                        'rated_player_id' => $ratedPlayerId,
+                        'rating_player_id' => $player->id,
+                    ],
+                    ['rating_value' => $ratingValue],
+                );
             }
 
             foreach (app(RatingCalculator::class)->calculate($game) as $playerId => $newRating) {
@@ -136,5 +181,25 @@ class RatingController extends Controller
     {
         abort_unless((int) $ratingRequest->game_id === (int) $game->id, 404);
         abort_unless($game->teams()->whereKey($ratingRequest->player_id)->exists(), 404);
+    }
+
+    /** @return list<string> */
+    private function expectedRatedPlayerIds(Game $game, Player $player): array
+    {
+        return $game->teams()
+            ->pluck('players.id')
+            ->reject(fn ($id) => (int) $id === (int) $player->id)
+            ->map(fn ($id) => (string) $id)
+            ->values()
+            ->all();
+    }
+
+    /** @param list<int|string> $submittedPlayerIds */
+    private function hasCompleteRatingSet(array $expectedPlayerIds, array $submittedPlayerIds): bool
+    {
+        $submittedPlayerIds = array_map('strval', $submittedPlayerIds);
+
+        return $expectedPlayerIds !== []
+            && array_diff($expectedPlayerIds, $submittedPlayerIds) === [];
     }
 }

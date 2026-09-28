@@ -72,6 +72,25 @@ class RatingRequest extends Model
             ->exists();
     }
 
+    public function hasIncompleteRatingSubmission(): bool
+    {
+        $expectedPlayerIds = $this->game->teams()
+            ->pluck('players.id')
+            ->reject(fn ($id) => (int) $id === (int) $this->player_id)
+            ->map(fn ($id) => (string) $id)
+            ->values()
+            ->all();
+        $submittedPlayerIds = $this->game->ratings()
+            ->where('rating_player_id', $this->player_id)
+            ->pluck('rated_player_id')
+            ->map(fn ($id) => (string) $id)
+            ->all();
+
+        return $submittedPlayerIds !== []
+            && $expectedPlayerIds !== []
+            && array_diff($expectedPlayerIds, $submittedPlayerIds) !== [];
+    }
+
     public function displayStatus(): string
     {
         // Historical requests can still be marked as expired even though the

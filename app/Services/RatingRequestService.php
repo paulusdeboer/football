@@ -51,7 +51,7 @@ class RatingRequestService
     public function resend(RatingRequest $ratingRequest, int $actorId): void
     {
         $this->ensureGameCanManage($ratingRequest->game);
-        $this->ensureCanManage($ratingRequest);
+        $this->ensureCanResend($ratingRequest);
 
         $now = now();
         $ratingRequest->update([
@@ -228,6 +228,19 @@ class RatingRequestService
             __('This rating request is already completed.'),
         );
         abort_unless($ratingRequest->status !== RatingRequest::STATUS_REVOKED, 422, __('This rating request has been revoked.'));
+    }
+
+    private function ensureCanResend(RatingRequest $ratingRequest): void
+    {
+        abort_unless($ratingRequest->status !== RatingRequest::STATUS_REVOKED, 422, __('This rating request has been revoked.'));
+        $canResendForRepair = $ratingRequest->status === RatingRequest::STATUS_COMPLETED
+            && $ratingRequest->hasIncompleteRatingSubmission();
+        abort_unless(
+            ($ratingRequest->status !== RatingRequest::STATUS_COMPLETED && ! $ratingRequest->hasSubmittedRating())
+                || $canResendForRepair,
+            422,
+            __('This rating request is already completed.'),
+        );
     }
 
     private function ensureGameCanManage(Game $game): void
