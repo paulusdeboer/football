@@ -325,6 +325,8 @@ class GameController extends Controller
             'player_email' => $request->player?->user?->email,
             'status' => $request->displayStatus(),
             'has_submitted_rating' => $request->hasSubmittedRating(),
+            'has_incomplete_rating' => $request->status === RatingRequest::STATUS_COMPLETED
+                && $request->hasIncompleteRatingSubmission(),
             'sent_at' => $request->sent_at?->toIso8601String(),
             'expires_at' => $request->expires_at?->toIso8601String(),
             'completed_at' => $request->completed_at?->toIso8601String(),

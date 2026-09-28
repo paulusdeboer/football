@@ -77,7 +77,8 @@ export default function GamesShow({ game, canEditResult, canManageRatingRequests
                                         </thead>
                                         <tbody>
                                             {ratingRequests.map((request) => {
-                                                const canManage = !request.has_submitted_rating && !['completed', 'revoked'].includes(request.status);
+                                                const canManage = request.has_incomplete_rating
+                                                    || (!request.has_submitted_rating && !['completed', 'revoked'].includes(request.status));
 
                                                 return (
                                                     <RatingRequestRow
@@ -162,13 +163,15 @@ function RatingRequestRow({ request, gameId, canManage, statusLabel, t }) {
                             <button type="button" className="btn btn-sm" onClick={resend}>
                                 {t('Resend')}
                             </button>
-                            <form onSubmit={replace} className="d-flex gap-1">
-                                <select className="form-select form-select-sm" value={replacementPlayer} onChange={(event) => setReplacementPlayer(event.target.value)}>
-                                    <option value="">{t('Random suitable player')}</option>
-                                    {request.replacement_players?.map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}
-                                </select>
-                                <button type="submit" className="btn btn-sm">{t('Replace')}</button>
-                            </form>
+                            {!request.has_incomplete_rating && (
+                                <form onSubmit={replace} className="d-flex gap-1">
+                                    <select className="form-select form-select-sm" value={replacementPlayer} onChange={(event) => setReplacementPlayer(event.target.value)}>
+                                        <option value="">{t('Random suitable player')}</option>
+                                        {request.replacement_players?.map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}
+                                    </select>
+                                    <button type="submit" className="btn btn-sm">{t('Replace')}</button>
+                                </form>
+                            )}
                         </div>
                     )}
                 </td>
